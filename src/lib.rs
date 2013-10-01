@@ -11,7 +11,7 @@
 #[link(name="ncurses", vers="5.7")];
 #[crate_type = "lib"];
 
-use std::{ char, ptr };
+use std::{ vec, char, ptr };
 use std::libc::c_void;
 use self::ll::*;
 pub use self::constants::*;
@@ -20,52 +20,65 @@ pub mod ll;
 pub mod constants;
 
 #[fixed_stack_segment]
-pub fn addch(_: u32) -> i32
-{ fail!("Not implemented"); }
+pub fn addch(ch: u32) -> i32
+{ unsafe { ll::addch(ch) } }
 
 #[fixed_stack_segment]
-pub fn addchnstr(_: &[u32], _: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn addchnstr(s: &[u32], n: i32) -> i32
+{ unsafe { ll::addchnstr(vec::raw::to_ptr(s), n) } }
 
 #[fixed_stack_segment]
-pub fn addchstr(_: &[u32]) -> i32
-{ fail!("Not implemented"); }
+pub fn addchstr(s: &[u32]) -> i32
+{ unsafe { ll::addchstr(vec::raw::to_ptr(s)) } }
 
 #[fixed_stack_segment]
-pub fn addnstr(_: &str, _: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn addnstr(s: &str, n: i32) -> i32
+{
+  do s.to_c_str().with_ref() |c_str|
+  { unsafe { ll::addnstr(c_str, n) } }
+}
 
 #[fixed_stack_segment]
-pub fn addstr(_: &str) -> i32
-{ fail!("Not implemented"); }
+pub fn addstr(s: &str) -> i32
+{
+  do s.to_c_str().with_ref() |c_str|
+  { unsafe { ll::addstr(c_str) } }
+}
 
 #[fixed_stack_segment]
-pub fn attroff(_: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn attroff(a: i32) -> i32
+{ unsafe { ll::attroff(a) } }
 
 #[fixed_stack_segment]
-pub fn attron(_: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn attron(a: i32) -> i32
+{ unsafe { ll::attron(a) } }
 
 #[fixed_stack_segment]
-pub fn attrset(_: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn attrset(a: i32) -> i32
+{ unsafe { ll::attrset(a) } }
 
 #[fixed_stack_segment]
-pub fn attr_get(_: *i32, _: *i16, _: *c_void) -> i32
-{ fail!("Not implemented"); }
+pub fn attr_get(attrs: &mut i32, pair: &mut i16) -> i32
+{
+  unsafe
+  {
+    ll::attr_get(ptr::to_unsafe_ptr(attrs),
+                 ptr::to_unsafe_ptr(pair),
+                 ptr::null())
+  }
+}
 
 #[fixed_stack_segment]
-pub fn attr_off(_: i32, _: *c_void) -> i32
-{ fail!("Not implemented"); }
+pub fn attr_off(a: i32) -> i32
+{ unsafe { ll::attr_off(a, ptr::null()) } }
 
 #[fixed_stack_segment]
-pub fn attr_on(_: i32, _: *c_void) -> i32
-{ fail!("Not implemented"); }
+pub fn attr_on(a: i32) -> i32
+{ unsafe { ll::attr_on(a, ptr::null()) } }
 
 #[fixed_stack_segment]
-pub fn attr_set(_: i32, _: i16, _: *c_void) -> i32
-{ fail!("Not implemented"); }
+pub fn attr_set(attr: i32, pair: i16) -> i32
+{ unsafe { ll::attr_set(attr, pair, ptr::null()) } }
 
 #[fixed_stack_segment]
 pub fn baudrate() -> i32

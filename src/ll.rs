@@ -37,8 +37,8 @@ extern
   pub fn addch(_:chtype) -> c_int;
   pub fn addchnstr(_:*chtype, _:c_int) -> c_int;
   pub fn addchstr(_:*chtype) -> c_int;
-  pub fn addnstr(_:*char, _:c_int) -> c_int;
-  pub fn addstr(_:*char) -> c_int;
+  pub fn addnstr(_:*c_char, _:c_int) -> c_int;
+  pub fn addstr(_:*c_char) -> c_int;
   pub fn attroff(_:NCURSES_ATTR_T) -> c_int;
   pub fn attron(_:NCURSES_ATTR_T) -> c_int;
   pub fn attrset(_:NCURSES_ATTR_T) -> c_int;
