@@ -224,23 +224,23 @@ pub fn dupwin(w: WINDOW_p) -> WINDOW_p
 
 #[fixed_stack_segment]
 pub fn echo() -> i32
-{ fail!("Not implemented"); }
+{ unsafe { ll::echo() } }
 
 #[fixed_stack_segment]
-pub fn echochar(_: u32) -> i32
-{ fail!("Not implemented"); }
+pub fn echochar(c: u32) -> i32
+{ unsafe { ll::echochar(c) } }
 
 #[fixed_stack_segment]
 pub fn erase() -> i32
-{ fail!("Not implemented"); }
+{ unsafe { ll::erase() } }
 
 #[fixed_stack_segment]
 pub fn endwin() -> i32
-{ fail!("Not implemented"); }
+{ unsafe { ll::endwin() } }
 
 #[fixed_stack_segment]
 pub fn erasechar() -> char
-{ fail!("Not implemented"); }
+{ unsafe { char::from_u32(ll::erasechar() as u32).expect("Invalid char") } }
 
 #[fixed_stack_segment]
 pub fn filter()
@@ -1324,7 +1324,7 @@ pub fn setsyx(y: &mut i32, x: &mut i32)
 
 /* Line graphics */
 pub fn NCURSES_ACS(c: char) -> char
-{ unsafe { char::from_u32(*((acs_map as i32 + 4 * (c as i32)) as *u32)).unwrap() } }
+{ unsafe { char::from_u32(*((acs_map as i32 + 4 * (c as i32)) as *u32)).expect("Invalid char") } }
 
 /* VT100 symbols begin here */
 pub fn ACS_ULCORNER() -> char
