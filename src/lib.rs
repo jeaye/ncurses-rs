@@ -82,27 +82,27 @@ pub fn attr_set(attr: i32, pair: i16) -> i32
 
 #[fixed_stack_segment]
 pub fn baudrate() -> i32
-{ fail!("Not implemented"); }
+{ unsafe { ll::baudrate() } }
 
 #[fixed_stack_segment]
 pub fn beep() -> i32
-{ fail!("Not implemented"); }
+{ unsafe { ll::beep() } }
 
 #[fixed_stack_segment]
-pub fn bkgd(_: u32) -> i32
-{ fail!("Not implemented"); }
+pub fn bkgd(ch: u32) -> i32
+{ unsafe { ll::bkgd(ch) } }
 
 #[fixed_stack_segment]
-pub fn bkgdset(_: u32)
-{ fail!("Not implemented"); }
+pub fn bkgdset(ch: u32)
+{ unsafe { ll::bkgdset(ch) } }
 
 #[fixed_stack_segment]
-pub fn border(_: u32, _: u32, _: u32, _: u32, _: u32, _: u32, _: u32, _: u32) -> i32
-{ fail!("Not implemented"); }
+pub fn border(ls: u32, rs: u32, ts: u32, bs: u32, tl: u32, tr: u32, bl: u32, br: u32) -> i32
+{ unsafe { ll::border(ls, rs, ts, bs, tl, tr, bl, br) } }
 
 #[fixed_stack_segment]
-pub fn box(_: WINDOW_p, _: u32, _: u32) -> i32
-{ fail!("Not implemented"); }
+pub fn box(w: WINDOW_p, v: u32, h: u32) -> i32
+{ wborder(w, v, v, h, h, 0, 0, 0, 0) }
 
 #[fixed_stack_segment]
 pub fn can_change_color() -> bool
