@@ -19,11 +19,11 @@ pub use self::constants::*;
 pub mod ll;
 pub mod constants;
 
-pub enum CursorVisibility
+pub enum Cursor_Visibility
 {
-  CursorInvisible = 0,
-  CursorVisible,
-  CursorVeryVisible,
+  Cursor_Invisible = 0,
+  Cursor_Visible,
+  Cursor_Very_Visible,
 }
 
 #[fixed_stack_segment]
@@ -169,7 +169,7 @@ pub fn copywin(src_win: WINDOW_p, dest_win: WINDOW_p, src_min_row: i32,
 }
 
 #[fixed_stack_segment]
-pub fn curs_set(visibility: CursorVisibility) -> Option<CursorVisibility>
+pub fn curs_set(visibility: Cursor_Visibility) -> Option<Cursor_Visibility>
 {
   use std::cast;
   unsafe
@@ -177,50 +177,50 @@ pub fn curs_set(visibility: CursorVisibility) -> Option<CursorVisibility>
     match ll::curs_set(visibility as i32)
     {
       ERR => None,
-      ret => Some(cast::transmute::<i64, CursorVisibility>(ret as i64)),
+      ret => Some(cast::transmute::<i64, Cursor_Visibility>(ret as i64)),
     }
   }
 }
 
 #[fixed_stack_segment]
 pub fn def_prog_mode() -> i32
-{ fail!("Not implemented"); }
+{ unsafe { ll::def_prog_mode() } }
 
 #[fixed_stack_segment]
 pub fn def_shell_mode() -> i32
-{ fail!("Not implemented"); }
+{ unsafe { ll::def_shell_mode() } }
 
 #[fixed_stack_segment]
-pub fn delay_output(_: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn delay_output(ms: i32) -> i32
+{ unsafe { ll::delay_output(ms) } }
 
 #[fixed_stack_segment]
 pub fn delch() -> i32
-{ fail!("Not implemented"); }
+{ unsafe { ll::delch() } }
 
 #[fixed_stack_segment]
-pub fn delscreen(_: SCREEN_p)
-{ fail!("Not implemented"); }
+pub fn delscreen(s: SCREEN_p)
+{ unsafe { ll::delscreen(s) } }
 
 #[fixed_stack_segment]
-pub fn delwin(_: WINDOW_p) -> i32
-{ fail!("Not implemented"); }
+pub fn delwin(w: WINDOW_p) -> i32
+{ unsafe { ll::delwin(w) } }
 
 #[fixed_stack_segment]
 pub fn deleteln() -> i32
-{ fail!("Not implemented"); }
+{ unsafe { ll::deleteln() } }
 
 #[fixed_stack_segment]
-pub fn derwin(_: WINDOW_p, _: i32, _: i32, _: i32, _: i32) -> WINDOW_p
-{ fail!("Not implemented"); }
+pub fn derwin(w: WINDOW_p, lines: i32, cols: i32, x: i32, y: i32) -> WINDOW_p
+{ unsafe { ll::derwin(w, lines, cols, x, y) } }
 
 #[fixed_stack_segment]
 pub fn doupdate() -> i32
-{ fail!("Not implemented"); }
+{ unsafe { ll::doupdate() } }
 
 #[fixed_stack_segment]
-pub fn dupwin(_: WINDOW_p) -> WINDOW_p
-{ fail!("Not implemented"); }
+pub fn dupwin(w: WINDOW_p) -> WINDOW_p
+{ unsafe { ll::dupwin(w) } }
 
 #[fixed_stack_segment]
 pub fn echo() -> i32
