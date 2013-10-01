@@ -13,3 +13,8 @@ make
 ## Examples
 Examples are on the way!
 
+## Thanks
+Thanks for pnkfelix for his initial version of this
+library, [rust-curses](https://github.com/pnkfelix/rust-curses),
+from which ncurses-rs was able to blossom.
+
