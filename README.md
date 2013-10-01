@@ -1,12 +1,15 @@
 ncurses-rs
 ==========
 
-Massive work in progress. If, while using, you reach
-an unimplemented function: implement it and submit a
-pull request!
+If, while using, you reach an unimplemented
+function: implement it and submit a pull request!
 
 ## Building
+The compiled library will go to the `lib` directory.
 ```
-rustc src/lib.rs
+make
 ```
+
+## Examples
+Examples are on the way!
 
