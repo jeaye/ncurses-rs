@@ -19,6 +19,13 @@ pub use self::constants::*;
 pub mod ll;
 pub mod constants;
 
+pub enum CursorVisibility
+{
+  CursorInvisible = 0,
+  CursorVisible,
+  CursorVeryVisible,
+}
+
 #[fixed_stack_segment]
 pub fn addch(ch: u32) -> i32
 { unsafe { ll::addch(ch) } }
@@ -106,51 +113,74 @@ pub fn box(w: WINDOW_p, v: u32, h: u32) -> i32
 
 #[fixed_stack_segment]
 pub fn can_change_color() -> bool
-{ fail!("Not implemented"); }
+{ unsafe { ll::can_change_color() } }
 
 #[fixed_stack_segment]
 pub fn cbreak() -> i32
-{ fail!("Not implemented"); }
+{ unsafe { ll::cbreak() } }
 
 #[fixed_stack_segment]
-pub fn chgat(_: i32, _: i32, _: i16, _: *c_void) -> i32
-{ fail!("Not implemented"); }
+pub fn chgat(n: i32, attr: i32, color: i16) -> i32
+{ unsafe { ll::chgat(n, attr, color, ptr::null()) } }
 
 #[fixed_stack_segment]
 pub fn clear() -> i32
-{ fail!("Not implemented"); }
+{ unsafe { ll::clear() } }
 
 #[fixed_stack_segment]
-pub fn clearok(_: WINDOW_p, _: bool) -> i32
-{ fail!("Not implemented"); }
+pub fn clearok(w: WINDOW_p, ok: bool) -> i32
+{ unsafe { ll::clearok(w, ok) } }
 
 #[fixed_stack_segment]
 pub fn clrtobot() -> i32
-{ fail!("Not implemented"); }
+{ unsafe { ll::clrtobot() } }
 
 #[fixed_stack_segment]
 pub fn clrtoeol() -> i32
-{ fail!("Not implemented"); }
+{ unsafe { ll::clrtoeol() } }
 
 #[fixed_stack_segment]
-pub fn color_content(_: i16, _: *i16, _: *i16, _: *i16) -> i32
-{ fail!("Not implemented"); }
+pub fn color_content(color: i16, r: &mut i16, g: &mut i16, b: &mut i16) -> i32
+{
+  unsafe
+  {
+    ll::color_content(color,
+                      ptr::to_unsafe_ptr(r),
+                      ptr::to_unsafe_ptr(g),
+                      ptr::to_unsafe_ptr(b))
+  }
+}
 
 #[fixed_stack_segment]
-pub fn color_set(_: i16, _: *c_void) -> i32
-{ fail!("Not implemented"); }
+pub fn color_set(pair: i16) -> i32
+{ unsafe { ll::color_set(pair, ptr::null()) } }
 
 #[fixed_stack_segment]
-pub fn COLOR_PAIR(_: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn copywin(src_win: WINDOW_p, dest_win: WINDOW_p, src_min_row: i32,
+               src_min_col: i32, dest_min_row: i32, dest_min_col: i32,
+               dest_max_row: i32, dest_max_col: i32, overlay: i32) -> i32
+{
+  unsafe
+  {
+    ll::copywin(src_win, dest_win, src_min_row, src_min_col,
+                dest_min_row, dest_min_col, dest_max_row,
+                dest_max_col, overlay)
+  }
+}
 
 #[fixed_stack_segment]
-pub fn copywin(_: WINDOW_p, _: WINDOW_p, _: i32, _: i32, _: i32, _: i32, _: i32, _: i32, _: i32) -> i32
-{ fail!("Not implemented"); }
-
-#[fixed_stack_segment]
-pub fn curs_set(_: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn curs_set(visibility: CursorVisibility) -> Option<CursorVisibility>
+{
+  use std::cast;
+  unsafe
+  {
+    match ll::curs_set(visibility as i32)
+    {
+      ERR => None,
+      ret => Some(cast::transmute::<i64, CursorVisibility>(ret as i64)),
+    }
+  }
+}
 
 #[fixed_stack_segment]
 pub fn def_prog_mode() -> i32
@@ -1176,58 +1206,62 @@ pub fn A_NORMAL() -> i32
 { (1u32 - 1u32) as i32 }
 
 pub fn A_ATTRIBUTES() -> i32
-{ NCURSES_BITS(!(1u32 - 1u32),0) as i32 }
+{ NCURSES_BITS(!(1u32 - 1u32), 0u32) as i32 }
 
 pub fn A_CHARTEXT() -> i32
-{(NCURSES_BITS(1u32, 0) - 1u32) as i32 }
+{(NCURSES_BITS(1u32, 0u32) - 1u32) as i32 }
 
 pub fn A_COLOR() -> i32
-{ NCURSES_BITS(((1u32) << 8) - 1u32, 0) as i32 }
+{ NCURSES_BITS(((1u32) << 8u32) - 1u32, 0u32) as i32 }
 
 pub fn A_STANDOUT() -> i32
-{ NCURSES_BITS(1u32, 8) as i32 }
+{ NCURSES_BITS(1u32, 8u32) as i32 }
 
 pub fn A_UNDERLINE() -> i32
-{ NCURSES_BITS(1u32, 9) as i32 }
+{ NCURSES_BITS(1u32, 9u32) as i32 }
 
 pub fn A_REVERSE() -> i32
-{ NCURSES_BITS(1u32, 10) as i32 }
+{ NCURSES_BITS(1u32, 10u32) as i32 }
 
 pub fn A_BLINK() -> i32
-{ NCURSES_BITS(1u32, 11) as i32 }
+{ NCURSES_BITS(1u32, 11u32) as i32 }
 
 pub fn A_DIM() -> i32
-{ NCURSES_BITS(1u32, 12) as i32 }
+{ NCURSES_BITS(1u32, 12u32) as i32 }
 
 pub fn A_BOLD() -> i32
-{ NCURSES_BITS(1u32, 13) as i32 }
+{ NCURSES_BITS(1u32, 13u32) as i32 }
 
 pub fn A_ALTCHARSET() -> i32
-{ NCURSES_BITS(1u32, 14) as i32 }
+{ NCURSES_BITS(1u32, 14u32) as i32 }
 
 pub fn A_INVIS() -> i32
-{ NCURSES_BITS(1u32, 15) as i32 }
+{ NCURSES_BITS(1u32, 15u32) as i32 }
 
 pub fn A_PROTECT() -> i32
-{ NCURSES_BITS(1u32, 16) as i32 }
+{ NCURSES_BITS(1u32, 16u32) as i32 }
 
 pub fn A_HORIZONTAL() -> i32
-{ NCURSES_BITS(1u32, 17) as i32 }
+{ NCURSES_BITS(1u32, 17u32) as i32 }
 
 pub fn A_LEFT() -> i32
-{ NCURSES_BITS(1u32, 18) as i32 }
+{ NCURSES_BITS(1u32, 18u32) as i32 }
 
 pub fn A_LOW() -> i32
-{ NCURSES_BITS(1u32, 19) as i32 }
+{ NCURSES_BITS(1u32, 19u32) as i32 }
 
 pub fn A_RIGHT() -> i32
-{ NCURSES_BITS(1u32, 20) as i32 }
+{ NCURSES_BITS(1u32, 20u32) as i32 }
 
 pub fn A_TOP() -> i32
-{ NCURSES_BITS(1u32, 21) as i32 }
+{ NCURSES_BITS(1u32, 21u32) as i32 }
 
 pub fn A_VERTICAL() -> i32
-{ NCURSES_BITS(1u32, 22) as i32 }
+{ NCURSES_BITS(1u32, 22u32) as i32 }
+
+/* Colors. */
+pub fn COLOR_PAIR(n: u32) -> i32
+{ NCURSES_BITS(n, 0u32) as i32 }
 
 /*
  * Most of the pseudo functions are macros that either provide compatibility
