@@ -244,15 +244,15 @@ pub fn erasechar() -> char
 
 #[fixed_stack_segment]
 pub fn filter()
-{ fail!("Not implemented"); }
+{ unsafe { ll::filter() } }
 
 #[fixed_stack_segment]
 pub fn flash() -> i32
-{ fail!("Not implemented"); }
+{ unsafe { ll::flash() } }
 
 #[fixed_stack_segment]
 pub fn flushinp() -> i32
-{ fail!("Not implemented"); }
+{ unsafe { ll::flushinp() } }
 
 #[fixed_stack_segment]
 pub fn getbkgd(_: WINDOW_p) -> u32
