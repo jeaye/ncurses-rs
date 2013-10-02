@@ -11,7 +11,7 @@
 #[link(name="ncurses", vers="5.7")];
 #[crate_type = "lib"];
 
-use std::{ vec, char, ptr };
+use std::{ str, vec, char, libc, ptr };
 use std::libc::c_void;
 use self::ll::*;
 pub use self::constants::*;
@@ -255,24 +255,53 @@ pub fn flushinp() -> i32
 { unsafe { ll::flushinp() } }
 
 #[fixed_stack_segment]
-pub fn getbkgd(_: WINDOW_p) -> u32
-{ fail!("Not implemented"); }
+pub fn getbkgd(w: WINDOW_p) -> u32
+{ unsafe { ll::getbkgd(w) } }
 
 #[fixed_stack_segment]
 pub fn getch() -> i32
-{ fail!("Not implemented"); }
+{ unsafe { ll::getch() } }
 
 #[fixed_stack_segment]
-pub fn getnstr(_: char_p, _: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn getnstr(s: &mut ~str, n: i32) -> i32
+{
+  /* XXX: This is probably broken. */
+  use std::cast;
+
+  s.clear();
+  s.reserve_at_least(n as uint);
+  unsafe
+  {
+    let ret = do s.as_mut_buf |buf, _len|
+    { ll::getnstr(cast::transmute(buf), n) };
+
+    let capacity = s.capacity();
+    match s.find('\0')
+    {
+      Some(index) => str::raw::set_len(s, index as uint),
+      None => str::raw::set_len(s, capacity),
+    }
+
+    ret
+  }
+}
 
 #[fixed_stack_segment]
-pub fn getstr(_: char_p) -> i32
-{ fail!("Not implemented"); }
+pub fn getstr(s: &mut ~str) -> i32
+{
+  /* XXX: This is probably broken. */
+  let mut ch = getch();
+  while ch != '\n' as i32 && ch != '\r' as i32
+  {
+    unsafe { str::raw::push_byte(s, ch as u8); }
+    ch = getch();
+  }
+  OK
+}
 
 #[fixed_stack_segment]
-pub fn getwin(_: FILE_p) -> WINDOW_p
-{ fail!("Not implemented"); }
+pub fn getwin(reader: *libc::FILE) -> WINDOW_p
+{ unsafe { ll::getwin(reader) } } /* TODO: Make this safe. */
 
 #[fixed_stack_segment]
 pub fn halfdelay(_: i32) -> i32

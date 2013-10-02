@@ -84,7 +84,7 @@ extern
   pub fn flushinp() -> c_int;
   pub fn getbkgd(_:WINDOW_p) -> chtype;
   pub fn getch() -> c_int;
-  pub fn getnstr(_:char_p, _:c_int) -> c_int;
+  pub fn getnstr(_:*mut c_char, _:c_int) -> c_int;
   pub fn getstr(_:char_p) -> c_int;
   pub fn getwin(_:FILE_p) -> *WINDOW;
   pub fn halfdelay(_:c_int) -> c_int;
