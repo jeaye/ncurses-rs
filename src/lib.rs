@@ -490,16 +490,16 @@ pub fn is_wintouched(w: WINDOW_p) -> bool
 { unsafe { ll::is_wintouched(w) } }
 
 #[fixed_stack_segment]
-pub fn keyname(_: i32) -> ~str
-{ fail!("Not implemented"); }
+pub fn keyname(c: i32) -> ~str
+{ unsafe { str::raw::from_c_str(ll::keyname(c)) } }
 
 #[fixed_stack_segment]
-pub fn keypad(_: WINDOW_p, _: bool) -> i32
-{ fail!("Not implemented"); }
+pub fn keypad(w: WINDOW_p, bf: bool) -> i32
+{ unsafe { ll::keypad(w, bf) } }
 
 #[fixed_stack_segment]
 pub fn killchar() -> char
-{ fail!("Not implemented"); }
+{ unsafe { ll::killchar() } }
 
 #[fixed_stack_segment]
 pub fn leaveok(_: WINDOW_p, _: bool) -> i32
