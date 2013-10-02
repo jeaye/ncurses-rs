@@ -502,12 +502,12 @@ pub fn killchar() -> char
 { unsafe { ll::killchar() } }
 
 #[fixed_stack_segment]
-pub fn leaveok(_: WINDOW_p, _: bool) -> i32
-{ fail!("Not implemented"); }
+pub fn leaveok(w: WINDOW_p, bf: bool) -> i32
+{ unsafe { ll::leaveok(w, bf) } }
 
 #[fixed_stack_segment]
 pub fn longname() -> ~str
-{ fail!("Not implemented"); }
+{ unsafe { str::raw::from_c_str(ll::longname()) } }
 
 #[fixed_stack_segment]
 pub fn meta(_: WINDOW_p, _: bool) -> i32
