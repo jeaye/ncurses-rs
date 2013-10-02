@@ -304,24 +304,24 @@ pub fn getwin(reader: *libc::FILE) -> WINDOW_p
 { unsafe { ll::getwin(reader) } } /* TODO: Make this safe. */
 
 #[fixed_stack_segment]
-pub fn halfdelay(_: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn halfdelay(tenths: i32) -> i32
+{ unsafe { ll::halfdelay(tenths) } }
 
 #[fixed_stack_segment]
 pub fn has_colors() -> bool
-{ fail!("Not implemented"); }
+{ unsafe { ll::has_colors() } }
 
 #[fixed_stack_segment]
 pub fn has_ic() -> bool
-{ fail!("Not implemented"); }
+{ unsafe { ll::has_ic() } }
 
 #[fixed_stack_segment]
 pub fn has_il() -> bool
-{ fail!("Not implemented"); }
+{ unsafe { ll::has_il() } }
 
 #[fixed_stack_segment]
-pub fn hline(_: u32, _: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn hline(ch: u32, n: i32) -> i32
+{ unsafe { ll::hline(ch, n) } }
 
 #[fixed_stack_segment]
 pub fn idcok(_: WINDOW_p, _: bool)
