@@ -324,84 +324,170 @@ pub fn hline(ch: u32, n: i32) -> i32
 { unsafe { ll::hline(ch, n) } }
 
 #[fixed_stack_segment]
-pub fn idcok(_: WINDOW_p, _: bool)
-{ fail!("Not implemented"); }
+pub fn idcok(w: WINDOW_p, bf: bool)
+{ unsafe { ll::idcok(w, bf) } }
 
 #[fixed_stack_segment]
-pub fn idlok(_: WINDOW_p, _: bool) -> i32
-{ fail!("Not implemented"); }
+pub fn idlok(w: WINDOW_p, bf: bool) -> i32
+{ unsafe { ll::idlok(w, bf) } }
 
 #[fixed_stack_segment]
-pub fn immedok(_: WINDOW_p, _: bool)
-{ fail!("Not implemented"); }
+pub fn immedok(w: WINDOW_p, bf: bool)
+{ unsafe { ll::immedok(w, bf) } }
 
 #[fixed_stack_segment]
 pub fn inch() -> u32
-{ fail!("Not implemented"); }
+{ unsafe { ll::inch() } }
 
 #[fixed_stack_segment]
-pub fn inchnstr(_: chtype_p, _: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn inchnstr(s: &mut ~[u32], n: i32) -> i32
+{
+  /* XXX: This is probably broken. */
+  s.clear();
+  s.reserve_at_least(n as uint);
+  unsafe
+  {
+    let ret = ll::inchnstr(vec::raw::to_ptr(*s), n);
+
+    let capacity = s.capacity();
+    match s.iter().position(|x| *x == 0)
+    {
+      Some(index) => vec::raw::set_len(s, index as uint),
+      None => vec::raw::set_len(s, capacity),
+    }
+
+    ret
+  }
+}
 
 #[fixed_stack_segment]
-pub fn inchstr(_: chtype_p) -> i32
-{ fail!("Not implemented"); }
+pub fn inchstr(s: &mut ~[u32]) -> i32
+{
+  /* XXX: This is probably broken. */
+  unsafe
+  {
+    let ret = ll::inchstr(vec::raw::to_ptr(*s));
+
+    let capacity = s.capacity();
+    match s.iter().position(|x| *x == 0)
+    {
+      Some(index) => vec::raw::set_len(s, index as uint),
+      None => vec::raw::set_len(s, capacity),
+    }
+
+    ret
+  }
+}
 
 #[fixed_stack_segment]
 pub fn initscr() -> WINDOW_p
-{ fail!("Not implemented"); }
+{ unsafe { ll::initscr() } }
 
 #[fixed_stack_segment]
-pub fn init_color(_: i16, _: i16, _: i16, _: i16) -> i32
-{ fail!("Not implemented"); }
+pub fn init_color(color: i16, r: i16, g: i16, b: i16) -> i32
+{ unsafe { ll::init_color(color, r, g, b) } }
 
 #[fixed_stack_segment]
-pub fn init_pair(_: i16, _: i16, _: i16) -> i32
-{ fail!("Not implemented"); }
+pub fn init_pair(pair: i16, f: i16, b: i16) -> i32
+{ unsafe { ll::init_pair(pair, f, b) } }
 
 #[fixed_stack_segment]
-pub fn innstr(_: char_p, _: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn innstr(s: &mut ~str, n: i32) -> i32
+{
+  use std::cast; 
+
+  /* XXX: This is probably broken. */
+  s.clear();
+  s.reserve_at_least(n as uint);
+  unsafe
+  {
+    let ret = do s.as_mut_buf |buf, _len|
+    { ll::innstr(cast::transmute(buf), n) };
+
+    let capacity = s.capacity();
+    match s.find('\0')
+    {
+      Some(index) => str::raw::set_len(s, index as uint),
+      None => str::raw::set_len(s, capacity),
+    }
+
+    ret
+  }
+}
 
 #[fixed_stack_segment]
-pub fn insch(_: u32) -> i32
-{ fail!("Not implemented"); }
+pub fn insch(ch: u32) -> i32
+{ unsafe { ll::insch(ch) } }
 
 #[fixed_stack_segment]
-pub fn insdelln(_: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn insdelln(n: i32) -> i32
+{ unsafe { ll::insdelln(n) } }
 
 #[fixed_stack_segment]
 pub fn insertln() -> i32
-{ fail!("Not implemented"); }
+{ unsafe { ll::insertln() } }
 
 #[fixed_stack_segment]
-pub fn insnstr(_: char_p, _: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn insnstr(s: &str, n: i32) -> i32
+{
+  use std::cast;
+
+  unsafe
+  {
+    do s.as_imm_buf |buf, _len|
+    { ll::insnstr(cast::transmute(buf), n) }
+  }
+}
 
 #[fixed_stack_segment]
-pub fn insstr(_: char_p) -> i32
-{ fail!("Not implemented"); }
+pub fn insstr(s: &str) -> i32
+{
+  use std::cast;
+
+  unsafe
+  {
+    do s.as_imm_buf |buf, _len|
+    { ll::insstr(cast::transmute(buf)) }
+  }
+}
 
 #[fixed_stack_segment]
-pub fn instr(_: char_p) -> i32
-{ fail!("Not implemented"); }
+pub fn instr(s: &mut ~str) -> i32
+{
+  use std::cast; 
+
+  /* XXX: This is probably broken. */
+  unsafe
+  {
+    let ret = do s.as_mut_buf |buf, _len|
+    { ll::instr(cast::transmute(buf)) };
+
+    let capacity = s.capacity();
+    match s.find('\0')
+    {
+      Some(index) => str::raw::set_len(s, index as uint),
+      None => str::raw::set_len(s, capacity),
+    }
+
+    ret
+  }
+}
 
 #[fixed_stack_segment]
-pub fn intrflush(_: WINDOW_p, _: bool) -> i32
-{ fail!("Not implemented"); }
+pub fn intrflush(w: WINDOW_p, bf: bool) -> i32
+{ unsafe { ll::intrflush(w, bf) } }
 
 #[fixed_stack_segment]
 pub fn isendwin() -> bool
-{ fail!("Not implemented"); }
+{ unsafe { ll::isendwin() } }
 
 #[fixed_stack_segment]
-pub fn is_linetouched(_: WINDOW_p, _: i32) -> bool
-{ fail!("Not implemented"); }
+pub fn is_linetouched(w: WINDOW_p, l: i32) -> bool
+{ unsafe { ll::is_linetouched(w, l) } }
 
 #[fixed_stack_segment]
-pub fn is_wintouched(_: WINDOW_p) -> bool
-{ fail!("Not implemented"); }
+pub fn is_wintouched(w: WINDOW_p) -> bool
+{ unsafe { ll::is_wintouched(w) } }
 
 #[fixed_stack_segment]
 pub fn keyname(_: i32) -> ~str
