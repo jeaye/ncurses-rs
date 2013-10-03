@@ -197,9 +197,8 @@ extern
   pub fn reset_prog_mode() -> c_int;
   pub fn reset_shell_mode() -> c_int;
   // fn ripoffline(_:c_int, extern  fn f(WINDOW_p, c_int) -> c_int) -> c_int;
-  pub fn ripoffline(_:c_int, f:*u8) -> c_int;
   pub fn savetty() -> c_int;
-  //  fn scanw(_:NCURSES_CONST char_p,...) -> c_int;
+  // fn scanw(_:NCURSES_CONST char_p,...) -> c_int;
   pub fn scr_dump(_:char_p) -> c_int;
   pub fn scr_init(_:char_p) -> c_int;
   pub fn scrl(_:c_int) -> c_int;

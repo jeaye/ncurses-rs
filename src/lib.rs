@@ -698,248 +698,286 @@ pub fn mvwvline(_: WINDOW_p, _: i32, _: i32, _: u32, _: i32) -> i32
 { fail!("Not implemented"); }
 
 #[fixed_stack_segment]
-pub fn napms(_: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn napms(ms: i32) -> i32
+{ unsafe { ll::napms(ms) } }
 
 #[fixed_stack_segment]
-pub fn newpad(_: i32, _: i32) -> WINDOW_p
-{ fail!("Not implemented"); }
+pub fn newpad(lines: i32, cols: i32) -> WINDOW_p
+{ unsafe { ll::newpad(lines, cols) } }
 
 #[fixed_stack_segment]
-pub fn newterm(_: char_p, _: FILE_p, _: FILE_p) -> SCREEN_p
-{ fail!("Not implemented"); }
+pub fn newterm(ty: &str, out_fd: FILE_p, in_fd: FILE_p) -> SCREEN_p
+{
+  unsafe
+  {
+    do ty.to_c_str().with_ref() |c_str|
+    { ll::newterm(c_str, out_fd, in_fd) }
+  }
+}
 
 #[fixed_stack_segment]
-pub fn newwin(_: i32, _: i32, _: i32, _: i32) -> WINDOW_p
-{ fail!("Not implemented"); }
+pub fn newwin(lines: i32, cols: i32, y: i32, x: i32) -> WINDOW_p
+{ unsafe { ll::newwin(lines, cols, y, x) } }
 
 #[fixed_stack_segment]
 pub fn nl() -> i32
-{ fail!("Not implemented"); }
+{ unsafe { ll::nl() } }
 
 #[fixed_stack_segment]
 pub fn nocbreak() -> i32
-{ fail!("Not implemented"); }
+{ unsafe { ll::nocbreak() } }
 
 #[fixed_stack_segment]
-pub fn nodelay(_: WINDOW_p, _: bool) -> i32
-{ fail!("Not implemented"); }
+pub fn nodelay(w: WINDOW_p, bf: bool) -> i32
+{ unsafe { ll::nodelay(w, bf) } }
 
 #[fixed_stack_segment]
 pub fn noecho() -> i32
-{ fail!("Not implemented"); }
+{ unsafe { ll::noecho() } }
 
 #[fixed_stack_segment]
 pub fn nonl() -> i32
-{ fail!("Not implemented"); }
+{ unsafe { ll::nonl() } }
 
 #[fixed_stack_segment]
 pub fn noqiflush()
-{ fail!("Not implemented"); }
+{ unsafe { ll::noqiflush() } }
 
 #[fixed_stack_segment]
 pub fn noraw() -> i32
-{ fail!("Not implemented"); }
+{ unsafe { ll::noraw() } }
 
 #[fixed_stack_segment]
-pub fn notimeout(_: WINDOW_p, _: bool) -> i32
-{ fail!("Not implemented"); }
+pub fn notimeout(w: WINDOW_p, bf: bool) -> i32
+{ unsafe { ll::notimeout(w, bf) } }
 
 #[fixed_stack_segment]
-pub fn overlay(_: WINDOW_p, _: WINDOW_p) -> i32
-{ fail!("Not implemented"); }
+pub fn overlay(src: WINDOW_p, dst: WINDOW_p) -> i32
+{ unsafe { ll::overlay(src, dst) } }
 
 #[fixed_stack_segment]
-pub fn overwrite(_: WINDOW_p, _: WINDOW_p) -> i32
-{ fail!("Not implemented"); }
+pub fn overwrite(src: WINDOW_p, dst: WINDOW_p) -> i32
+{ unsafe { ll::overwrite(src, dst) } }
 
 #[fixed_stack_segment]
-pub fn pair_content(_: i16, _: *i16, _: *i16) -> i32
-{ fail!("Not implemented"); }
+pub fn pair_content(pair: i16, f: &mut i16, b: &mut i16) -> i32
+{ unsafe { ll::pair_content(pair, ptr::to_unsafe_ptr(f), ptr::to_unsafe_ptr(b)) } }
 
 #[fixed_stack_segment]
-pub fn PAIR_NUMBER(_: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn PAIR_NUMBER(attr: i32) -> i32
+{ unsafe { ll::PAIR_NUMBER(attr) } }
 
 #[fixed_stack_segment]
-pub fn pechochar(_: WINDOW_p, _: u32) -> i32
-{ fail!("Not implemented"); }
+pub fn pechochar(pad: WINDOW_p, ch: u32) -> i32
+{ unsafe { ll::pechochar(pad, ch) } }
 
 #[fixed_stack_segment]
-pub fn pnoutrefresh(_: WINDOW_p, _: i32, _: i32, _: i32, _: i32, _: i32, _: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn pnoutrefresh(pad: WINDOW_p, pmin_row: i32, pmin_col: i32, smin_row: i32, smin_col: i32, smax_row: i32, smax_col: i32) -> i32
+{ unsafe { ll::pnoutrefresh(pad, pmin_row, pmin_col, smin_row, smin_col, smax_row, smax_col) } }
 
 #[fixed_stack_segment]
-pub fn prefresh(_: WINDOW_p, _: i32, _: i32, _: i32, _: i32, _: i32, _: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn prefresh(pad: WINDOW_p, pmin_row: i32, pmin_col: i32, smin_row: i32, smin_col: i32, smax_row: i32, smax_col: i32) -> i32
+{ unsafe { ll::prefresh(pad, pmin_row, pmin_col, smin_row, smin_col, smax_row, smax_col) } }
 
 #[fixed_stack_segment]
-pub fn printw(_: char_p) -> i32
-{ fail!("Not implemented"); }
+pub fn printw(s: &str) -> i32
+{
+  unsafe
+  {
+    do s.to_c_str().with_ref() |c_str|
+    { ll::printw(c_str) }
+  }
+}
 
 #[fixed_stack_segment]
-pub fn putwin(_: WINDOW_p, _: FILE_p) -> i32
-{ fail!("Not implemented"); }
+pub fn putwin(w: WINDOW_p, f: FILE_p) -> i32
+{ unsafe { ll::putwin(w, f) } }
 
 #[fixed_stack_segment]
 pub fn qiflush()
-{ fail!("Not implemented"); }
+{ unsafe { ll::qiflush() } }
 
 #[fixed_stack_segment]
 pub fn raw() -> i32
-{ fail!("Not implemented"); }
+{ unsafe { ll::raw() } }
 
 #[fixed_stack_segment]
-pub fn redrawwin(_: WINDOW_p) -> i32
-{ fail!("Not implemented"); }
+pub fn redrawwin(w: WINDOW_p) -> i32
+{ unsafe { ll::redrawwin(w) } }
 
 #[fixed_stack_segment]
 pub fn refresh() -> i32
-{ fail!("Not implemented"); }
+{ unsafe { ll::refresh() } }
 
 #[fixed_stack_segment]
 pub fn resetty() -> i32
-{ fail!("Not implemented"); }
+{ unsafe { ll::resetty() } }
 
 #[fixed_stack_segment]
 pub fn reset_prog_mode() -> i32
-{ fail!("Not implemented"); }
+{ unsafe { ll::reset_prog_mode() } }
 
 #[fixed_stack_segment]
 pub fn reset_shell_mode() -> i32
-{ fail!("Not implemented"); }
-
-#[fixed_stack_segment]
-pub fn ripoffline(_: i32, _: *u8) -> i32
-{ fail!("Not implemented"); }
+{ unsafe { ll::reset_shell_mode() } }
 
 #[fixed_stack_segment]
 pub fn savetty() -> i32
-{ fail!("Not implemented"); }
+{ unsafe { ll::savetty() } }
 
 #[fixed_stack_segment]
-pub fn scr_dump(_: char_p) -> i32
-{ fail!("Not implemented"); }
+pub fn scr_dump(filename: &str) -> i32
+{
+  unsafe
+  {
+    do filename.to_c_str().with_ref() |c_str|
+    { ll::scr_dump(c_str) }
+  }
+}
 
 #[fixed_stack_segment]
-pub fn scr_init(_: char_p) -> i32
-{ fail!("Not implemented"); }
+pub fn scr_init(filename: &str) -> i32
+{
+  unsafe
+  {
+    do filename.to_c_str().with_ref() |c_str|
+    { ll::scr_init(c_str) }
+  }
+}
 
 #[fixed_stack_segment]
-pub fn scrl(_: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn scrl(n: i32) -> i32
+{ unsafe { ll::scrl(n) } }
 
 #[fixed_stack_segment]
-pub fn scroll(_: WINDOW_p) -> i32
-{ fail!("Not implemented"); }
+pub fn scroll(w: WINDOW_p) -> i32
+{ unsafe { ll::scroll(w) } }
 
 #[fixed_stack_segment]
-pub fn scrollok(_: WINDOW_p, _: bool) -> i32
-{ fail!("Not implemented"); }
+pub fn scrollok(w: WINDOW_p, bf: bool) -> i32
+{ unsafe { ll::scrollok(w, bf) } }
 
 #[fixed_stack_segment]
-pub fn scr_restore(_: char_p) -> i32
-{ fail!("Not implemented"); }
+pub fn scr_restore(filename: &str) -> i32
+{
+  unsafe
+  {
+    do filename.to_c_str().with_ref() |c_str|
+    { ll::scr_restore(c_str) }
+  }
+}
 
 #[fixed_stack_segment]
-pub fn scr_set(_: char_p) -> i32
-{ fail!("Not implemented"); }
+pub fn scr_set(filename: &str) -> i32
+{
+  unsafe
+  {
+    do filename.to_c_str().with_ref() |c_str|
+    { ll::scr_set(c_str) }
+  }
+}
 
 #[fixed_stack_segment]
-pub fn setscrreg(_: i32, _: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn setscrreg(top: i32, bot: i32) -> i32
+{ unsafe { ll::setscrreg(top, bot) } }
 
 #[fixed_stack_segment]
-pub fn set_term(_: SCREEN_p) -> SCREEN_p
-{ fail!("Not implemented"); }
+pub fn set_term(s: SCREEN_p) -> SCREEN_p
+{ unsafe { ll::set_term(s) } }
 
 #[fixed_stack_segment]
-pub fn slk_attroff(_: u32) -> i32
-{ fail!("Not implemented"); }
+pub fn slk_attroff(ch: u32) -> i32
+{ unsafe { ll::slk_attroff(ch) } }
 
 #[fixed_stack_segment]
-pub fn slk_attr_off(_: i32, _: *c_void) -> i32
-{ fail!("Not implemented"); }
+pub fn slk_attr_off(ch: i32) -> i32
+{ unsafe { ll::slk_attr_off(ch, ptr::null()) } }
 
 #[fixed_stack_segment]
-pub fn slk_attron(_: u32) -> i32
-{ fail!("Not implemented"); }
+pub fn slk_attron(ch: u32) -> i32
+{ unsafe { ll::slk_attron(ch) } }
 
 #[fixed_stack_segment]
-pub fn slk_attr_on(_: i32, _: *c_void) -> i32
-{ fail!("Not implemented"); }
+pub fn slk_attr_on(ch: i32) -> i32
+{ unsafe { ll::slk_attr_on(ch, ptr::null()) } }
 
 #[fixed_stack_segment]
-pub fn slk_attrset(_: u32) -> i32
-{ fail!("Not implemented"); }
+pub fn slk_attrset(ch: u32) -> i32
+{ unsafe { ll::slk_attrset(ch) } }
 
 #[fixed_stack_segment]
 pub fn slk_attr() -> i32
-{ fail!("Not implemented"); }
+{ unsafe { ll::slk_attr() } }
 
 #[fixed_stack_segment]
-pub fn slk_attr_set(_: i32, _: i16, _: *c_void) -> i32
-{ fail!("Not implemented"); }
+pub fn slk_attr_set(attrs: i32, pair: i16) -> i32
+{ unsafe { ll::slk_attr_set(attrs, pair, ptr::null()) } }
 
 #[fixed_stack_segment]
 pub fn slk_clear() -> i32
-{ fail!("Not implemented"); }
+{ unsafe { ll::slk_clear() } }
 
 #[fixed_stack_segment]
-pub fn slk_color(_: i16) -> i32
-{ fail!("Not implemented"); }
+pub fn slk_color(pair: i16) -> i32
+{ unsafe { ll::slk_color(pair) } }
 
 #[fixed_stack_segment]
-pub fn slk_init(_: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn slk_init(fmt: i32) -> i32
+{ unsafe { ll::slk_init(fmt) } }
 
 #[fixed_stack_segment]
-pub fn slk_label(_: i32) -> char_p
-{ fail!("Not implemented"); }
+pub fn slk_label(n: i32) -> ~str
+{ unsafe { str::raw::from_c_str(ll::slk_label(n)) } }
 
 #[fixed_stack_segment]
 pub fn slk_noutrefresh() -> i32
-{ fail!("Not implemented"); }
+{ unsafe { ll::slk_noutrefresh() } }
 
 #[fixed_stack_segment]
 pub fn slk_refresh() -> i32
-{ fail!("Not implemented"); }
+{ unsafe { ll::slk_refresh() } }
 
 #[fixed_stack_segment]
 pub fn slk_restore() -> i32
-{ fail!("Not implemented"); }
+{ unsafe { ll::slk_restore() } }
 
 #[fixed_stack_segment]
-pub fn slk_set(_: i32, _: char_p, _: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn slk_set(n: i32, s: &str, fmt: i32) -> i32
+{
+  unsafe
+  {
+    do s.to_c_str().with_ref() |c_str|
+    { ll::slk_set(n, c_str, fmt) }
+  }
+}
 
 #[fixed_stack_segment]
 pub fn slk_touch() -> i32
-{ fail!("Not implemented"); }
+{ unsafe { ll::slk_touch() }}
 
 #[fixed_stack_segment]
 pub fn standout() -> i32
-{ fail!("Not implemented"); }
+{ unsafe { ll::standout() } }
 
 #[fixed_stack_segment]
 pub fn standend() -> i32
-{ fail!("Not implemented"); }
+{ unsafe { ll::standend() } }
 
 #[fixed_stack_segment]
 pub fn start_color() -> i32
-{ fail!("Not implemented"); }
+{ unsafe { ll::start_color() } }
 
 #[fixed_stack_segment]
-pub fn subpad(_: WINDOW_p, _: i32, _: i32, _: i32, _: i32) -> WINDOW_p
-{ fail!("Not implemented"); }
+pub fn subpad(w: WINDOW_p, lines: i32, cols: i32, y: i32, x: i32) -> WINDOW_p
+{ unsafe { ll::subpad(w, lines, cols, y, x) } }
 
 #[fixed_stack_segment]
-pub fn subwin(_: WINDOW_p, _: i32, _: i32, _: i32, _: i32) -> WINDOW_p
-{ fail!("Not implemented"); }
+pub fn subwin(w: WINDOW_p, lines: i32, cols: i32, y: i32, x: i32) -> WINDOW_p
+{ unsafe { ll::subwin(w, lines, cols, y, x) } }
 
 #[fixed_stack_segment]
-pub fn syncok(_: WINDOW_p, _: bool) -> i32
-{ fail!("Not implemented"); }
+pub fn syncok(w: WINDOW_p, bf: bool) -> i32
+{ unsafe { ll::syncok(w, bf) } }
 
 #[fixed_stack_segment]
 pub fn termattrs() -> u32
