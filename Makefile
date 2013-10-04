@@ -20,12 +20,11 @@ PREFIX=${COLOR_GREEN}»»»${COLOR_OFF}
 .PHONY: all clean
 
 all: .build_examples
-	printf "${PREFIX} Finished \o/\n"
+	echo "${PREFIX} Finished \o/"
 	
 .build_lib: .setup_lib ${LIB_SRC}
-	printf "${PREFIX} Building ncurses-rs "
+	echo "${PREFIX} Building ncurses-rs "
 	rustc --out-dir lib src/lib.rs
-	printf "... success\n"
 	touch .build_lib
 
 .setup_lib:
@@ -33,9 +32,8 @@ all: .build_examples
 	touch .setup_lib
 
 .build_examples: .build_lib .setup_examples ${EXAMPLES_SRC}
-	printf "${PREFIX} Building examples "
+	echo "${PREFIX} Building examples "
 	$(foreach file, ${EXAMPLES_SRC}, rustc --out-dir bin -Llib $(file);)
-	printf "... success\n"
 	touch .build_examples
 
 .setup_examples:
@@ -44,5 +42,5 @@ all: .build_examples
 
 clean:
 	find . -type f -name '.build_*' | xargs rm -f
-	printf "${PREFIX} Cleaned\n"
+	echo "${PREFIX} Cleaned\n"
 
