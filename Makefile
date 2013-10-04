@@ -6,18 +6,24 @@
 # Description:
 # 	Builds ncurses-rs
 
+# Sources
 LIB_SRC=$(shell find src -type f -name '*.rs')
 EXAMPLES_SRC=$(shell find examples -type f -name '*.rs')
+
+# Colors
+COLOR_OFF=$(shell tput sgr0)
+COLOR_GREEN=$(shell tput setaf 2)
+PREFIX=${COLOR_GREEN}»»»${COLOR_OFF}
 
 .SILENT:
 
 .PHONY: all clean
 
 all: .build_examples
-	printf "Finished \o/\n"
+	printf "${PREFIX} Finished \o/\n"
 	
 .build_lib: .setup_lib ${LIB_SRC}
-	printf "Building ncurses-rs "
+	printf "${PREFIX} Building ncurses-rs "
 	rustc --out-dir lib src/lib.rs
 	printf "... success\n"
 	touch .build_lib
@@ -27,7 +33,7 @@ all: .build_examples
 	touch .setup_lib
 
 .build_examples: .build_lib .setup_examples ${EXAMPLES_SRC}
-	printf "Building examples "
+	printf "${PREFIX} Building examples "
 	$(foreach file, ${EXAMPLES_SRC}, rustc --out-dir bin -Llib $(file);)
 	printf "... success\n"
 	touch .build_examples
@@ -38,5 +44,5 @@ all: .build_examples
 
 clean:
 	find . -type f -name '.build_*' | xargs rm -f
-	printf "Cleaned\n"
+	printf "${PREFIX} Cleaned\n"
 
