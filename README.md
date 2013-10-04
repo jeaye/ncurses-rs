@@ -1,8 +1,9 @@
 ncurses-rs
 ==========
 
-If, while using, you reach an unimplemented
-function: implement it and submit a pull request!
+There is not yet any test suite, so, rest assured, there
+will be bugs. If you find one, please make a ticket and/or
+submit a pull request!
 
 ## Building
 The compiled library will go to the `lib` directory.
@@ -11,7 +12,9 @@ make
 ```
 
 ## Examples
-Examples are on the way!
+Examples are built automagically. To run them, check the `bin`
+directory. Example numbers increase along with the complexity
+of the example.
 
 ## Thanks
 Thanks for pnkfelix for his initial version of this

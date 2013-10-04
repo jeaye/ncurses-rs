@@ -113,7 +113,7 @@ pub fn box(w: WINDOW_p, v: u32, h: u32) -> i32
 
 #[fixed_stack_segment]
 pub fn can_change_color() -> bool
-{ unsafe { ll::can_change_color() } }
+{ unsafe { ll::can_change_color() == OK } }
 
 #[fixed_stack_segment]
 pub fn cbreak() -> i32
@@ -129,7 +129,7 @@ pub fn clear() -> i32
 
 #[fixed_stack_segment]
 pub fn clearok(w: WINDOW_p, ok: bool) -> i32
-{ unsafe { ll::clearok(w, ok) } }
+{ unsafe { ll::clearok(w, ok as libc::c_int) } }
 
 #[fixed_stack_segment]
 pub fn clrtobot() -> i32
@@ -309,15 +309,15 @@ pub fn halfdelay(tenths: i32) -> i32
 
 #[fixed_stack_segment]
 pub fn has_colors() -> bool
-{ unsafe { ll::has_colors() } }
+{ unsafe { ll::has_colors() == OK } }
 
 #[fixed_stack_segment]
 pub fn has_ic() -> bool
-{ unsafe { ll::has_ic() } }
+{ unsafe { ll::has_ic() == OK } }
 
 #[fixed_stack_segment]
 pub fn has_il() -> bool
-{ unsafe { ll::has_il() } }
+{ unsafe { ll::has_il() == OK } }
 
 #[fixed_stack_segment]
 pub fn hline(ch: u32, n: i32) -> i32
@@ -325,15 +325,15 @@ pub fn hline(ch: u32, n: i32) -> i32
 
 #[fixed_stack_segment]
 pub fn idcok(w: WINDOW_p, bf: bool)
-{ unsafe { ll::idcok(w, bf) } }
+{ unsafe { ll::idcok(w, bf as libc::c_int) } }
 
 #[fixed_stack_segment]
 pub fn idlok(w: WINDOW_p, bf: bool) -> i32
-{ unsafe { ll::idlok(w, bf) } }
+{ unsafe { ll::idlok(w, bf as libc::c_int) } }
 
 #[fixed_stack_segment]
 pub fn immedok(w: WINDOW_p, bf: bool)
-{ unsafe { ll::immedok(w, bf) } }
+{ unsafe { ll::immedok(w, bf as libc::c_int) } }
 
 #[fixed_stack_segment]
 pub fn inch() -> u32
@@ -475,19 +475,19 @@ pub fn instr(s: &mut ~str) -> i32
 
 #[fixed_stack_segment]
 pub fn intrflush(w: WINDOW_p, bf: bool) -> i32
-{ unsafe { ll::intrflush(w, bf) } }
+{ unsafe { ll::intrflush(w, bf as libc::c_int) } }
 
 #[fixed_stack_segment]
 pub fn isendwin() -> bool
-{ unsafe { ll::isendwin() } }
+{ unsafe { ll::isendwin() == OK } }
 
 #[fixed_stack_segment]
 pub fn is_linetouched(w: WINDOW_p, l: i32) -> bool
-{ unsafe { ll::is_linetouched(w, l) } }
+{ unsafe { ll::is_linetouched(w, l) == OK } }
 
 #[fixed_stack_segment]
 pub fn is_wintouched(w: WINDOW_p) -> bool
-{ unsafe { ll::is_wintouched(w) } }
+{ unsafe { ll::is_wintouched(w) == OK } }
 
 #[fixed_stack_segment]
 pub fn keyname(c: i32) -> ~str
@@ -495,207 +495,391 @@ pub fn keyname(c: i32) -> ~str
 
 #[fixed_stack_segment]
 pub fn keypad(w: WINDOW_p, bf: bool) -> i32
-{ unsafe { ll::keypad(w, bf) } }
+{ unsafe { ll::keypad(w, bf as libc::c_int) } }
 
 #[fixed_stack_segment]
 pub fn killchar() -> char
-{ unsafe { ll::killchar() } }
+{ unsafe { char::from_u32(ll::killchar() as u32).expect("Invalid char") } }
 
 #[fixed_stack_segment]
 pub fn leaveok(w: WINDOW_p, bf: bool) -> i32
-{ unsafe { ll::leaveok(w, bf) } }
+{ unsafe { ll::leaveok(w, bf as libc::c_int) } }
 
 #[fixed_stack_segment]
 pub fn longname() -> ~str
 { unsafe { str::raw::from_c_str(ll::longname()) } }
 
 #[fixed_stack_segment]
-pub fn meta(_: WINDOW_p, _: bool) -> i32
-{ fail!("Not implemented"); }
+pub fn meta(w: WINDOW_p, bf: bool) -> i32
+{ unsafe { ll::meta(w, bf as libc::c_int) } }
 
 #[fixed_stack_segment]
-pub fn move(_: i32, _: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn move(y: i32, x: i32) -> i32
+{ unsafe { ll::move(y, x) } }
 
 #[fixed_stack_segment]
-pub fn mvaddch(_: i32, _: i32, _: u32) -> i32
-{ fail!("Not implemented"); }
+pub fn mvaddch(y: i32, x: i32, c: u32) -> i32
+{ unsafe { ll::mvaddch(y, x, c) } }
 
 #[fixed_stack_segment]
-pub fn mvaddchnstr(_: i32, _: i32, _: chtype_p, _: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn mvaddchnstr(y: i32, x: i32, s: &[u32], n: i32) -> i32
+{
+  if move(y, x) == ERR
+  { return ERR; }
+  addchnstr(s, n)
+}
 
 #[fixed_stack_segment]
-pub fn mvaddchstr(_: i32, _: i32, _: chtype_p) -> i32
-{ fail!("Not implemented"); }
+pub fn mvaddchstr(y: i32, x: i32, s: &[u32]) -> i32
+{
+  if move(y, x) == ERR
+  { return ERR; }
+  addchstr(s)
+}
 
 #[fixed_stack_segment]
-pub fn mvaddnstr(_: i32, _: i32, _: char_p, _: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn mvaddnstr(y: i32, x: i32, s: &str, n: i32) -> i32
+{
+  if move(y, x) == ERR
+  { return ERR; }
+  addnstr(s, n)
+}
 
 #[fixed_stack_segment]
-pub fn mvaddstr(_: i32, _: i32, _: char_p) -> i32
-{ fail!("Not implemented"); }
+pub fn mvaddstr(y: i32, x: i32, s: &str) -> i32
+{
+  if move(y, x) == ERR
+  { return ERR; }
+  addstr(s)
+}
 
 #[fixed_stack_segment]
-pub fn mvchgat(_: i32, _: i32, _: i32, _: i32, _: i16, _: *c_void) -> i32
-{ fail!("Not implemented"); }
+pub fn mvchgat(y: i32, x: i32, n: i32, attr: i32, color: i16) -> i32
+{ unsafe { ll::mvchgat(y, x, n, attr, color, ptr::null()) } }
 
 #[fixed_stack_segment]
-pub fn mvcur(_: i32, _: i32, _: i32, _: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn mvcur(old_y: i32, old_x: i32, new_y: i32, new_x: i32) -> i32
+{ unsafe { ll::mvcur(old_y, old_x, new_y, new_x) } }
 
 #[fixed_stack_segment]
-pub fn mvdelch(_: i32, _: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn mvdelch(y: i32, x: i32) -> i32
+{ unsafe { ll::mvdelch(y, x) } }
 
 #[fixed_stack_segment]
-pub fn mvderwin(_: WINDOW_p, _: i32, _: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn mvderwin(w: WINDOW_p, y: i32, x: i32) -> i32
+{ unsafe { ll::mvderwin(w, y, x) } }
 
 #[fixed_stack_segment]
-pub fn mvgetch(_: i32, _: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn mvgetch(y: i32, x: i32) -> i32
+{ unsafe { ll::mvgetch(y, x) } }
 
 #[fixed_stack_segment]
-pub fn mvgetnstr(_: i32, _: i32, _: char_p, _: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn mvgetnstr(y: i32, x: i32, s: &mut ~str, n: i32) -> i32
+{
+  if move(y, x) == ERR
+  { return ERR; }
+  getnstr(s, n)
+}
 
 #[fixed_stack_segment]
-pub fn mvgetstr(_: i32, _: i32, _: char_p) -> i32
-{ fail!("Not implemented"); }
+pub fn mvgetstr(y: i32, x: i32, s: &mut ~str) -> i32
+{
+  if move(y, x) == ERR
+  { return ERR; }
+  getstr(s)
+}
 
 #[fixed_stack_segment]
-pub fn mvhline(_: i32, _: i32, _: u32, _: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn mvhline(y: i32, x: i32, ch: u32, n: i32) -> i32
+{ unsafe { ll::mvhline(y, x, ch, n) } }
 
 #[fixed_stack_segment]
-pub fn mvinch(_: i32, _: i32) -> u32
-{ fail!("Not implemented"); }
+pub fn mvinch(y: i32, x: i32) -> u32
+{ unsafe { ll::mvinch(y, x) } }
 
 #[fixed_stack_segment]
-pub fn mvinchnstr(_: i32, _: i32, _: chtype_p, _: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn mvinchnstr(y: i32, x: i32, s: &mut ~[u32], n: i32) -> i32
+{
+  if move(y, x) == ERR
+  { return ERR; }
+  inchnstr(s, n)
+}
 
 #[fixed_stack_segment]
-pub fn mvinchstr(_: i32, _: i32, _: chtype_p) -> i32
-{ fail!("Not implemented"); }
+pub fn mvinchstr(y: i32, x: i32, s: &mut ~[u32]) -> i32
+{
+  if move(y, x) == ERR
+  { return ERR; }
+  inchstr(s)
+}
 
 #[fixed_stack_segment]
-pub fn mvinnstr(_: i32, _: i32, _: char_p, _: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn mvinnstr(y: i32, x: i32, s: &mut ~str, n: i32) -> i32
+{
+  if move(y, x) == ERR
+  { return ERR; }
+  innstr(s, n)
+}
 
 #[fixed_stack_segment]
-pub fn mvinsch(_: i32, _: i32, _: u32) -> i32
-{ fail!("Not implemented"); }
+pub fn mvinsch(y: i32, x: i32, ch: u32) -> i32
+{ unsafe { ll::mvinsch(y, x, ch) } }
 
 #[fixed_stack_segment]
-pub fn mvinsnstr(_: i32, _: i32, _: char_p, _: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn mvinsnstr(y: i32, x: i32, s: &str, n: i32) -> i32
+{
+  if move(y, x) == ERR
+  { return ERR; }
+  insnstr(s, n)
+}
 
 #[fixed_stack_segment]
-pub fn mvinsstr(_: i32, _: i32, _: char_p) -> i32
-{ fail!("Not implemented"); }
+pub fn mvinsstr(y: i32, x: i32, s: &str) -> i32
+{
+  if move(y, x) == ERR
+  { return ERR; }
+  insstr(s)
+}
 
 #[fixed_stack_segment]
-pub fn mvinstr(_: i32, _: i32, _: char_p) -> i32
-{ fail!("Not implemented"); }
+pub fn mvinstr(y: i32, x: i32, s: &mut ~str) -> i32
+{
+  if move(y, x) == ERR
+  { return ERR; }
+  instr(s)
+}
 
 #[fixed_stack_segment]
-pub fn mvprintw(_: i32, _: i32, _: char_p) -> i32
-{ fail!("Not implemented"); }
+pub fn mvprintw(y: i32, x: i32, s: &str) -> i32
+{
+  if move(y, x) == ERR
+  { return ERR; }
+  printw(s)
+}
 
 #[fixed_stack_segment]
-pub fn mvvline(_: i32, _: i32, _: u32, _: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn mvvline(y: i32, x: i32, ch: u32, n: i32) -> i32
+{ unsafe { ll::mvvline(y, x, ch, n) } }
 
 #[fixed_stack_segment]
-pub fn mvwaddch(_: WINDOW_p, _: i32, _: i32, _: u32) -> i32
-{ fail!("Not implemented"); }
+pub fn mvwaddch(w: WINDOW_p, y: i32, x: i32, ch: u32) -> i32
+{ unsafe { ll::mvwaddch(w, y, x, ch) } }
 
 #[fixed_stack_segment]
-pub fn mvwaddchnstr(_: WINDOW_p, _: i32, _: i32, _: chtype_p, _: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn mvwaddchnstr(w: WINDOW_p, y: i32, x: i32, s: &[u32], n: i32) -> i32
+{ unsafe { ll::mvwaddchnstr(w, y, x, vec::raw::to_ptr(s), n) } }
 
 #[fixed_stack_segment]
-pub fn mvwaddchstr(_: WINDOW_p, _: i32, _: i32, _: chtype_p) -> i32
-{ fail!("Not implemented"); }
+pub fn mvwaddchstr(w: WINDOW_p, y: i32, x: i32, s: &[u32]) -> i32
+{ unsafe { ll::mvwaddchstr(w, y, x, vec::raw::to_ptr(s)) } }
 
 #[fixed_stack_segment]
-pub fn mvwaddnstr(_: WINDOW_p, _: i32, _: i32, _: char_p, _: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn mvwaddnstr(w: WINDOW_p, y: i32, x: i32, s: &str, n: i32) -> i32
+{
+  unsafe
+  {
+    do s.to_c_str().with_ref() |c_str|
+    { ll::mvwaddnstr(w, y, x, c_str, n) }
+  }
+}
 
 #[fixed_stack_segment]
-pub fn mvwaddstr(_: WINDOW_p, _: i32, _: i32, _: char_p) -> i32
-{ fail!("Not implemented"); }
+pub fn mvwaddstr(w: WINDOW_p, y: i32, x: i32, s: &str) -> i32
+{
+  unsafe
+  {
+    do s.to_c_str().with_ref() |c_str|
+    { ll::mvwaddstr(w, y, x, c_str) }
+  }
+}
 
 #[fixed_stack_segment]
-pub fn mvwchgat(_: WINDOW_p, _: i32, _: i32, _: i32, _: i32, _: i16, _: *c_void) -> i32
-{ fail!("Not implemented"); }
+pub fn mvwchgat(w: WINDOW_p, y: i32, x: i32, n: i32, attr: i32, color: i16) -> i32
+{ unsafe { ll::mvwchgat(w, y, x, n, attr, color, ptr::null()) } }
 
 #[fixed_stack_segment]
-pub fn mvwdelch(_: WINDOW_p, _: i32, _: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn mvwdelch(w: WINDOW_p, y: i32, x: i32) -> i32
+{ unsafe { ll::mvwdelch(w, y, x) } }
 
 #[fixed_stack_segment]
-pub fn mvwgetch(_: WINDOW_p, _: i32, _: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn mvwgetch(w: WINDOW_p, y: i32, x: i32) -> i32
+{ unsafe { ll::mvwgetch(w, y, x) } }
 
 #[fixed_stack_segment]
-pub fn mvwgetnstr(_: WINDOW_p, _: i32, _: i32, _: char_p, _: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn mvwgetnstr(w: WINDOW_p, y: i32, x: i32, s: &mut ~str, n: i32) -> i32
+{
+  /* XXX: This is probably broken. */
+  use std::cast;
+
+  s.clear();
+  s.reserve_at_least(n as uint);
+  unsafe
+  {
+    let ret = do s.as_mut_buf |buf, _len|
+    { ll::mvwgetnstr(w, y, x, cast::transmute(buf), n) };
+
+    let capacity = s.capacity();
+    match s.find('\0')
+    {
+      Some(index) => str::raw::set_len(s, index as uint),
+      None => str::raw::set_len(s, capacity),
+    }
+
+    ret
+  }
+}
 
 #[fixed_stack_segment]
-pub fn mvwgetstr(_: WINDOW_p, _: i32, _: i32, _: char_p) -> i32
-{ fail!("Not implemented"); }
+pub fn mvwgetstr(w: WINDOW_p, y: i32, x: i32, s: &mut ~str) -> i32
+{
+  if move(y, x) == ERR
+  { return ERR; }
+
+  /* XXX: This is probably broken. */
+  let mut ch = wgetch(w);
+  while ch != '\n' as i32 && ch != '\r' as i32
+  {
+    unsafe { str::raw::push_byte(s, ch as u8); }
+    ch = wgetch(w);
+  }
+  OK
+}
 
 #[fixed_stack_segment]
-pub fn mvwhline(_: WINDOW_p, _: i32, _: i32, _: u32, _: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn mvwhline(w: WINDOW_p, y: i32, x: i32, ch: u32, n: i32) -> i32
+{ unsafe { ll::mvwhline(w, y, x, ch, n) } }
 
 #[fixed_stack_segment]
-pub fn mvwin(_: WINDOW_p, _: i32, _: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn mvwin(w: WINDOW_p, y: i32, x: i32) -> i32
+{ unsafe { ll::mvwin(w, y, x) } }
 
 #[fixed_stack_segment]
-pub fn mvwinch(_: WINDOW_p, _: i32, _: i32) -> u32
-{ fail!("Not implemented"); }
+pub fn mvwinch(w: WINDOW_p, y: i32, x: i32) -> u32
+{ unsafe { ll::mvwinch(w, y, x) } }
 
 #[fixed_stack_segment]
-pub fn mvwinchnstr(_: WINDOW_p, _: i32, _: i32, _: chtype_p, _: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn mvwinchnstr(w: WINDOW_p, y: i32, x: i32, s: &mut ~[u32], n: i32) -> i32
+{
+  /* XXX: This is probably broken. */
+  s.clear();
+  s.reserve_at_least(n as uint);
+  unsafe
+  {
+    let ret = ll::mvwinchnstr(w, y, x, vec::raw::to_ptr(*s), n);
+
+    let capacity = s.capacity();
+    match s.iter().position(|x| *x == 0)
+    {
+      Some(index) => vec::raw::set_len(s, index as uint),
+      None => vec::raw::set_len(s, capacity),
+    }
+
+    ret
+  }
+}
 
 #[fixed_stack_segment]
-pub fn mvwinchstr(_: WINDOW_p, _: i32, _: i32, _: chtype_p) -> i32
-{ fail!("Not implemented"); }
+pub fn mvwinchstr(w: WINDOW_p, y: i32, x: i32, s: &mut ~[u32]) -> i32
+{
+  /* XXX: This is probably broken. */
+  unsafe
+  {
+    let ret = ll::mvwinchstr(w, y, x, vec::raw::to_ptr(*s));
+
+    let capacity = s.capacity();
+    match s.iter().position(|x| *x == 0)
+    {
+      Some(index) => vec::raw::set_len(s, index as uint),
+      None => vec::raw::set_len(s, capacity),
+    }
+
+    ret
+  }
+}
 
 #[fixed_stack_segment]
-pub fn mvwinnstr(_: WINDOW_p, _: i32, _: i32, _: char_p, _: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn mvwinnstr(w: WINDOW_p, y: i32, x: i32, s: &mut ~str, n: i32) -> i32
+{
+  use std::cast; 
+
+  /* XXX: This is probably broken. */
+  s.clear();
+  s.reserve_at_least(n as uint);
+  unsafe
+  {
+    let ret = do s.as_mut_buf |buf, _len|
+    { ll::mvwinnstr(w, y, x, cast::transmute(buf), n) };
+
+    let capacity = s.capacity();
+    match s.find('\0')
+    {
+      Some(index) => str::raw::set_len(s, index as uint),
+      None => str::raw::set_len(s, capacity),
+    }
+
+    ret
+  }
+}
 
 #[fixed_stack_segment]
-pub fn mvwinsch(_: WINDOW_p, _: i32, _: i32, _: u32) -> i32
-{ fail!("Not implemented"); }
+pub fn mvwinsch(w: WINDOW_p, y: i32, x: i32, ch: u32) -> i32
+{ unsafe { ll::mvwinsch(w, y, x, ch) } }
 
 #[fixed_stack_segment]
-pub fn mvwinsnstr(_: WINDOW_p, _: i32, _: i32, _: char_p, _: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn mvwinsnstr(w: WINDOW_p, y: i32, x: i32, s: &str, n: i32) -> i32
+{
+  unsafe
+  {
+    do s.to_c_str().with_ref() |c_str|
+    { ll::mvwinsnstr(w, y, x, c_str, n) }
+  }
+}
 
 #[fixed_stack_segment]
-pub fn mvwinsstr(_: WINDOW_p, _: i32, _: i32, _: char_p) -> i32
-{ fail!("Not implemented"); }
+pub fn mvwinsstr(w: WINDOW_p, y: i32, x: i32, s: &str) -> i32
+{
+  unsafe
+  {
+    do s.to_c_str().with_ref() |c_str|
+    { ll::mvwinsstr(w, y, x, c_str) }
+  }
+}
 
 #[fixed_stack_segment]
-pub fn mvwinstr(_: WINDOW_p, _: i32, _: i32, _: char_p) -> i32
-{ fail!("Not implemented"); }
+pub fn mvwinstr(w: WINDOW_p, y: i32, x: i32, s: &mut ~str) -> i32
+{
+  use std::cast; 
+
+  /* XXX: This is probably broken. */
+  unsafe
+  {
+    let ret = do s.as_mut_buf |buf, _len|
+    { ll::mvwinstr(w, y, x, cast::transmute(buf)) };
+
+    let capacity = s.capacity();
+    match s.find('\0')
+    {
+      Some(index) => str::raw::set_len(s, index as uint),
+      None => str::raw::set_len(s, capacity),
+    }
+
+    ret
+  }
+}
 
 #[fixed_stack_segment]
-pub fn mvwprintw(_: WINDOW_p, _: i32, _: i32, _: char_p) -> i32
-{ fail!("Not implemented"); }
+pub fn mvwprintw(w: WINDOW_p, y: i32, x: i32, s: &str) -> i32
+{
+  unsafe
+  {
+    do s.to_c_str().with_ref() |c_str|
+    { ll::mvwprintw(w, y, x, c_str) }
+  }
+}
 
 #[fixed_stack_segment]
-pub fn mvwvline(_: WINDOW_p, _: i32, _: i32, _: u32, _: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn mvwvline(w: WINDOW_p, y: i32, x: i32, ch: u32, n: i32) -> i32
+{ unsafe { ll::mvwvline(w, y, x, ch, n) } }
 
 #[fixed_stack_segment]
 pub fn napms(ms: i32) -> i32
@@ -729,7 +913,7 @@ pub fn nocbreak() -> i32
 
 #[fixed_stack_segment]
 pub fn nodelay(w: WINDOW_p, bf: bool) -> i32
-{ unsafe { ll::nodelay(w, bf) } }
+{ unsafe { ll::nodelay(w, bf as libc::c_int) } }
 
 #[fixed_stack_segment]
 pub fn noecho() -> i32
@@ -749,7 +933,7 @@ pub fn noraw() -> i32
 
 #[fixed_stack_segment]
 pub fn notimeout(w: WINDOW_p, bf: bool) -> i32
-{ unsafe { ll::notimeout(w, bf) } }
+{ unsafe { ll::notimeout(w, bf as libc::c_int) } }
 
 #[fixed_stack_segment]
 pub fn overlay(src: WINDOW_p, dst: WINDOW_p) -> i32
@@ -855,7 +1039,7 @@ pub fn scroll(w: WINDOW_p) -> i32
 
 #[fixed_stack_segment]
 pub fn scrollok(w: WINDOW_p, bf: bool) -> i32
-{ unsafe { ll::scrollok(w, bf) } }
+{ unsafe { ll::scrollok(w, bf as libc::c_int) } }
 
 #[fixed_stack_segment]
 pub fn scr_restore(filename: &str) -> i32
@@ -977,7 +1161,7 @@ pub fn subwin(w: WINDOW_p, lines: i32, cols: i32, y: i32, x: i32) -> WINDOW_p
 
 #[fixed_stack_segment]
 pub fn syncok(w: WINDOW_p, bf: bool) -> i32
-{ unsafe { ll::syncok(w, bf) } }
+{ unsafe { ll::syncok(w, bf as libc::c_int) } }
 
 #[fixed_stack_segment]
 pub fn termattrs() -> u32
@@ -1444,7 +1628,7 @@ pub fn getsyx(y: &mut i32, x: &mut i32)
   {
     if newscr != ptr::null()
     {
-      if ll::is_leaveok(newscr)
+      if ll::is_leaveok(newscr) == OK
       {
         *x = -1 as i32;
         *y = -1 as i32;
@@ -1464,11 +1648,11 @@ pub fn setsyx(y: &mut i32, x: &mut i32)
     {
       if *y == -1 && *x == -1
       {
-        ll::leaveok(newscr, true);
+        ll::leaveok(newscr, 1);
       }
       else
       {
-        ll::leaveok(newscr, false);
+        ll::leaveok(newscr, 0);
         ll::wmove(newscr, *y, *x);
       }
     }

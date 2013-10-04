@@ -6,15 +6,37 @@
 # Description:
 # 	Builds ncurses-rs
 
-SRC=src/lib.rs src/ll.rs src/constants.rs
+LIB_SRC=$(shell find src -type f -name '*.rs')
+EXAMPLES_SRC=$(shell find examples -type f -name '*.rs')
 
 .SILENT:
 
-all: setup ${SRC}
-	echo "Building ncurses-rs"
-	rustc --out-dir lib src/lib.rs
-	echo "Success \o/"
+.PHONY: all clean
 
-setup:
+all: .build_examples
+	echo "Finished \o/"
+	
+.build_lib: .setup_lib ${LIB_SRC}
+	echo -n "Building ncurses-rs"
+	rustc --out-dir lib src/lib.rs
+	echo " ... success"
+	touch .build_lib
+
+.setup_lib:
 	mkdir -p lib
+	touch .setup_lib
+
+.build_examples: .build_lib .setup_examples ${EXAMPLES_SRC}
+	echo -n "Building examples"
+	$(foreach file, ${EXAMPLES_SRC}, rustc --out-dir bin -Llib $(file);)
+	echo " ... success"
+	touch .build_examples
+
+.setup_examples:
+	mkdir -p bin
+	touch .setup_examples
+
+clean:
+	find . -type f -name '.build_*' | xargs rm -f
+	echo "Cleaned"
 
