@@ -17,9 +17,9 @@ all: .build_examples
 	printf "Finished \o/\n"
 	
 .build_lib: .setup_lib ${LIB_SRC}
-	printf "Building ncurses-rs"
+	printf "Building ncurses-rs "
 	rustc --out-dir lib src/lib.rs
-	printf " ... success\n"
+	printf "... success\n"
 	touch .build_lib
 
 .setup_lib:
@@ -27,9 +27,9 @@ all: .build_examples
 	touch .setup_lib
 
 .build_examples: .build_lib .setup_examples ${EXAMPLES_SRC}
-	printf "Building examples"
+	printf "Building examples "
 	$(foreach file, ${EXAMPLES_SRC}, rustc --out-dir bin -Llib $(file);)
-	printf " ... success\n"
+	printf "... success\n"
 	touch .build_examples
 
 .setup_examples:
