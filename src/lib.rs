@@ -1165,62 +1165,50 @@ pub fn syncok(w: WINDOW_p, bf: bool) -> i32
 
 #[fixed_stack_segment]
 pub fn termattrs() -> u32
-{ fail!("Not implemented"); }
+{ unsafe { ll::termattrs() } }
 
 #[fixed_stack_segment]
-pub fn termname() -> char_p
-{ fail!("Not implemented"); }
+pub fn termname() -> ~str
+{ unsafe { str::raw::from_c_str(ll::termname()) } }
 
 #[fixed_stack_segment]
-pub fn timeout(_: i32)
-{ fail!("Not implemented"); }
+pub fn timeout(delay: i32)
+{ unsafe { ll::timeout(delay) } }
 
 #[fixed_stack_segment]
-pub fn touchline(_: WINDOW_p, _: i32, _: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn touchline(w: WINDOW_p, start: i32, count: i32) -> i32
+{ unsafe { ll::touchline(w, start, count) } }
 
 #[fixed_stack_segment]
-pub fn touchwin(_: WINDOW_p) -> i32
-{ fail!("Not implemented"); }
+pub fn touchwin(w: WINDOW_p) -> i32
+{ unsafe { ll::touchwin(w) } }
 
 #[fixed_stack_segment]
-pub fn typeahead(_: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn typeahead(fd: i32) -> i32
+{ unsafe { ll::typeahead(fd) } }
 
 #[fixed_stack_segment]
-pub fn ungetch(_: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn ungetch(ch: i32) -> i32
+{ unsafe { ll::ungetch(ch) } }
 
 #[fixed_stack_segment]
-pub fn untouchwin(_: WINDOW_p) -> i32
-{ fail!("Not implemented"); }
+pub fn untouchwin(w: WINDOW_p) -> i32
+{ unsafe { ll::untouchwin(w) } }
 
 #[fixed_stack_segment]
-pub fn use_env(_: bool)
-{ fail!("Not implemented"); }
+pub fn use_env(f: bool)
+{ unsafe { ll::use_env(f as libc::c_int) } }
 
 #[fixed_stack_segment]
-pub fn vidattr(_: u32) -> i32
-{ fail!("Not implemented"); }
+pub fn vidattr(attrs: u32) -> i32
+{ unsafe { ll::vidattr(attrs) } }
 
 #[fixed_stack_segment]
-pub fn vidputs(_: u32, _: *u8) -> i32
-{ fail!("Not implemented"); }
+pub fn vline(ch: u32, n: i32) -> i32
+{ unsafe { ll::vline(ch, n) } }
 
 #[fixed_stack_segment]
-pub fn vline(_: u32, _: i32) -> i32
-{ fail!("Not implemented"); }
-
-#[fixed_stack_segment]
-pub fn vwprintw(_: WINDOW_p, _: char_p, _: va_list) -> i32
-{ fail!("Not implemented"); }
-
-#[fixed_stack_segment]
-pub fn vw_printw(_: WINDOW_p, _: char_p, _: va_list) -> i32
-{ fail!("Not implemented"); }
-
-#[fixed_stack_segment]
-pub fn waddch(_: WINDOW_p, _: u32) -> i32
+pub fn waddch(w: WINDOW_p, ch: u32) -> i32
 { fail!("Not implemented"); }
 
 #[fixed_stack_segment]
