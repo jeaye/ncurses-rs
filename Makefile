@@ -14,12 +14,12 @@ EXAMPLES_SRC=$(shell find examples -type f -name '*.rs')
 .PHONY: all clean
 
 all: .build_examples
-	echo "Finished \o/"
+	printf "Finished \o/\n"
 	
 .build_lib: .setup_lib ${LIB_SRC}
-	echo -n "Building ncurses-rs"
+	printf "Building ncurses-rs"
 	rustc --out-dir lib src/lib.rs
-	echo " ... success"
+	printf " ... success\n"
 	touch .build_lib
 
 .setup_lib:
@@ -27,9 +27,9 @@ all: .build_examples
 	touch .setup_lib
 
 .build_examples: .build_lib .setup_examples ${EXAMPLES_SRC}
-	echo -n "Building examples"
+	printf "Building examples"
 	$(foreach file, ${EXAMPLES_SRC}, rustc --out-dir bin -Llib $(file);)
-	echo " ... success"
+	printf " ... success\n"
 	touch .build_examples
 
 .setup_examples:
@@ -38,5 +38,5 @@ all: .build_examples
 
 clean:
 	find . -type f -name '.build_*' | xargs rm -f
-	echo "Cleaned"
+	printf "Cleaned\n"
 
