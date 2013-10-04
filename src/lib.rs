@@ -490,6 +490,46 @@ pub fn is_wintouched(w: WINDOW_p) -> bool
 { unsafe { ll::is_wintouched(w) == OK } }
 
 #[fixed_stack_segment]
+pub fn is_cleared(w: WINDOW_p) -> bool
+{ unsafe { ll::is_cleared(w) == OK } }
+
+#[fixed_stack_segment]
+pub fn is_idcok(w: WINDOW_p) -> bool
+{ unsafe { ll::is_idcok(w) == OK } }
+
+#[fixed_stack_segment]
+pub fn is_idlok(w: WINDOW_p) -> bool
+{ unsafe { ll::is_idlok(w) == OK } }
+
+#[fixed_stack_segment]
+pub fn is_immedok(w: WINDOW_p) -> bool
+{ unsafe { ll::is_immedok(w) == OK } }
+
+#[fixed_stack_segment]
+pub fn is_keypad(w: WINDOW_p) -> bool
+{ unsafe { ll::is_keypad(w) == OK } }
+
+#[fixed_stack_segment]
+pub fn is_leaveok(w: WINDOW_p) -> bool
+{ unsafe { ll::is_leaveok(w) == OK } }
+
+#[fixed_stack_segment]
+pub fn is_nodelay(w: WINDOW_p) -> bool
+{ unsafe { ll::is_nodelay(w) == OK } }
+
+#[fixed_stack_segment]
+pub fn is_notimeout(w: WINDOW_p) -> bool
+{ unsafe { ll::is_notimeout(w) == OK } }
+
+#[fixed_stack_segment]
+pub fn is_scrollok(w: WINDOW_p) -> bool
+{ unsafe { ll::is_scrollok(w) == OK } }
+
+#[fixed_stack_segment]
+pub fn is_syncok(w: WINDOW_p) -> bool
+{ unsafe { ll::is_syncok(w) == OK }}
+
+#[fixed_stack_segment]
 pub fn keyname(c: i32) -> ~str
 { unsafe { str::raw::from_c_str(ll::keyname(c)) } }
 
@@ -1209,7 +1249,7 @@ pub fn vline(ch: u32, n: i32) -> i32
 
 #[fixed_stack_segment]
 pub fn waddch(w: WINDOW_p, ch: u32) -> i32
-{ fail!("Not implemented"); }
+{ unsafe { ll::waddch(w, ch) } }
 
 #[fixed_stack_segment]
 pub fn waddchnstr(_: WINDOW_p, _: chtype_p, _: i32) -> i32
@@ -1477,46 +1517,6 @@ pub fn getpary(_: WINDOW_p) -> i32
 
 #[fixed_stack_segment]
 pub fn wgetparent(_: WINDOW_p) -> WINDOW_p
-{ fail!("Not implemented"); }
-
-#[fixed_stack_segment]
-pub fn is_cleared(_: WINDOW_p) -> bool
-{ fail!("Not implemented"); }
-
-#[fixed_stack_segment]
-pub fn is_idcok(_: WINDOW_p) -> bool
-{ fail!("Not implemented"); }
-
-#[fixed_stack_segment]
-pub fn is_idlok(_: WINDOW_p) -> bool
-{ fail!("Not implemented"); }
-
-#[fixed_stack_segment]
-pub fn is_immedok(_: WINDOW_p) -> bool
-{ fail!("Not implemented"); }
-
-#[fixed_stack_segment]
-pub fn is_keypad(_: WINDOW_p) -> bool
-{ fail!("Not implemented"); }
-
-#[fixed_stack_segment]
-pub fn is_leaveok(_: WINDOW_p) -> bool
-{ fail!("Not implemented"); }
-
-#[fixed_stack_segment]
-pub fn is_nodelay(_: WINDOW_p) -> bool
-{ fail!("Not implemented"); }
-
-#[fixed_stack_segment]
-pub fn is_notimeout(_: WINDOW_p) -> bool
-{ fail!("Not implemented"); }
-
-#[fixed_stack_segment]
-pub fn is_scrollok(_: WINDOW_p) -> bool
-{ fail!("Not implemented"); }
-
-#[fixed_stack_segment]
-pub fn is_syncok(_: WINDOW_p) -> bool
 { fail!("Not implemented"); }
 
 #[fixed_stack_segment]
