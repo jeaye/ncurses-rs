@@ -304,6 +304,42 @@ pub fn getwin(reader: *libc::FILE) -> WINDOW_p
 { unsafe { ll::getwin(reader) } } /* TODO: Make this safe. */
 
 #[fixed_stack_segment]
+pub fn getattrs(w: WINDOW_p) -> i32
+{ unsafe { ll::getattrs(w) } }
+
+#[fixed_stack_segment]
+pub fn getcurx(w: WINDOW_p) -> i32
+{ unsafe { ll::getcurx(w) } }
+
+#[fixed_stack_segment]
+pub fn getcury(w: WINDOW_p) -> i32
+{ unsafe { ll::getcury(w) } }
+
+#[fixed_stack_segment]
+pub fn getbegx(w: WINDOW_p) -> i32
+{ unsafe { ll::getbegx(w) } }
+
+#[fixed_stack_segment]
+pub fn getbegy(w: WINDOW_p) -> i32
+{ unsafe { ll::getbegy(w) } }
+
+#[fixed_stack_segment]
+pub fn getmaxx(w: WINDOW_p) -> i32
+{ unsafe { ll::getmaxx(w) } }
+
+#[fixed_stack_segment]
+pub fn getmaxy(w: WINDOW_p) -> i32
+{ unsafe { ll::getmaxy(w) } }
+
+#[fixed_stack_segment]
+pub fn getparx(w: WINDOW_p) -> i32
+{ unsafe { ll::getparx(w) } }
+
+#[fixed_stack_segment]
+pub fn getpary(w: WINDOW_p) -> i32
+{ unsafe { ll::getpary(w) } }
+
+#[fixed_stack_segment]
 pub fn halfdelay(tenths: i32) -> i32
 { unsafe { ll::halfdelay(tenths) } }
 
@@ -1477,42 +1513,6 @@ pub fn putp(_: char_p) -> i32
 
 #[fixed_stack_segment]
 pub fn tparm(_: char_p) -> ~str
-{ fail!("Not implemented"); }
-
-#[fixed_stack_segment]
-pub fn getattrs(_: WINDOW_p) -> i32
-{ fail!("Not implemented"); }
-
-#[fixed_stack_segment]
-pub fn getcurx(_: WINDOW_p) -> i32
-{ fail!("Not implemented"); }
-
-#[fixed_stack_segment]
-pub fn getcury(_: WINDOW_p) -> i32
-{ fail!("Not implemented"); }
-
-#[fixed_stack_segment]
-pub fn getbegx(_: WINDOW_p) -> i32
-{ fail!("Not implemented"); }
-
-#[fixed_stack_segment]
-pub fn getbegy(_: WINDOW_p) -> i32
-{ fail!("Not implemented"); }
-
-#[fixed_stack_segment]
-pub fn getmaxx(_: WINDOW_p) -> i32
-{ fail!("Not implemented"); }
-
-#[fixed_stack_segment]
-pub fn getmaxy(_: WINDOW_p) -> i32
-{ fail!("Not implemented"); }
-
-#[fixed_stack_segment]
-pub fn getparx(_: WINDOW_p) -> i32
-{ fail!("Not implemented"); }
-
-#[fixed_stack_segment]
-pub fn getpary(_: WINDOW_p) -> i32
 { fail!("Not implemented"); }
 
 #[fixed_stack_segment]
