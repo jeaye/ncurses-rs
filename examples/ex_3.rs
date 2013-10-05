@@ -22,7 +22,7 @@ fn open_file() -> @io::Reader
 {
   let args = os::args();
   if args.len() != 2
-  { fail!("Usage: %s <rust source file>", args[0]); }
+  { fail!("Usage: %s <some file>", args[0]); }
 
   let reader = io::file_reader(&path::Path(args[1]));
   reader.expect("Unable to open file")
@@ -48,7 +48,7 @@ fn main()
   let mut max_y = 0;
   getmaxyx(stdscr, &mut max_y, &mut max_x);
 
-  /* Read the whold file. */
+  /* Read the whole file. */
   while !reader.eof()
   {
     /* Read a character at a time. */
