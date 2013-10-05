@@ -12,7 +12,6 @@
 #[crate_type = "lib"];
 
 use std::{ str, vec, char, libc, ptr };
-use std::libc::c_void;
 use self::ll::*;
 pub use self::constants::*;
 
@@ -1050,6 +1049,16 @@ pub fn printw(s: &str) -> i32
 }
 
 #[fixed_stack_segment]
+pub fn putp(s: &str) -> i32
+{
+  unsafe
+  {
+    do s.to_c_str().with_ref() |c_str|
+    { ll::putp(c_str) }
+  }
+}
+
+#[fixed_stack_segment]
 pub fn putwin(w: WINDOW_p, f: FILE_p) -> i32
 { unsafe { ll::putwin(w, f) } }
 
@@ -1264,6 +1273,46 @@ pub fn typeahead(fd: i32) -> i32
 { unsafe { ll::typeahead(fd) } }
 
 #[fixed_stack_segment]
+pub fn tigetflag(capname: &str) -> i32
+{
+  unsafe
+  {
+    do capname.to_c_str().with_ref() |c_str|
+    { ll::tigetflag(c_str) }
+  }
+}
+
+#[fixed_stack_segment]
+pub fn tigetnum(capname: &str) -> i32
+{
+  unsafe
+  {
+    do capname.to_c_str().with_ref() |c_str|
+    { ll::tigetnum(c_str) }
+  }
+}
+
+#[fixed_stack_segment]
+pub fn tigetstr(capname: &str) -> ~str
+{
+  unsafe
+  {
+    do capname.to_c_str().with_ref() |c_str|
+    { str::raw::from_c_str(ll::tigetstr(c_str)) }
+  }
+}
+
+#[fixed_stack_segment]
+pub fn tparm(s: &str) -> ~str
+{
+  unsafe
+  {
+    do s.to_c_str().with_ref() |c_str|
+    { str::raw::from_c_str(ll::tparm(c_str)) }
+  }
+}
+
+#[fixed_stack_segment]
 pub fn ungetch(ch: i32) -> i32
 { unsafe { ll::ungetch(ch) } }
 
@@ -1288,240 +1337,353 @@ pub fn waddch(w: WINDOW_p, ch: u32) -> i32
 { unsafe { ll::waddch(w, ch) } }
 
 #[fixed_stack_segment]
-pub fn waddchnstr(_: WINDOW_p, _: chtype_p, _: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn waddchnstr(w: WINDOW_p, s: &[u32], n: i32) -> i32
+{ unsafe { ll::waddchnstr(w, vec::raw::to_ptr(s), n) } }
 
 #[fixed_stack_segment]
-pub fn waddchstr(_: WINDOW_p, _: chtype_p) -> i32
-{ fail!("Not implemented"); }
+pub fn waddchstr(w: WINDOW_p, s: &[u32]) -> i32
+{ unsafe { ll::waddchstr(w, vec::raw::to_ptr(s)) } }
 
 #[fixed_stack_segment]
-pub fn waddnstr(_: WINDOW_p, _: char_p, _: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn waddnstr(w: WINDOW_p, s: &str, n: i32) -> i32
+{
+  unsafe
+  {
+    do s.to_c_str().with_ref() |c_str|
+    { ll::waddnstr(w, c_str, n) }
+  }
+}
 
 #[fixed_stack_segment]
-pub fn waddstr(_: WINDOW_p, _: char_p) -> i32
-{ fail!("Not implemented"); }
+pub fn waddstr(w: WINDOW_p, s: &str) -> i32
+{
+  unsafe
+  {
+    do s.to_c_str().with_ref() |c_str|
+    { ll::waddstr(w, c_str) }
+  }
+}
 
 #[fixed_stack_segment]
-pub fn wattron(_: WINDOW_p, _: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn wattron(w: WINDOW_p, attr: i32) -> i32
+{ unsafe { ll::wattron(w, attr) } }
 
 #[fixed_stack_segment]
-pub fn wattroff(_: WINDOW_p, _: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn wattroff(w: WINDOW_p, attr: i32) -> i32
+{ unsafe { ll::wattroff(w, attr) } }
 
 #[fixed_stack_segment]
-pub fn wattrset(_: WINDOW_p, _: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn wattrset(w: WINDOW_p, attr: i32) -> i32
+{ unsafe { ll::wattrset(w, attr) } }
 
 #[fixed_stack_segment]
-pub fn wattr_get(_: WINDOW_p, _: *i32, _: *i16, _: *c_void) -> i32
-{ fail!("Not implemented"); }
+pub fn wattr_get(w: WINDOW_p, attrs: &mut i32, pair: &mut i16) -> i32
+{ unsafe { ll::wattr_get(w, ptr::to_unsafe_ptr(attrs), ptr::to_unsafe_ptr(pair), ptr::null()) } }
 
 #[fixed_stack_segment]
-pub fn wattr_on(_: WINDOW_p, _: i32, _: *c_void) -> i32
-{ fail!("Not implemented"); }
+pub fn wattr_on(w: WINDOW_p, attr: i32) -> i32
+{ unsafe { ll::wattr_on(w, attr, ptr::null()) } }
 
 #[fixed_stack_segment]
-pub fn wattr_off(_: WINDOW_p, _: i32, _: *c_void) -> i32
-{ fail!("Not implemented"); }
+pub fn wattr_off(w: WINDOW_p, attr: i32) -> i32
+{ unsafe { ll::wattr_off(w, attr, ptr::null()) } }
 
 #[fixed_stack_segment]
-pub fn wattr_set(_: WINDOW_p, _: i32, _: i16, _: *c_void) -> i32
-{ fail!("Not implemented"); }
+pub fn wattr_set(w: WINDOW_p, attrs: i32, pair: i16) -> i32
+{ unsafe { ll::wattr_set(w, attrs, pair, ptr::null()) } }
 
 #[fixed_stack_segment]
-pub fn wbkgd(_: WINDOW_p, _: u32) -> i32
-{ fail!("Not implemented"); }
+pub fn wbkgd(w: WINDOW_p, ch: u32) -> i32
+{ unsafe { ll::wbkgd(w, ch) } }
 
 #[fixed_stack_segment]
-pub fn wbkgdset(_: WINDOW_p, _: u32)
-{ fail!("Not implemented"); }
+pub fn wbkgdset(w: WINDOW_p, ch: u32)
+{ unsafe { ll::wbkgdset(w, ch) } }
 
 #[fixed_stack_segment]
-pub fn wborder(_: WINDOW_p, _: u32, _: u32, _: u32, _: u32, _: u32, _: u32, _: u32, _: u32) -> i32
-{ fail!("Not implemented"); }
+pub fn wborder(w: WINDOW_p, ls: u32, rs: u32, ts: u32, bs: u32, tl: u32, tr: u32, bl: u32, br: u32) -> i32
+{ unsafe { ll::wborder(w, ls, rs, ts, bs, tl, tr, bl, br) } }
 
 #[fixed_stack_segment]
-pub fn wchgat(_: WINDOW_p, _: i32, _: i32, _: i16, _: *c_void) -> i32
-{ fail!("Not implemented"); }
+pub fn wchgat(w: WINDOW_p, n: i32, attr: i32, color: i16) -> i32
+{ unsafe { ll::wchgat(w, n, attr, color, ptr::null()) } }
 
 #[fixed_stack_segment]
-pub fn wclear(_: WINDOW_p) -> i32
-{ fail!("Not implemented"); }
+pub fn wclear(w: WINDOW_p) -> i32
+{ unsafe { ll::wclear(w) } }
 
 #[fixed_stack_segment]
-pub fn wclrtobot(_: WINDOW_p) -> i32
-{ fail!("Not implemented"); }
+pub fn wclrtobot(w: WINDOW_p) -> i32
+{ unsafe { ll::wclrtobot(w) } }
 
 #[fixed_stack_segment]
-pub fn wclrtoeol(_: WINDOW_p) -> i32
-{ fail!("Not implemented"); }
+pub fn wclrtoeol(w: WINDOW_p) -> i32
+{ unsafe { ll::wclrtoeol(w) } }
 
 #[fixed_stack_segment]
-pub fn wcolor_set(_: WINDOW_p, _: i16, _: *c_void) -> i32
-{ fail!("Not implemented"); }
+pub fn wcolor_set(w: WINDOW_p, pair: i16) -> i32
+{ unsafe { ll::wcolor_set(w, pair, ptr::null()) } }
 
 #[fixed_stack_segment]
-pub fn wcursyncup(_: WINDOW_p)
-{ fail!("Not implemented"); }
+pub fn wcursyncup(w: WINDOW_p)
+{ unsafe { ll::wcursyncup(w) } }
 
 #[fixed_stack_segment]
-pub fn wdelch(_: WINDOW_p) -> i32
-{ fail!("Not implemented"); }
+pub fn wdelch(w: WINDOW_p) -> i32
+{ unsafe { ll::wdelch(w) } }
 
 #[fixed_stack_segment]
-pub fn wdeleteln(_: WINDOW_p) -> i32
-{ fail!("Not implemented"); }
+pub fn wdeleteln(w: WINDOW_p) -> i32
+{ unsafe { ll::wdeleteln(w) } }
 
 #[fixed_stack_segment]
-pub fn wechochar(_: WINDOW_p, _: u32) -> i32
-{ fail!("Not implemented"); }
+pub fn wechochar(w: WINDOW_p, ch: u32) -> i32
+{ unsafe { ll::wechochar(w, ch) } }
 
 #[fixed_stack_segment]
-pub fn werase(_: WINDOW_p) -> i32
-{ fail!("Not implemented"); }
+pub fn werase(w: WINDOW_p) -> i32
+{ unsafe { ll::werase(w) } }
 
 #[fixed_stack_segment]
-pub fn wgetch(_: WINDOW_p) -> i32
-{ fail!("Not implemented"); }
+pub fn wgetch(w: WINDOW_p) -> i32
+{ unsafe { ll::wgetch(w) } }
 
 #[fixed_stack_segment]
-pub fn wgetnstr(_: WINDOW_p, _: char_p, _: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn wgetnstr(w: WINDOW_p, s: &mut ~str, n: i32) -> i32
+{
+  /* XXX: This is probably broken. */
+  use std::cast;
+
+  s.clear();
+  s.reserve_at_least(n as uint);
+  unsafe
+  {
+    let ret = do s.as_mut_buf |buf, _len|
+    { ll::wgetnstr(w, cast::transmute(buf), n) };
+
+    let capacity = s.capacity();
+    match s.find('\0')
+    {
+      Some(index) => str::raw::set_len(s, index as uint),
+      None => str::raw::set_len(s, capacity),
+    }
+
+    ret
+  }
+}
 
 #[fixed_stack_segment]
-pub fn wgetstr(_: WINDOW_p, _: char_p) -> i32
-{ fail!("Not implemented"); }
+pub fn wgetstr(w: WINDOW_p, s: &mut ~str) -> i32
+{
+  /* XXX: This is probably broken. */
+  let mut ch = wgetch(w);
+  while ch != '\n' as i32 && ch != '\r' as i32
+  {
+    unsafe { str::raw::push_byte(s, ch as u8); }
+    ch = wgetch(w);
+  }
+  OK
+}
 
 #[fixed_stack_segment]
-pub fn whline(_: WINDOW_p, _: u32, _: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn whline(w: WINDOW_p, ch: u32, n: i32) -> i32
+{ unsafe { ll::whline(w, ch, n) } }
 
 #[fixed_stack_segment]
-pub fn winch(_: WINDOW_p) -> u32
-{ fail!("Not implemented"); }
+pub fn winch(w: WINDOW_p) -> u32
+{ unsafe { ll::winch(w) } }
 
 #[fixed_stack_segment]
-pub fn winchnstr(_: WINDOW_p, _: chtype_p, _: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn winchnstr(w: WINDOW_p, s: &mut ~[u32], n: i32) -> i32
+{
+  /* XXX: This is probably broken. */
+  s.clear();
+  s.reserve_at_least(n as uint);
+  unsafe
+  {
+    let ret = ll::winchnstr(w, vec::raw::to_ptr(*s), n);
+
+    let capacity = s.capacity();
+    match s.iter().position(|x| *x == 0)
+    {
+      Some(index) => vec::raw::set_len(s, index as uint),
+      None => vec::raw::set_len(s, capacity),
+    }
+
+    ret
+  }
+}
 
 #[fixed_stack_segment]
-pub fn winchstr(_: WINDOW_p, _: chtype_p) -> i32
-{ fail!("Not implemented"); }
+pub fn winchstr(w: WINDOW_p, s: &mut ~[u32]) -> i32
+{
+  /* XXX: This is probably broken. */
+  unsafe
+  {
+    let ret = ll::winchstr(w, vec::raw::to_ptr(*s));
+
+    let capacity = s.capacity();
+    match s.iter().position(|x| *x == 0)
+    {
+      Some(index) => vec::raw::set_len(s, index as uint),
+      None => vec::raw::set_len(s, capacity),
+    }
+
+    ret
+  }
+}
 
 #[fixed_stack_segment]
-pub fn winnstr(_: WINDOW_p, _: char_p, _: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn winnstr(w: WINDOW_p, s: &mut ~str, n: i32) -> i32
+{
+  use std::cast; 
+
+  /* XXX: This is probably broken. */
+  s.clear();
+  s.reserve_at_least(n as uint);
+  unsafe
+  {
+    let ret = do s.as_mut_buf |buf, _len|
+    { ll::winnstr(w, cast::transmute(buf), n) };
+
+    let capacity = s.capacity();
+    match s.find('\0')
+    {
+      Some(index) => str::raw::set_len(s, index as uint),
+      None => str::raw::set_len(s, capacity),
+    }
+
+    ret
+  }
+}
 
 #[fixed_stack_segment]
-pub fn winsch(_: WINDOW_p, _: u32) -> i32
-{ fail!("Not implemented"); }
+pub fn winsch(w: WINDOW_p, ch: u32) -> i32
+{ unsafe { ll::winsch(w, ch) } }
 
 #[fixed_stack_segment]
-pub fn winsdelln(_: WINDOW_p, _: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn winsdelln(w: WINDOW_p, n: i32) -> i32
+{ unsafe { ll::winsdelln(w, n) } }
 
 #[fixed_stack_segment]
-pub fn winsertln(_: WINDOW_p) -> i32
-{ fail!("Not implemented"); }
+pub fn winsertln(w: WINDOW_p) -> i32
+{ unsafe { ll::winsertln(w) } }
 
 #[fixed_stack_segment]
-pub fn winsnstr(_: WINDOW_p, _: char_p, _: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn winsnstr(w: WINDOW_p, s: &str, n: i32) -> i32
+{
+  use std::cast;
+
+  unsafe
+  {
+    do s.as_imm_buf |buf, _len|
+    { ll::winsnstr(w, cast::transmute(buf), n) }
+  }
+}
 
 #[fixed_stack_segment]
-pub fn winsstr(_: WINDOW_p, _: char_p) -> i32
-{ fail!("Not implemented"); }
+pub fn winsstr(w: WINDOW_p, s: &str) -> i32
+{
+  use std::cast;
+
+  unsafe
+  {
+    do s.as_imm_buf |buf, _len|
+    { ll::winsstr(w, cast::transmute(buf)) }
+  }
+}
 
 #[fixed_stack_segment]
-pub fn winstr(_: WINDOW_p, _: char_p) -> i32
-{ fail!("Not implemented"); }
+pub fn winstr(w: WINDOW_p, s: &mut ~str) -> i32
+{
+  use std::cast; 
+
+  /* XXX: This is probably broken. */
+  unsafe
+  {
+    let ret = do s.as_mut_buf |buf, _len|
+    { ll::winstr(w, cast::transmute(buf)) };
+
+    let capacity = s.capacity();
+    match s.find('\0')
+    {
+      Some(index) => str::raw::set_len(s, index as uint),
+      None => str::raw::set_len(s, capacity),
+    }
+
+    ret
+  }
+}
 
 #[fixed_stack_segment]
-pub fn wmove(_: WINDOW_p, _: i32, _: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn wmove(w: WINDOW_p, y: i32, x: i32) -> i32
+{ unsafe { ll::wmove(w, y, x) } }
 
 #[fixed_stack_segment]
-pub fn wnoutrefresh(_: WINDOW_p) -> i32
-{ fail!("Not implemented"); }
+pub fn wnoutrefresh(w: WINDOW_p) -> i32
+{ unsafe { ll::wnoutrefresh(w) } }
 
 #[fixed_stack_segment]
-pub fn wprintw(_: WINDOW_p, _: char_p) -> i32
-{ fail!("Not implemented"); }
+pub fn wprintw(w: WINDOW_p, s: &str) -> i32
+{
+  unsafe
+  {
+    do s.to_c_str().with_ref() |c_str|
+    { ll::wprintw(w, c_str) }
+  }
+}
 
 #[fixed_stack_segment]
-pub fn wredrawln(_: WINDOW_p, _: i32, _: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn wredrawln(w: WINDOW_p, start: i32, n: i32) -> i32
+{ unsafe { ll::wredrawln(w, start, n) } }
 
 #[fixed_stack_segment]
-pub fn wrefresh(_: WINDOW_p) -> i32
-{ fail!("Not implemented"); }
+pub fn wrefresh(w: WINDOW_p) -> i32
+{ unsafe { ll::wrefresh(w) } }
 
 #[fixed_stack_segment]
-pub fn wscrl(_: WINDOW_p, _: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn wscrl(w: WINDOW_p, n: i32) -> i32
+{ unsafe { ll::wscrl(w, n) } }
 
 #[fixed_stack_segment]
-pub fn wsetscrreg(_: WINDOW_p, _: i32, _: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn wsetscrreg(w: WINDOW_p, top: i32, bot: i32) -> i32
+{ unsafe { ll::wsetscrreg(w, top, bot) } }
 
 #[fixed_stack_segment]
-pub fn wstandout(_: WINDOW_p) -> i32
-{ fail!("Not implemented"); }
+pub fn wstandout(w: WINDOW_p) -> i32
+{ unsafe { ll::wstandout(w) } }
 
 #[fixed_stack_segment]
-pub fn wstandend(_: WINDOW_p) -> i32
-{ fail!("Not implemented"); }
+pub fn wstandend(w: WINDOW_p) -> i32
+{ unsafe { ll::wstandend(w) } }
 
 #[fixed_stack_segment]
-pub fn wsyncdown(_: WINDOW_p)
-{ fail!("Not implemented"); }
+pub fn wsyncdown(w: WINDOW_p)
+{ unsafe { ll::wsyncdown(w) } }
 
 #[fixed_stack_segment]
-pub fn wsyncup(_: WINDOW_p)
-{ fail!("Not implemented"); }
+pub fn wsyncup(w: WINDOW_p)
+{ unsafe { ll::wsyncup(w) } }
 
 #[fixed_stack_segment]
-pub fn wtimeout(_: WINDOW_p, _: i32)
-{ fail!("Not implemented"); }
+pub fn wtimeout(w: WINDOW_p, delay: i32)
+{ unsafe { ll::wtimeout(w, delay) } }
 
 #[fixed_stack_segment]
-pub fn wtouchln(_: WINDOW_p, _: i32, _: i32, _: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn wtouchln(w: WINDOW_p, y: i32, n: i32, changed: i32) -> i32
+{ unsafe { ll::wtouchln(w, y, n, changed) } }
 
 #[fixed_stack_segment]
-pub fn wvline(_: WINDOW_p, _: u32, _: i32) -> i32
-{ fail!("Not implemented"); }
+pub fn wvline(w: WINDOW_p, ch: u32, n: i32) -> i32
+{ unsafe { ll::wvline(w, ch, n) } }
 
 #[fixed_stack_segment]
-pub fn tigetflag(_: char_p) -> i32
-{ fail!("Not implemented"); }
+pub fn wgetparent(w: WINDOW_p) -> WINDOW_p
+{ unsafe { ll::wgetparent(w) } }
 
 #[fixed_stack_segment]
-pub fn tigetnum(_: char_p) -> i32
-{ fail!("Not implemented"); }
-
-#[fixed_stack_segment]
-pub fn tigetstr(_: char_p) -> ~str
-{ fail!("Not implemented"); }
-
-#[fixed_stack_segment]
-pub fn putp(_: char_p) -> i32
-{ fail!("Not implemented"); }
-
-#[fixed_stack_segment]
-pub fn tparm(_: char_p) -> ~str
-{ fail!("Not implemented"); }
-
-#[fixed_stack_segment]
-pub fn wgetparent(_: WINDOW_p) -> WINDOW_p
-{ fail!("Not implemented"); }
-
-#[fixed_stack_segment]
-pub fn wgetscrreg(_: WINDOW_p, _: *i32, _: *i32) -> i32
-{ fail!("Not implemented"); }
+pub fn wgetscrreg(w: WINDOW_p, top: &mut i32, bot: &mut i32) -> i32
+{ unsafe { ll::wgetscrreg(w, ptr::to_unsafe_ptr(top), ptr::to_unsafe_ptr(bot)) } }
 
 /* Attributes */
 pub fn NCURSES_BITS(mask: u32, shift: u32) -> u32
