@@ -16,6 +16,11 @@ Examples are built automagically. To run them, check the `bin`
 directory. Example numbers increase along with the complexity
 of the example.
 
+Current examples:  
+**1.** Hello World  
+**2.** Basic Input & Attributes  
+**3.** Simple Pager  
+
 ## Thanks
 Thanks for pnkfelix for his initial version of this
 library, [rust-curses](https://github.com/pnkfelix/rust-curses),
