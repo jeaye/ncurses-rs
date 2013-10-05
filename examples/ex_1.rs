@@ -1,13 +1,32 @@
+/*
+    Copyright © 2013 Free Software Foundation, Inc
+    See licensing in LICENSE file
+
+    File: examples/ex_1.rs
+    Author: Jesse 'Jeaye' Wilkerson
+    Description:
+      Simple "Hello, world" example.
+*/
+
 extern mod ncurses;
+
+use ncurses::*;
 
 fn main()
 {
-    ncurses::initscr();
+  /* Start ncurses. */
+  initscr();
 
-    ncurses::printw("Hello, world!");
-    ncurses::refresh();
+  /* Print to the back buffer. */
+  printw("Hello, world!");
 
-    ncurses::getch();
-    ncurses::endwin();
+  /* Update the screen. */
+  refresh();
+
+  /* Wait for a key press. */
+  getch();
+
+  /* Terminate ncurses. */
+  endwin();
 }
 
