@@ -112,7 +112,7 @@ pub fn box(w: WINDOW_p, v: u32, h: u32) -> i32
 
 #[fixed_stack_segment]
 pub fn can_change_color() -> bool
-{ unsafe { ll::can_change_color() == OK } }
+{ unsafe { ll::can_change_color() == TRUE } }
 
 #[fixed_stack_segment]
 pub fn cbreak() -> i32
@@ -344,15 +344,15 @@ pub fn halfdelay(tenths: i32) -> i32
 
 #[fixed_stack_segment]
 pub fn has_colors() -> bool
-{ unsafe { ll::has_colors() == OK } }
+{ unsafe { ll::has_colors() == TRUE } }
 
 #[fixed_stack_segment]
 pub fn has_ic() -> bool
-{ unsafe { ll::has_ic() == OK } }
+{ unsafe { ll::has_ic() == TRUE } }
 
 #[fixed_stack_segment]
 pub fn has_il() -> bool
-{ unsafe { ll::has_il() == OK } }
+{ unsafe { ll::has_il() == TRUE } }
 
 #[fixed_stack_segment]
 pub fn hline(ch: u32, n: i32) -> i32
@@ -514,55 +514,55 @@ pub fn intrflush(w: WINDOW_p, bf: bool) -> i32
 
 #[fixed_stack_segment]
 pub fn isendwin() -> bool
-{ unsafe { ll::isendwin() == OK } }
+{ unsafe { ll::isendwin() == TRUE } }
 
 #[fixed_stack_segment]
 pub fn is_linetouched(w: WINDOW_p, l: i32) -> bool
-{ unsafe { ll::is_linetouched(w, l) == OK } }
+{ unsafe { ll::is_linetouched(w, l) == TRUE } }
 
 #[fixed_stack_segment]
 pub fn is_wintouched(w: WINDOW_p) -> bool
-{ unsafe { ll::is_wintouched(w) == OK } }
+{ unsafe { ll::is_wintouched(w) == TRUE } }
 
 #[fixed_stack_segment]
 pub fn is_cleared(w: WINDOW_p) -> bool
-{ unsafe { ll::is_cleared(w) == OK } }
+{ unsafe { ll::is_cleared(w) == TRUE } }
 
 #[fixed_stack_segment]
 pub fn is_idcok(w: WINDOW_p) -> bool
-{ unsafe { ll::is_idcok(w) == OK } }
+{ unsafe { ll::is_idcok(w) == TRUE } }
 
 #[fixed_stack_segment]
 pub fn is_idlok(w: WINDOW_p) -> bool
-{ unsafe { ll::is_idlok(w) == OK } }
+{ unsafe { ll::is_idlok(w) == TRUE } }
 
 #[fixed_stack_segment]
 pub fn is_immedok(w: WINDOW_p) -> bool
-{ unsafe { ll::is_immedok(w) == OK } }
+{ unsafe { ll::is_immedok(w) == TRUE } }
 
 #[fixed_stack_segment]
 pub fn is_keypad(w: WINDOW_p) -> bool
-{ unsafe { ll::is_keypad(w) == OK } }
+{ unsafe { ll::is_keypad(w) == TRUE } }
 
 #[fixed_stack_segment]
 pub fn is_leaveok(w: WINDOW_p) -> bool
-{ unsafe { ll::is_leaveok(w) == OK } }
+{ unsafe { ll::is_leaveok(w) == TRUE } }
 
 #[fixed_stack_segment]
 pub fn is_nodelay(w: WINDOW_p) -> bool
-{ unsafe { ll::is_nodelay(w) == OK } }
+{ unsafe { ll::is_nodelay(w) == TRUE } }
 
 #[fixed_stack_segment]
 pub fn is_notimeout(w: WINDOW_p) -> bool
-{ unsafe { ll::is_notimeout(w) == OK } }
+{ unsafe { ll::is_notimeout(w) == TRUE } }
 
 #[fixed_stack_segment]
 pub fn is_scrollok(w: WINDOW_p) -> bool
-{ unsafe { ll::is_scrollok(w) == OK } }
+{ unsafe { ll::is_scrollok(w) == TRUE } }
 
 #[fixed_stack_segment]
 pub fn is_syncok(w: WINDOW_p) -> bool
-{ unsafe { ll::is_syncok(w) == OK }}
+{ unsafe { ll::is_syncok(w) == TRUE }}
 
 #[fixed_stack_segment]
 pub fn keyname(c: i32) -> ~str
@@ -1747,8 +1747,8 @@ pub fn A_VERTICAL() -> i32
 { NCURSES_BITS(1u32, 22u32) as i32 }
 
 /* Colors. */
-pub fn COLOR_PAIR(n: u32) -> i32
-{ NCURSES_BITS(n, 0u32) as i32 }
+pub fn COLOR_PAIR(n: i16) -> i32
+{ NCURSES_BITS(n as u32, 0u32) as i32 }
 
 /*
  * Most of the pseudo functions are macros that either provide compatibility
@@ -1778,7 +1778,7 @@ pub fn getsyx(y: &mut i32, x: &mut i32)
   {
     if newscr != ptr::null()
     {
-      if ll::is_leaveok(newscr) == OK
+      if ll::is_leaveok(newscr) == TRUE
       {
         *x = -1 as i32;
         *y = -1 as i32;

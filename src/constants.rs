@@ -33,19 +33,21 @@ extern
 /* Success/Failure. */
 pub static ERR: i32 = -1;
 pub static OK: i32 = 0;
+pub static TRUE: i32 = 1;
+pub static FALSE: i32 = 0;
 
 /* Attributes. */
 pub static NCURSES_ATTR_SHIFT: u32 = 8u32;
 
 /* Colors */
-pub static COLOR_BLACK: i32 = 0;
-pub static COLOR_RED: i32 = 1;
-pub static COLOR_GREEN: i32 = 2;
-pub static COLOR_YELLOW: i32 = 3;
-pub static COLOR_BLUE: i32 = 4;
-pub static COLOR_MAGENTA: i32 = 5;
-pub static COLOR_CYAN: i32 = 6;
-pub static COLOR_WHITE: i32 = 7;
+pub static COLOR_BLACK: i16 = 0;
+pub static COLOR_RED: i16 = 1;
+pub static COLOR_GREEN: i16 = 2;
+pub static COLOR_YELLOW: i16 = 3;
+pub static COLOR_BLUE: i16 = 4;
+pub static COLOR_MAGENTA: i16 = 5;
+pub static COLOR_CYAN: i16 = 6;
+pub static COLOR_WHITE: i16 = 7;
 
 /* Values for the _flags member */
 pub static _SUBWIN: i32 = 0x01;	/* is this a sub-window? */
