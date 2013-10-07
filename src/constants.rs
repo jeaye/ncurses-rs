@@ -15,9 +15,9 @@ use super::ll::*;
 
 extern
 { 
-  pub static curscr: WINDOW_p;
-  pub static newscr: WINDOW_p;
-  pub static stdscr: WINDOW_p;
+  pub static curscr: WINDOW;
+  pub static newscr: WINDOW;
+  pub static stdscr: WINDOW;
   pub static ttytype: *c_char;
   pub static COLORS: c_int;
   pub static COLOR_PAIRS: c_int;

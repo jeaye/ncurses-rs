@@ -10,7 +10,7 @@
       Usage:
         ./bin/ex_3 <some file>
       Example:
-        ./bin/ex_3 examples/ex3.rs
+        ./bin/ex_3 examples/ex_3.rs
 */
 
 extern mod ncurses;

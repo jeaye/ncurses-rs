@@ -13,16 +13,17 @@
 
 use std::{ str, vec, char, libc, ptr };
 use self::ll::*;
+pub use self::ll::{ WINDOW, SCREEN };
 pub use self::constants::*;
 
 pub mod ll;
 pub mod constants;
 
-pub enum Cursor_Visibility
+pub enum CURSOR_VISIBILITY
 {
-  Cursor_Invisible = 0,
-  Cursor_Visible,
-  Cursor_Very_Visible,
+  CURSOR_INVISIBLE = 0,
+  CURSOR_VISIBLE,
+  CURSOR_VERY_vISIBLE,
 }
 
 #[fixed_stack_segment]
@@ -107,7 +108,7 @@ pub fn border(ls: u32, rs: u32, ts: u32, bs: u32, tl: u32, tr: u32, bl: u32, br:
 { unsafe { ll::border(ls, rs, ts, bs, tl, tr, bl, br) } }
 
 #[fixed_stack_segment]
-pub fn box(w: WINDOW_p, v: u32, h: u32) -> i32
+pub fn box(w: WINDOW, v: u32, h: u32) -> i32
 { wborder(w, v, v, h, h, 0, 0, 0, 0) }
 
 #[fixed_stack_segment]
@@ -127,7 +128,7 @@ pub fn clear() -> i32
 { unsafe { ll::clear() } }
 
 #[fixed_stack_segment]
-pub fn clearok(w: WINDOW_p, ok: bool) -> i32
+pub fn clearok(w: WINDOW, ok: bool) -> i32
 { unsafe { ll::clearok(w, ok as libc::c_int) } }
 
 #[fixed_stack_segment]
@@ -155,7 +156,7 @@ pub fn color_set(pair: i16) -> i32
 { unsafe { ll::color_set(pair, ptr::null()) } }
 
 #[fixed_stack_segment]
-pub fn copywin(src_win: WINDOW_p, dest_win: WINDOW_p, src_min_row: i32,
+pub fn copywin(src_win: WINDOW, dest_win: WINDOW, src_min_row: i32,
                src_min_col: i32, dest_min_row: i32, dest_min_col: i32,
                dest_max_row: i32, dest_max_col: i32, overlay: i32) -> i32
 {
@@ -168,7 +169,7 @@ pub fn copywin(src_win: WINDOW_p, dest_win: WINDOW_p, src_min_row: i32,
 }
 
 #[fixed_stack_segment]
-pub fn curs_set(visibility: Cursor_Visibility) -> Option<Cursor_Visibility>
+pub fn curs_set(visibility: CURSOR_VISIBILITY) -> Option<CURSOR_VISIBILITY>
 {
   use std::cast;
   unsafe
@@ -176,7 +177,7 @@ pub fn curs_set(visibility: Cursor_Visibility) -> Option<Cursor_Visibility>
     match ll::curs_set(visibility as i32)
     {
       ERR => None,
-      ret => Some(cast::transmute::<i64, Cursor_Visibility>(ret as i64)),
+      ret => Some(cast::transmute::<i64, CURSOR_VISIBILITY>(ret as i64)),
     }
   }
 }
@@ -198,11 +199,11 @@ pub fn delch() -> i32
 { unsafe { ll::delch() } }
 
 #[fixed_stack_segment]
-pub fn delscreen(s: SCREEN_p)
+pub fn delscreen(s: SCREEN)
 { unsafe { ll::delscreen(s) } }
 
 #[fixed_stack_segment]
-pub fn delwin(w: WINDOW_p) -> i32
+pub fn delwin(w: WINDOW) -> i32
 { unsafe { ll::delwin(w) } }
 
 #[fixed_stack_segment]
@@ -210,7 +211,7 @@ pub fn deleteln() -> i32
 { unsafe { ll::deleteln() } }
 
 #[fixed_stack_segment]
-pub fn derwin(w: WINDOW_p, lines: i32, cols: i32, x: i32, y: i32) -> WINDOW_p
+pub fn derwin(w: WINDOW, lines: i32, cols: i32, x: i32, y: i32) -> WINDOW
 { unsafe { ll::derwin(w, lines, cols, x, y) } }
 
 #[fixed_stack_segment]
@@ -218,7 +219,7 @@ pub fn doupdate() -> i32
 { unsafe { ll::doupdate() } }
 
 #[fixed_stack_segment]
-pub fn dupwin(w: WINDOW_p) -> WINDOW_p
+pub fn dupwin(w: WINDOW) -> WINDOW
 { unsafe { ll::dupwin(w) } }
 
 #[fixed_stack_segment]
@@ -254,7 +255,7 @@ pub fn flushinp() -> i32
 { unsafe { ll::flushinp() } }
 
 #[fixed_stack_segment]
-pub fn getbkgd(w: WINDOW_p) -> u32
+pub fn getbkgd(w: WINDOW) -> u32
 { unsafe { ll::getbkgd(w) } }
 
 #[fixed_stack_segment]
@@ -299,43 +300,43 @@ pub fn getstr(s: &mut ~str) -> i32
 }
 
 #[fixed_stack_segment]
-pub fn getwin(reader: *libc::FILE) -> WINDOW_p
+pub fn getwin(reader: *libc::FILE) -> WINDOW
 { unsafe { ll::getwin(reader) } } /* TODO: Make this safe. */
 
 #[fixed_stack_segment]
-pub fn getattrs(w: WINDOW_p) -> i32
+pub fn getattrs(w: WINDOW) -> i32
 { unsafe { ll::getattrs(w) } }
 
 #[fixed_stack_segment]
-pub fn getcurx(w: WINDOW_p) -> i32
+pub fn getcurx(w: WINDOW) -> i32
 { unsafe { ll::getcurx(w) } }
 
 #[fixed_stack_segment]
-pub fn getcury(w: WINDOW_p) -> i32
+pub fn getcury(w: WINDOW) -> i32
 { unsafe { ll::getcury(w) } }
 
 #[fixed_stack_segment]
-pub fn getbegx(w: WINDOW_p) -> i32
+pub fn getbegx(w: WINDOW) -> i32
 { unsafe { ll::getbegx(w) } }
 
 #[fixed_stack_segment]
-pub fn getbegy(w: WINDOW_p) -> i32
+pub fn getbegy(w: WINDOW) -> i32
 { unsafe { ll::getbegy(w) } }
 
 #[fixed_stack_segment]
-pub fn getmaxx(w: WINDOW_p) -> i32
+pub fn getmaxx(w: WINDOW) -> i32
 { unsafe { ll::getmaxx(w) } }
 
 #[fixed_stack_segment]
-pub fn getmaxy(w: WINDOW_p) -> i32
+pub fn getmaxy(w: WINDOW) -> i32
 { unsafe { ll::getmaxy(w) } }
 
 #[fixed_stack_segment]
-pub fn getparx(w: WINDOW_p) -> i32
+pub fn getparx(w: WINDOW) -> i32
 { unsafe { ll::getparx(w) } }
 
 #[fixed_stack_segment]
-pub fn getpary(w: WINDOW_p) -> i32
+pub fn getpary(w: WINDOW) -> i32
 { unsafe { ll::getpary(w) } }
 
 #[fixed_stack_segment]
@@ -359,15 +360,15 @@ pub fn hline(ch: u32, n: i32) -> i32
 { unsafe { ll::hline(ch, n) } }
 
 #[fixed_stack_segment]
-pub fn idcok(w: WINDOW_p, bf: bool)
+pub fn idcok(w: WINDOW, bf: bool)
 { unsafe { ll::idcok(w, bf as libc::c_int) } }
 
 #[fixed_stack_segment]
-pub fn idlok(w: WINDOW_p, bf: bool) -> i32
+pub fn idlok(w: WINDOW, bf: bool) -> i32
 { unsafe { ll::idlok(w, bf as libc::c_int) } }
 
 #[fixed_stack_segment]
-pub fn immedok(w: WINDOW_p, bf: bool)
+pub fn immedok(w: WINDOW, bf: bool)
 { unsafe { ll::immedok(w, bf as libc::c_int) } }
 
 #[fixed_stack_segment]
@@ -415,7 +416,7 @@ pub fn inchstr(s: &mut ~[u32]) -> i32
 }
 
 #[fixed_stack_segment]
-pub fn initscr() -> WINDOW_p
+pub fn initscr() -> WINDOW
 { unsafe { ll::initscr() } }
 
 #[fixed_stack_segment]
@@ -509,7 +510,7 @@ pub fn instr(s: &mut ~str) -> i32
 }
 
 #[fixed_stack_segment]
-pub fn intrflush(w: WINDOW_p, bf: bool) -> i32
+pub fn intrflush(w: WINDOW, bf: bool) -> i32
 { unsafe { ll::intrflush(w, bf as libc::c_int) } }
 
 #[fixed_stack_segment]
@@ -517,51 +518,51 @@ pub fn isendwin() -> bool
 { unsafe { ll::isendwin() == TRUE } }
 
 #[fixed_stack_segment]
-pub fn is_linetouched(w: WINDOW_p, l: i32) -> bool
+pub fn is_linetouched(w: WINDOW, l: i32) -> bool
 { unsafe { ll::is_linetouched(w, l) == TRUE } }
 
 #[fixed_stack_segment]
-pub fn is_wintouched(w: WINDOW_p) -> bool
+pub fn is_wintouched(w: WINDOW) -> bool
 { unsafe { ll::is_wintouched(w) == TRUE } }
 
 #[fixed_stack_segment]
-pub fn is_cleared(w: WINDOW_p) -> bool
+pub fn is_cleared(w: WINDOW) -> bool
 { unsafe { ll::is_cleared(w) == TRUE } }
 
 #[fixed_stack_segment]
-pub fn is_idcok(w: WINDOW_p) -> bool
+pub fn is_idcok(w: WINDOW) -> bool
 { unsafe { ll::is_idcok(w) == TRUE } }
 
 #[fixed_stack_segment]
-pub fn is_idlok(w: WINDOW_p) -> bool
+pub fn is_idlok(w: WINDOW) -> bool
 { unsafe { ll::is_idlok(w) == TRUE } }
 
 #[fixed_stack_segment]
-pub fn is_immedok(w: WINDOW_p) -> bool
+pub fn is_immedok(w: WINDOW) -> bool
 { unsafe { ll::is_immedok(w) == TRUE } }
 
 #[fixed_stack_segment]
-pub fn is_keypad(w: WINDOW_p) -> bool
+pub fn is_keypad(w: WINDOW) -> bool
 { unsafe { ll::is_keypad(w) == TRUE } }
 
 #[fixed_stack_segment]
-pub fn is_leaveok(w: WINDOW_p) -> bool
+pub fn is_leaveok(w: WINDOW) -> bool
 { unsafe { ll::is_leaveok(w) == TRUE } }
 
 #[fixed_stack_segment]
-pub fn is_nodelay(w: WINDOW_p) -> bool
+pub fn is_nodelay(w: WINDOW) -> bool
 { unsafe { ll::is_nodelay(w) == TRUE } }
 
 #[fixed_stack_segment]
-pub fn is_notimeout(w: WINDOW_p) -> bool
+pub fn is_notimeout(w: WINDOW) -> bool
 { unsafe { ll::is_notimeout(w) == TRUE } }
 
 #[fixed_stack_segment]
-pub fn is_scrollok(w: WINDOW_p) -> bool
+pub fn is_scrollok(w: WINDOW) -> bool
 { unsafe { ll::is_scrollok(w) == TRUE } }
 
 #[fixed_stack_segment]
-pub fn is_syncok(w: WINDOW_p) -> bool
+pub fn is_syncok(w: WINDOW) -> bool
 { unsafe { ll::is_syncok(w) == TRUE }}
 
 #[fixed_stack_segment]
@@ -569,7 +570,7 @@ pub fn keyname(c: i32) -> ~str
 { unsafe { str::raw::from_c_str(ll::keyname(c)) } }
 
 #[fixed_stack_segment]
-pub fn keypad(w: WINDOW_p, bf: bool) -> i32
+pub fn keypad(w: WINDOW, bf: bool) -> i32
 { unsafe { ll::keypad(w, bf as libc::c_int) } }
 
 #[fixed_stack_segment]
@@ -577,7 +578,7 @@ pub fn killchar() -> char
 { unsafe { char::from_u32(ll::killchar() as u32).expect("Invalid char") } }
 
 #[fixed_stack_segment]
-pub fn leaveok(w: WINDOW_p, bf: bool) -> i32
+pub fn leaveok(w: WINDOW, bf: bool) -> i32
 { unsafe { ll::leaveok(w, bf as libc::c_int) } }
 
 #[fixed_stack_segment]
@@ -585,7 +586,7 @@ pub fn longname() -> ~str
 { unsafe { str::raw::from_c_str(ll::longname()) } }
 
 #[fixed_stack_segment]
-pub fn meta(w: WINDOW_p, bf: bool) -> i32
+pub fn meta(w: WINDOW, bf: bool) -> i32
 { unsafe { ll::meta(w, bf as libc::c_int) } }
 
 #[fixed_stack_segment]
@@ -641,7 +642,7 @@ pub fn mvdelch(y: i32, x: i32) -> i32
 { unsafe { ll::mvdelch(y, x) } }
 
 #[fixed_stack_segment]
-pub fn mvderwin(w: WINDOW_p, y: i32, x: i32) -> i32
+pub fn mvderwin(w: WINDOW, y: i32, x: i32) -> i32
 { unsafe { ll::mvderwin(w, y, x) } }
 
 #[fixed_stack_segment]
@@ -737,19 +738,19 @@ pub fn mvvline(y: i32, x: i32, ch: u32, n: i32) -> i32
 { unsafe { ll::mvvline(y, x, ch, n) } }
 
 #[fixed_stack_segment]
-pub fn mvwaddch(w: WINDOW_p, y: i32, x: i32, ch: u32) -> i32
+pub fn mvwaddch(w: WINDOW, y: i32, x: i32, ch: u32) -> i32
 { unsafe { ll::mvwaddch(w, y, x, ch) } }
 
 #[fixed_stack_segment]
-pub fn mvwaddchnstr(w: WINDOW_p, y: i32, x: i32, s: &[u32], n: i32) -> i32
+pub fn mvwaddchnstr(w: WINDOW, y: i32, x: i32, s: &[u32], n: i32) -> i32
 { unsafe { ll::mvwaddchnstr(w, y, x, vec::raw::to_ptr(s), n) } }
 
 #[fixed_stack_segment]
-pub fn mvwaddchstr(w: WINDOW_p, y: i32, x: i32, s: &[u32]) -> i32
+pub fn mvwaddchstr(w: WINDOW, y: i32, x: i32, s: &[u32]) -> i32
 { unsafe { ll::mvwaddchstr(w, y, x, vec::raw::to_ptr(s)) } }
 
 #[fixed_stack_segment]
-pub fn mvwaddnstr(w: WINDOW_p, y: i32, x: i32, s: &str, n: i32) -> i32
+pub fn mvwaddnstr(w: WINDOW, y: i32, x: i32, s: &str, n: i32) -> i32
 {
   unsafe
   {
@@ -759,7 +760,7 @@ pub fn mvwaddnstr(w: WINDOW_p, y: i32, x: i32, s: &str, n: i32) -> i32
 }
 
 #[fixed_stack_segment]
-pub fn mvwaddstr(w: WINDOW_p, y: i32, x: i32, s: &str) -> i32
+pub fn mvwaddstr(w: WINDOW, y: i32, x: i32, s: &str) -> i32
 {
   unsafe
   {
@@ -769,19 +770,19 @@ pub fn mvwaddstr(w: WINDOW_p, y: i32, x: i32, s: &str) -> i32
 }
 
 #[fixed_stack_segment]
-pub fn mvwchgat(w: WINDOW_p, y: i32, x: i32, n: i32, attr: i32, color: i16) -> i32
+pub fn mvwchgat(w: WINDOW, y: i32, x: i32, n: i32, attr: i32, color: i16) -> i32
 { unsafe { ll::mvwchgat(w, y, x, n, attr, color, ptr::null()) } }
 
 #[fixed_stack_segment]
-pub fn mvwdelch(w: WINDOW_p, y: i32, x: i32) -> i32
+pub fn mvwdelch(w: WINDOW, y: i32, x: i32) -> i32
 { unsafe { ll::mvwdelch(w, y, x) } }
 
 #[fixed_stack_segment]
-pub fn mvwgetch(w: WINDOW_p, y: i32, x: i32) -> i32
+pub fn mvwgetch(w: WINDOW, y: i32, x: i32) -> i32
 { unsafe { ll::mvwgetch(w, y, x) } }
 
 #[fixed_stack_segment]
-pub fn mvwgetnstr(w: WINDOW_p, y: i32, x: i32, s: &mut ~str, n: i32) -> i32
+pub fn mvwgetnstr(w: WINDOW, y: i32, x: i32, s: &mut ~str, n: i32) -> i32
 {
   /* XXX: This is probably broken. */
   use std::cast;
@@ -805,7 +806,7 @@ pub fn mvwgetnstr(w: WINDOW_p, y: i32, x: i32, s: &mut ~str, n: i32) -> i32
 }
 
 #[fixed_stack_segment]
-pub fn mvwgetstr(w: WINDOW_p, y: i32, x: i32, s: &mut ~str) -> i32
+pub fn mvwgetstr(w: WINDOW, y: i32, x: i32, s: &mut ~str) -> i32
 {
   if move(y, x) == ERR
   { return ERR; }
@@ -821,19 +822,19 @@ pub fn mvwgetstr(w: WINDOW_p, y: i32, x: i32, s: &mut ~str) -> i32
 }
 
 #[fixed_stack_segment]
-pub fn mvwhline(w: WINDOW_p, y: i32, x: i32, ch: u32, n: i32) -> i32
+pub fn mvwhline(w: WINDOW, y: i32, x: i32, ch: u32, n: i32) -> i32
 { unsafe { ll::mvwhline(w, y, x, ch, n) } }
 
 #[fixed_stack_segment]
-pub fn mvwin(w: WINDOW_p, y: i32, x: i32) -> i32
+pub fn mvwin(w: WINDOW, y: i32, x: i32) -> i32
 { unsafe { ll::mvwin(w, y, x) } }
 
 #[fixed_stack_segment]
-pub fn mvwinch(w: WINDOW_p, y: i32, x: i32) -> u32
+pub fn mvwinch(w: WINDOW, y: i32, x: i32) -> u32
 { unsafe { ll::mvwinch(w, y, x) } }
 
 #[fixed_stack_segment]
-pub fn mvwinchnstr(w: WINDOW_p, y: i32, x: i32, s: &mut ~[u32], n: i32) -> i32
+pub fn mvwinchnstr(w: WINDOW, y: i32, x: i32, s: &mut ~[u32], n: i32) -> i32
 {
   /* XXX: This is probably broken. */
   s.clear();
@@ -854,7 +855,7 @@ pub fn mvwinchnstr(w: WINDOW_p, y: i32, x: i32, s: &mut ~[u32], n: i32) -> i32
 }
 
 #[fixed_stack_segment]
-pub fn mvwinchstr(w: WINDOW_p, y: i32, x: i32, s: &mut ~[u32]) -> i32
+pub fn mvwinchstr(w: WINDOW, y: i32, x: i32, s: &mut ~[u32]) -> i32
 {
   /* XXX: This is probably broken. */
   unsafe
@@ -873,7 +874,7 @@ pub fn mvwinchstr(w: WINDOW_p, y: i32, x: i32, s: &mut ~[u32]) -> i32
 }
 
 #[fixed_stack_segment]
-pub fn mvwinnstr(w: WINDOW_p, y: i32, x: i32, s: &mut ~str, n: i32) -> i32
+pub fn mvwinnstr(w: WINDOW, y: i32, x: i32, s: &mut ~str, n: i32) -> i32
 {
   use std::cast; 
 
@@ -897,11 +898,11 @@ pub fn mvwinnstr(w: WINDOW_p, y: i32, x: i32, s: &mut ~str, n: i32) -> i32
 }
 
 #[fixed_stack_segment]
-pub fn mvwinsch(w: WINDOW_p, y: i32, x: i32, ch: u32) -> i32
+pub fn mvwinsch(w: WINDOW, y: i32, x: i32, ch: u32) -> i32
 { unsafe { ll::mvwinsch(w, y, x, ch) } }
 
 #[fixed_stack_segment]
-pub fn mvwinsnstr(w: WINDOW_p, y: i32, x: i32, s: &str, n: i32) -> i32
+pub fn mvwinsnstr(w: WINDOW, y: i32, x: i32, s: &str, n: i32) -> i32
 {
   unsafe
   {
@@ -911,7 +912,7 @@ pub fn mvwinsnstr(w: WINDOW_p, y: i32, x: i32, s: &str, n: i32) -> i32
 }
 
 #[fixed_stack_segment]
-pub fn mvwinsstr(w: WINDOW_p, y: i32, x: i32, s: &str) -> i32
+pub fn mvwinsstr(w: WINDOW, y: i32, x: i32, s: &str) -> i32
 {
   unsafe
   {
@@ -921,7 +922,7 @@ pub fn mvwinsstr(w: WINDOW_p, y: i32, x: i32, s: &str) -> i32
 }
 
 #[fixed_stack_segment]
-pub fn mvwinstr(w: WINDOW_p, y: i32, x: i32, s: &mut ~str) -> i32
+pub fn mvwinstr(w: WINDOW, y: i32, x: i32, s: &mut ~str) -> i32
 {
   use std::cast; 
 
@@ -943,7 +944,7 @@ pub fn mvwinstr(w: WINDOW_p, y: i32, x: i32, s: &mut ~str) -> i32
 }
 
 #[fixed_stack_segment]
-pub fn mvwprintw(w: WINDOW_p, y: i32, x: i32, s: &str) -> i32
+pub fn mvwprintw(w: WINDOW, y: i32, x: i32, s: &str) -> i32
 {
   unsafe
   {
@@ -953,7 +954,7 @@ pub fn mvwprintw(w: WINDOW_p, y: i32, x: i32, s: &str) -> i32
 }
 
 #[fixed_stack_segment]
-pub fn mvwvline(w: WINDOW_p, y: i32, x: i32, ch: u32, n: i32) -> i32
+pub fn mvwvline(w: WINDOW, y: i32, x: i32, ch: u32, n: i32) -> i32
 { unsafe { ll::mvwvline(w, y, x, ch, n) } }
 
 #[fixed_stack_segment]
@@ -961,11 +962,11 @@ pub fn napms(ms: i32) -> i32
 { unsafe { ll::napms(ms) } }
 
 #[fixed_stack_segment]
-pub fn newpad(lines: i32, cols: i32) -> WINDOW_p
+pub fn newpad(lines: i32, cols: i32) -> WINDOW
 { unsafe { ll::newpad(lines, cols) } }
 
 #[fixed_stack_segment]
-pub fn newterm(ty: &str, out_fd: FILE_p, in_fd: FILE_p) -> SCREEN_p
+pub fn newterm(ty: &str, out_fd: FILE_p, in_fd: FILE_p) -> SCREEN
 {
   unsafe
   {
@@ -975,7 +976,7 @@ pub fn newterm(ty: &str, out_fd: FILE_p, in_fd: FILE_p) -> SCREEN_p
 }
 
 #[fixed_stack_segment]
-pub fn newwin(lines: i32, cols: i32, y: i32, x: i32) -> WINDOW_p
+pub fn newwin(lines: i32, cols: i32, y: i32, x: i32) -> WINDOW
 { unsafe { ll::newwin(lines, cols, y, x) } }
 
 #[fixed_stack_segment]
@@ -987,7 +988,7 @@ pub fn nocbreak() -> i32
 { unsafe { ll::nocbreak() } }
 
 #[fixed_stack_segment]
-pub fn nodelay(w: WINDOW_p, bf: bool) -> i32
+pub fn nodelay(w: WINDOW, bf: bool) -> i32
 { unsafe { ll::nodelay(w, bf as libc::c_int) } }
 
 #[fixed_stack_segment]
@@ -1007,15 +1008,15 @@ pub fn noraw() -> i32
 { unsafe { ll::noraw() } }
 
 #[fixed_stack_segment]
-pub fn notimeout(w: WINDOW_p, bf: bool) -> i32
+pub fn notimeout(w: WINDOW, bf: bool) -> i32
 { unsafe { ll::notimeout(w, bf as libc::c_int) } }
 
 #[fixed_stack_segment]
-pub fn overlay(src: WINDOW_p, dst: WINDOW_p) -> i32
+pub fn overlay(src: WINDOW, dst: WINDOW) -> i32
 { unsafe { ll::overlay(src, dst) } }
 
 #[fixed_stack_segment]
-pub fn overwrite(src: WINDOW_p, dst: WINDOW_p) -> i32
+pub fn overwrite(src: WINDOW, dst: WINDOW) -> i32
 { unsafe { ll::overwrite(src, dst) } }
 
 #[fixed_stack_segment]
@@ -1027,15 +1028,15 @@ pub fn PAIR_NUMBER(attr: i32) -> i32
 { unsafe { ll::PAIR_NUMBER(attr) } }
 
 #[fixed_stack_segment]
-pub fn pechochar(pad: WINDOW_p, ch: u32) -> i32
+pub fn pechochar(pad: WINDOW, ch: u32) -> i32
 { unsafe { ll::pechochar(pad, ch) } }
 
 #[fixed_stack_segment]
-pub fn pnoutrefresh(pad: WINDOW_p, pmin_row: i32, pmin_col: i32, smin_row: i32, smin_col: i32, smax_row: i32, smax_col: i32) -> i32
+pub fn pnoutrefresh(pad: WINDOW, pmin_row: i32, pmin_col: i32, smin_row: i32, smin_col: i32, smax_row: i32, smax_col: i32) -> i32
 { unsafe { ll::pnoutrefresh(pad, pmin_row, pmin_col, smin_row, smin_col, smax_row, smax_col) } }
 
 #[fixed_stack_segment]
-pub fn prefresh(pad: WINDOW_p, pmin_row: i32, pmin_col: i32, smin_row: i32, smin_col: i32, smax_row: i32, smax_col: i32) -> i32
+pub fn prefresh(pad: WINDOW, pmin_row: i32, pmin_col: i32, smin_row: i32, smin_col: i32, smax_row: i32, smax_col: i32) -> i32
 { unsafe { ll::prefresh(pad, pmin_row, pmin_col, smin_row, smin_col, smax_row, smax_col) } }
 
 #[fixed_stack_segment]
@@ -1059,7 +1060,7 @@ pub fn putp(s: &str) -> i32
 }
 
 #[fixed_stack_segment]
-pub fn putwin(w: WINDOW_p, f: FILE_p) -> i32
+pub fn putwin(w: WINDOW, f: FILE_p) -> i32
 { unsafe { ll::putwin(w, f) } }
 
 #[fixed_stack_segment]
@@ -1071,7 +1072,7 @@ pub fn raw() -> i32
 { unsafe { ll::raw() } }
 
 #[fixed_stack_segment]
-pub fn redrawwin(w: WINDOW_p) -> i32
+pub fn redrawwin(w: WINDOW) -> i32
 { unsafe { ll::redrawwin(w) } }
 
 #[fixed_stack_segment]
@@ -1119,11 +1120,11 @@ pub fn scrl(n: i32) -> i32
 { unsafe { ll::scrl(n) } }
 
 #[fixed_stack_segment]
-pub fn scroll(w: WINDOW_p) -> i32
+pub fn scroll(w: WINDOW) -> i32
 { unsafe { ll::scroll(w) } }
 
 #[fixed_stack_segment]
-pub fn scrollok(w: WINDOW_p, bf: bool) -> i32
+pub fn scrollok(w: WINDOW, bf: bool) -> i32
 { unsafe { ll::scrollok(w, bf as libc::c_int) } }
 
 #[fixed_stack_segment]
@@ -1151,7 +1152,7 @@ pub fn setscrreg(top: i32, bot: i32) -> i32
 { unsafe { ll::setscrreg(top, bot) } }
 
 #[fixed_stack_segment]
-pub fn set_term(s: SCREEN_p) -> SCREEN_p
+pub fn set_term(s: SCREEN) -> SCREEN
 { unsafe { ll::set_term(s) } }
 
 #[fixed_stack_segment]
@@ -1237,15 +1238,15 @@ pub fn start_color() -> i32
 { unsafe { ll::start_color() } }
 
 #[fixed_stack_segment]
-pub fn subpad(w: WINDOW_p, lines: i32, cols: i32, y: i32, x: i32) -> WINDOW_p
+pub fn subpad(w: WINDOW, lines: i32, cols: i32, y: i32, x: i32) -> WINDOW
 { unsafe { ll::subpad(w, lines, cols, y, x) } }
 
 #[fixed_stack_segment]
-pub fn subwin(w: WINDOW_p, lines: i32, cols: i32, y: i32, x: i32) -> WINDOW_p
+pub fn subwin(w: WINDOW, lines: i32, cols: i32, y: i32, x: i32) -> WINDOW
 { unsafe { ll::subwin(w, lines, cols, y, x) } }
 
 #[fixed_stack_segment]
-pub fn syncok(w: WINDOW_p, bf: bool) -> i32
+pub fn syncok(w: WINDOW, bf: bool) -> i32
 { unsafe { ll::syncok(w, bf as libc::c_int) } }
 
 #[fixed_stack_segment]
@@ -1261,11 +1262,11 @@ pub fn timeout(delay: i32)
 { unsafe { ll::timeout(delay) } }
 
 #[fixed_stack_segment]
-pub fn touchline(w: WINDOW_p, start: i32, count: i32) -> i32
+pub fn touchline(w: WINDOW, start: i32, count: i32) -> i32
 { unsafe { ll::touchline(w, start, count) } }
 
 #[fixed_stack_segment]
-pub fn touchwin(w: WINDOW_p) -> i32
+pub fn touchwin(w: WINDOW) -> i32
 { unsafe { ll::touchwin(w) } }
 
 #[fixed_stack_segment]
@@ -1317,7 +1318,7 @@ pub fn ungetch(ch: i32) -> i32
 { unsafe { ll::ungetch(ch) } }
 
 #[fixed_stack_segment]
-pub fn untouchwin(w: WINDOW_p) -> i32
+pub fn untouchwin(w: WINDOW) -> i32
 { unsafe { ll::untouchwin(w) } }
 
 #[fixed_stack_segment]
@@ -1333,19 +1334,19 @@ pub fn vline(ch: u32, n: i32) -> i32
 { unsafe { ll::vline(ch, n) } }
 
 #[fixed_stack_segment]
-pub fn waddch(w: WINDOW_p, ch: u32) -> i32
+pub fn waddch(w: WINDOW, ch: u32) -> i32
 { unsafe { ll::waddch(w, ch) } }
 
 #[fixed_stack_segment]
-pub fn waddchnstr(w: WINDOW_p, s: &[u32], n: i32) -> i32
+pub fn waddchnstr(w: WINDOW, s: &[u32], n: i32) -> i32
 { unsafe { ll::waddchnstr(w, vec::raw::to_ptr(s), n) } }
 
 #[fixed_stack_segment]
-pub fn waddchstr(w: WINDOW_p, s: &[u32]) -> i32
+pub fn waddchstr(w: WINDOW, s: &[u32]) -> i32
 { unsafe { ll::waddchstr(w, vec::raw::to_ptr(s)) } }
 
 #[fixed_stack_segment]
-pub fn waddnstr(w: WINDOW_p, s: &str, n: i32) -> i32
+pub fn waddnstr(w: WINDOW, s: &str, n: i32) -> i32
 {
   unsafe
   {
@@ -1355,7 +1356,7 @@ pub fn waddnstr(w: WINDOW_p, s: &str, n: i32) -> i32
 }
 
 #[fixed_stack_segment]
-pub fn waddstr(w: WINDOW_p, s: &str) -> i32
+pub fn waddstr(w: WINDOW, s: &str) -> i32
 {
   unsafe
   {
@@ -1365,91 +1366,91 @@ pub fn waddstr(w: WINDOW_p, s: &str) -> i32
 }
 
 #[fixed_stack_segment]
-pub fn wattron(w: WINDOW_p, attr: i32) -> i32
+pub fn wattron(w: WINDOW, attr: i32) -> i32
 { unsafe { ll::wattron(w, attr) } }
 
 #[fixed_stack_segment]
-pub fn wattroff(w: WINDOW_p, attr: i32) -> i32
+pub fn wattroff(w: WINDOW, attr: i32) -> i32
 { unsafe { ll::wattroff(w, attr) } }
 
 #[fixed_stack_segment]
-pub fn wattrset(w: WINDOW_p, attr: i32) -> i32
+pub fn wattrset(w: WINDOW, attr: i32) -> i32
 { unsafe { ll::wattrset(w, attr) } }
 
 #[fixed_stack_segment]
-pub fn wattr_get(w: WINDOW_p, attrs: &mut i32, pair: &mut i16) -> i32
+pub fn wattr_get(w: WINDOW, attrs: &mut i32, pair: &mut i16) -> i32
 { unsafe { ll::wattr_get(w, ptr::to_unsafe_ptr(attrs), ptr::to_unsafe_ptr(pair), ptr::null()) } }
 
 #[fixed_stack_segment]
-pub fn wattr_on(w: WINDOW_p, attr: i32) -> i32
+pub fn wattr_on(w: WINDOW, attr: i32) -> i32
 { unsafe { ll::wattr_on(w, attr, ptr::null()) } }
 
 #[fixed_stack_segment]
-pub fn wattr_off(w: WINDOW_p, attr: i32) -> i32
+pub fn wattr_off(w: WINDOW, attr: i32) -> i32
 { unsafe { ll::wattr_off(w, attr, ptr::null()) } }
 
 #[fixed_stack_segment]
-pub fn wattr_set(w: WINDOW_p, attrs: i32, pair: i16) -> i32
+pub fn wattr_set(w: WINDOW, attrs: i32, pair: i16) -> i32
 { unsafe { ll::wattr_set(w, attrs, pair, ptr::null()) } }
 
 #[fixed_stack_segment]
-pub fn wbkgd(w: WINDOW_p, ch: u32) -> i32
+pub fn wbkgd(w: WINDOW, ch: u32) -> i32
 { unsafe { ll::wbkgd(w, ch) } }
 
 #[fixed_stack_segment]
-pub fn wbkgdset(w: WINDOW_p, ch: u32)
+pub fn wbkgdset(w: WINDOW, ch: u32)
 { unsafe { ll::wbkgdset(w, ch) } }
 
 #[fixed_stack_segment]
-pub fn wborder(w: WINDOW_p, ls: u32, rs: u32, ts: u32, bs: u32, tl: u32, tr: u32, bl: u32, br: u32) -> i32
+pub fn wborder(w: WINDOW, ls: u32, rs: u32, ts: u32, bs: u32, tl: u32, tr: u32, bl: u32, br: u32) -> i32
 { unsafe { ll::wborder(w, ls, rs, ts, bs, tl, tr, bl, br) } }
 
 #[fixed_stack_segment]
-pub fn wchgat(w: WINDOW_p, n: i32, attr: i32, color: i16) -> i32
+pub fn wchgat(w: WINDOW, n: i32, attr: i32, color: i16) -> i32
 { unsafe { ll::wchgat(w, n, attr, color, ptr::null()) } }
 
 #[fixed_stack_segment]
-pub fn wclear(w: WINDOW_p) -> i32
+pub fn wclear(w: WINDOW) -> i32
 { unsafe { ll::wclear(w) } }
 
 #[fixed_stack_segment]
-pub fn wclrtobot(w: WINDOW_p) -> i32
+pub fn wclrtobot(w: WINDOW) -> i32
 { unsafe { ll::wclrtobot(w) } }
 
 #[fixed_stack_segment]
-pub fn wclrtoeol(w: WINDOW_p) -> i32
+pub fn wclrtoeol(w: WINDOW) -> i32
 { unsafe { ll::wclrtoeol(w) } }
 
 #[fixed_stack_segment]
-pub fn wcolor_set(w: WINDOW_p, pair: i16) -> i32
+pub fn wcolor_set(w: WINDOW, pair: i16) -> i32
 { unsafe { ll::wcolor_set(w, pair, ptr::null()) } }
 
 #[fixed_stack_segment]
-pub fn wcursyncup(w: WINDOW_p)
+pub fn wcursyncup(w: WINDOW)
 { unsafe { ll::wcursyncup(w) } }
 
 #[fixed_stack_segment]
-pub fn wdelch(w: WINDOW_p) -> i32
+pub fn wdelch(w: WINDOW) -> i32
 { unsafe { ll::wdelch(w) } }
 
 #[fixed_stack_segment]
-pub fn wdeleteln(w: WINDOW_p) -> i32
+pub fn wdeleteln(w: WINDOW) -> i32
 { unsafe { ll::wdeleteln(w) } }
 
 #[fixed_stack_segment]
-pub fn wechochar(w: WINDOW_p, ch: u32) -> i32
+pub fn wechochar(w: WINDOW, ch: u32) -> i32
 { unsafe { ll::wechochar(w, ch) } }
 
 #[fixed_stack_segment]
-pub fn werase(w: WINDOW_p) -> i32
+pub fn werase(w: WINDOW) -> i32
 { unsafe { ll::werase(w) } }
 
 #[fixed_stack_segment]
-pub fn wgetch(w: WINDOW_p) -> i32
+pub fn wgetch(w: WINDOW) -> i32
 { unsafe { ll::wgetch(w) } }
 
 #[fixed_stack_segment]
-pub fn wgetnstr(w: WINDOW_p, s: &mut ~str, n: i32) -> i32
+pub fn wgetnstr(w: WINDOW, s: &mut ~str, n: i32) -> i32
 {
   /* XXX: This is probably broken. */
   use std::cast;
@@ -1473,7 +1474,7 @@ pub fn wgetnstr(w: WINDOW_p, s: &mut ~str, n: i32) -> i32
 }
 
 #[fixed_stack_segment]
-pub fn wgetstr(w: WINDOW_p, s: &mut ~str) -> i32
+pub fn wgetstr(w: WINDOW, s: &mut ~str) -> i32
 {
   /* XXX: This is probably broken. */
   let mut ch = wgetch(w);
@@ -1486,15 +1487,15 @@ pub fn wgetstr(w: WINDOW_p, s: &mut ~str) -> i32
 }
 
 #[fixed_stack_segment]
-pub fn whline(w: WINDOW_p, ch: u32, n: i32) -> i32
+pub fn whline(w: WINDOW, ch: u32, n: i32) -> i32
 { unsafe { ll::whline(w, ch, n) } }
 
 #[fixed_stack_segment]
-pub fn winch(w: WINDOW_p) -> u32
+pub fn winch(w: WINDOW) -> u32
 { unsafe { ll::winch(w) } }
 
 #[fixed_stack_segment]
-pub fn winchnstr(w: WINDOW_p, s: &mut ~[u32], n: i32) -> i32
+pub fn winchnstr(w: WINDOW, s: &mut ~[u32], n: i32) -> i32
 {
   /* XXX: This is probably broken. */
   s.clear();
@@ -1515,7 +1516,7 @@ pub fn winchnstr(w: WINDOW_p, s: &mut ~[u32], n: i32) -> i32
 }
 
 #[fixed_stack_segment]
-pub fn winchstr(w: WINDOW_p, s: &mut ~[u32]) -> i32
+pub fn winchstr(w: WINDOW, s: &mut ~[u32]) -> i32
 {
   /* XXX: This is probably broken. */
   unsafe
@@ -1534,7 +1535,7 @@ pub fn winchstr(w: WINDOW_p, s: &mut ~[u32]) -> i32
 }
 
 #[fixed_stack_segment]
-pub fn winnstr(w: WINDOW_p, s: &mut ~str, n: i32) -> i32
+pub fn winnstr(w: WINDOW, s: &mut ~str, n: i32) -> i32
 {
   use std::cast; 
 
@@ -1558,19 +1559,19 @@ pub fn winnstr(w: WINDOW_p, s: &mut ~str, n: i32) -> i32
 }
 
 #[fixed_stack_segment]
-pub fn winsch(w: WINDOW_p, ch: u32) -> i32
+pub fn winsch(w: WINDOW, ch: u32) -> i32
 { unsafe { ll::winsch(w, ch) } }
 
 #[fixed_stack_segment]
-pub fn winsdelln(w: WINDOW_p, n: i32) -> i32
+pub fn winsdelln(w: WINDOW, n: i32) -> i32
 { unsafe { ll::winsdelln(w, n) } }
 
 #[fixed_stack_segment]
-pub fn winsertln(w: WINDOW_p) -> i32
+pub fn winsertln(w: WINDOW) -> i32
 { unsafe { ll::winsertln(w) } }
 
 #[fixed_stack_segment]
-pub fn winsnstr(w: WINDOW_p, s: &str, n: i32) -> i32
+pub fn winsnstr(w: WINDOW, s: &str, n: i32) -> i32
 {
   use std::cast;
 
@@ -1582,7 +1583,7 @@ pub fn winsnstr(w: WINDOW_p, s: &str, n: i32) -> i32
 }
 
 #[fixed_stack_segment]
-pub fn winsstr(w: WINDOW_p, s: &str) -> i32
+pub fn winsstr(w: WINDOW, s: &str) -> i32
 {
   use std::cast;
 
@@ -1594,7 +1595,7 @@ pub fn winsstr(w: WINDOW_p, s: &str) -> i32
 }
 
 #[fixed_stack_segment]
-pub fn winstr(w: WINDOW_p, s: &mut ~str) -> i32
+pub fn winstr(w: WINDOW, s: &mut ~str) -> i32
 {
   use std::cast; 
 
@@ -1616,15 +1617,15 @@ pub fn winstr(w: WINDOW_p, s: &mut ~str) -> i32
 }
 
 #[fixed_stack_segment]
-pub fn wmove(w: WINDOW_p, y: i32, x: i32) -> i32
+pub fn wmove(w: WINDOW, y: i32, x: i32) -> i32
 { unsafe { ll::wmove(w, y, x) } }
 
 #[fixed_stack_segment]
-pub fn wnoutrefresh(w: WINDOW_p) -> i32
+pub fn wnoutrefresh(w: WINDOW) -> i32
 { unsafe { ll::wnoutrefresh(w) } }
 
 #[fixed_stack_segment]
-pub fn wprintw(w: WINDOW_p, s: &str) -> i32
+pub fn wprintw(w: WINDOW, s: &str) -> i32
 {
   unsafe
   {
@@ -1634,55 +1635,55 @@ pub fn wprintw(w: WINDOW_p, s: &str) -> i32
 }
 
 #[fixed_stack_segment]
-pub fn wredrawln(w: WINDOW_p, start: i32, n: i32) -> i32
+pub fn wredrawln(w: WINDOW, start: i32, n: i32) -> i32
 { unsafe { ll::wredrawln(w, start, n) } }
 
 #[fixed_stack_segment]
-pub fn wrefresh(w: WINDOW_p) -> i32
+pub fn wrefresh(w: WINDOW) -> i32
 { unsafe { ll::wrefresh(w) } }
 
 #[fixed_stack_segment]
-pub fn wscrl(w: WINDOW_p, n: i32) -> i32
+pub fn wscrl(w: WINDOW, n: i32) -> i32
 { unsafe { ll::wscrl(w, n) } }
 
 #[fixed_stack_segment]
-pub fn wsetscrreg(w: WINDOW_p, top: i32, bot: i32) -> i32
+pub fn wsetscrreg(w: WINDOW, top: i32, bot: i32) -> i32
 { unsafe { ll::wsetscrreg(w, top, bot) } }
 
 #[fixed_stack_segment]
-pub fn wstandout(w: WINDOW_p) -> i32
+pub fn wstandout(w: WINDOW) -> i32
 { unsafe { ll::wstandout(w) } }
 
 #[fixed_stack_segment]
-pub fn wstandend(w: WINDOW_p) -> i32
+pub fn wstandend(w: WINDOW) -> i32
 { unsafe { ll::wstandend(w) } }
 
 #[fixed_stack_segment]
-pub fn wsyncdown(w: WINDOW_p)
+pub fn wsyncdown(w: WINDOW)
 { unsafe { ll::wsyncdown(w) } }
 
 #[fixed_stack_segment]
-pub fn wsyncup(w: WINDOW_p)
+pub fn wsyncup(w: WINDOW)
 { unsafe { ll::wsyncup(w) } }
 
 #[fixed_stack_segment]
-pub fn wtimeout(w: WINDOW_p, delay: i32)
+pub fn wtimeout(w: WINDOW, delay: i32)
 { unsafe { ll::wtimeout(w, delay) } }
 
 #[fixed_stack_segment]
-pub fn wtouchln(w: WINDOW_p, y: i32, n: i32, changed: i32) -> i32
+pub fn wtouchln(w: WINDOW, y: i32, n: i32, changed: i32) -> i32
 { unsafe { ll::wtouchln(w, y, n, changed) } }
 
 #[fixed_stack_segment]
-pub fn wvline(w: WINDOW_p, ch: u32, n: i32) -> i32
+pub fn wvline(w: WINDOW, ch: u32, n: i32) -> i32
 { unsafe { ll::wvline(w, ch, n) } }
 
 #[fixed_stack_segment]
-pub fn wgetparent(w: WINDOW_p) -> WINDOW_p
+pub fn wgetparent(w: WINDOW) -> WINDOW
 { unsafe { ll::wgetparent(w) } }
 
 #[fixed_stack_segment]
-pub fn wgetscrreg(w: WINDOW_p, top: &mut i32, bot: &mut i32) -> i32
+pub fn wgetscrreg(w: WINDOW, top: &mut i32, bot: &mut i32) -> i32
 { unsafe { ll::wgetscrreg(w, ptr::to_unsafe_ptr(top), ptr::to_unsafe_ptr(bot)) } }
 
 /* Attributes */
@@ -1756,19 +1757,19 @@ pub fn COLOR_PAIR(n: i16) -> i32
  * performance.
  */
 #[fixed_stack_segment]
-pub fn getyx(win: WINDOW_p, y: &mut i32, x: &mut i32)
+pub fn getyx(win: WINDOW, y: &mut i32, x: &mut i32)
 { unsafe { *y = ll::getcury(win); *x = ll::getcurx(win); } }
 
 #[fixed_stack_segment]
-pub fn getbegyx(win: WINDOW_p, y: &mut i32, x: &mut i32)
+pub fn getbegyx(win: WINDOW, y: &mut i32, x: &mut i32)
 { unsafe { *y = ll::getbegy(win); *x = ll::getbegx(win) } }
 
 #[fixed_stack_segment]
-pub fn getmaxyx(win: WINDOW_p, y: &mut i32, x: &mut i32)
+pub fn getmaxyx(win: WINDOW, y: &mut i32, x: &mut i32)
 { unsafe { *y = ll::getmaxy(win); *x = ll::getmaxx(win) } }
 
 #[fixed_stack_segment]
-pub fn getparyx(win: WINDOW_p, y: &mut i32, x: &mut i32)
+pub fn getparyx(win: WINDOW, y: &mut i32, x: &mut i32)
 { unsafe { *y = ll::getpary(win); *x = ll::getparx(win) } }
 
 #[fixed_stack_segment]
@@ -1794,7 +1795,7 @@ pub fn setsyx(y: &mut i32, x: &mut i32)
 {
   unsafe 
   {
-    if newscr !=(0 as WINDOW_p)
+    if newscr !=(0 as WINDOW)
     {
       if *y == -1 && *x == -1
       {
