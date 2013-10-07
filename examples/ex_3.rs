@@ -8,7 +8,7 @@
       Implementation of a very simple pager.
 
       Usage:
-        ./bin/ex_3 <some file>
+        ./bin/ex_3 <rust file>
       Example:
         ./bin/ex_3 examples/ex_3.rs
 */
@@ -24,7 +24,11 @@ fn open_file() -> @io::Reader
 {
   let args = os::args();
   if args.len() != 2
-  { fail!("Usage: %s <some file>", args[0]); }
+  {
+    println!("Usage:\n\t{} <rust file>", args[0]);
+    println!("Example:\n\t{} examples/ex_3.rs", args[0]);
+    fail!("Exiting");
+  }
 
   let reader = io::file_reader(&path::Path(args[1]));
   reader.expect("Unable to open file")
