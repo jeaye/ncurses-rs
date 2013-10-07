@@ -10,6 +10,8 @@
       around the screen.
 */
 
+#[feature(globs)];
+
 extern mod ncurses;
 
 use ncurses::*;

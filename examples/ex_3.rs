@@ -13,6 +13,8 @@
         ./bin/ex_3 examples/ex_3.rs
 */
 
+#[feature(globs)];
+
 extern mod ncurses;
 
 use std::{ io, os, path };

@@ -10,6 +10,7 @@
 
 #[link(name="ncurses", vers="5.7")];
 #[crate_type = "lib"];
+#[feature(globs)];
 
 use std::{ str, vec, char, libc, ptr };
 use self::ll::*;

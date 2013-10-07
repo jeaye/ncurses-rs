@@ -8,6 +8,8 @@
       Basic input and attribute example.
 */
 
+#[feature(globs)];
+
 extern mod ncurses;
 
 use std::char;

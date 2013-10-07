@@ -14,6 +14,8 @@
         ./bin/ex_5 examples/ex_5.rs
 */
 
+#[feature(globs)];
+
 extern mod ncurses;
 
 use std::{ char, io, os, path };
@@ -103,7 +105,6 @@ impl Pager
     noecho();
 
     /* Start colors. */
-    assert!(has_colors());
     start_color();
     init_color(COLOR_BACKGROUND, 0, 43 * 4, 54 * 4);
     init_color(COLOR_FOREGROUND, 142 * 4, 161 * 4, 161 * 4);

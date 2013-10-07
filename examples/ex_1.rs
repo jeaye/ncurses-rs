@@ -8,6 +8,8 @@
       Simple "Hello, world" example.
 */
 
+#[feature(globs)];
+
 extern mod ncurses;
 
 use ncurses::*;
