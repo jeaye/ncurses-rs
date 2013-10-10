@@ -14,7 +14,6 @@
 
 use std::{ str, vec, char, libc, ptr };
 use self::ll::*;
-pub use self::ll::{ WINDOW, SCREEN };
 pub use self::constants::*;
 
 pub mod ll;
@@ -26,6 +25,9 @@ pub enum CURSOR_VISIBILITY
   CURSOR_VISIBLE,
   CURSOR_VERY_vISIBLE,
 }
+
+pub type WINDOW = self::ll::WINDOW;
+pub type SCREEN = self::ll::SCREEN;
 
 #[fixed_stack_segment]
 pub fn addch(ch: u32) -> i32
