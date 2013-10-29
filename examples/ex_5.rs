@@ -15,10 +15,14 @@
 */
 
 #[feature(globs)];
+#[feature(managed_boxes)];
 
 extern mod ncurses;
 
-use std::{ char, io, os, path };
+use std::{ char, os };
+use std::rt::io;
+use std::rt::io::Reader;
+use std::rt::io::file::FileInfo;
 use ncurses::*;
 
 /* Individual color handles. */
@@ -43,30 +47,30 @@ static COLOR_PAIR_CHAR: i16 = 7;
 static COLOR_PAIR_NUMBER: i16 = 8;
 
 /* Word delimiters. */
-static word_limits: &'static [int] = &'static
+static word_limits: &'static [u8] = &'static
 [
-  ' ' as int,
-  '(' as int,
-  ')' as int,
-  ':' as int,
-  ';' as int,
-  '&' as int,
-  '+' as int,
-  '-' as int,
-  ',' as int,
-  '.' as int,
-  '@' as int,
-  '~' as int,
-  '\\' as int,
-  '\n' as int,
-  '\r' as int,
-  '\0' as int,
-  -1 as int,
+  ' ' as u8,
+  '(' as u8,
+  ')' as u8,
+  ':' as u8,
+  ';' as u8,
+  '&' as u8,
+  '+' as u8,
+  '-' as u8,
+  ',' as u8,
+  '.' as u8,
+  '@' as u8,
+  '~' as u8,
+  '\\' as u8,
+  '\n' as u8,
+  '\r' as u8,
+  '\0' as u8,
+  -1 as u8,
 ];
 
 struct Pager
 {
-  file_reader: @io::Reader,
+  file_reader: io::file::FileReader,
 
   in_comment: bool,
   in_string: bool,
@@ -133,16 +137,16 @@ impl Pager
   }
 
   /* Returns the word and delimiter following it. */
-  pub fn read_word(&self) -> (~str, char)
+  pub fn read_word(&mut self) -> (~str, char)
   {
     let mut s = ~"";
-    let mut ch = self.file_reader.read_byte();
+    let mut ch = self.file_reader.read_byte().expect("Unable to read byte");
 
     /* Read until we hit a word delimiter. */
     while !word_limits.contains(&ch)
     {
       s.push_char(char::from_u32(ch as u32).unwrap());
-      ch = self.file_reader.read_byte();
+      ch = self.file_reader.read_byte().expect("Unable to read byte");
     }
 
     /* Return the word string and the terminating delimiter. */
@@ -209,7 +213,7 @@ impl Pager
 
     /* Trim the word of all delimiters. */
     let word = word.trim_chars(&|ch: char|
-                               { word_limits.contains(&(ch as int)) });
+                               { word_limits.contains(&(ch as u8)) });
     if word.len() == 0
     { return 0; }
 
@@ -300,7 +304,7 @@ fn main()
     /* Read a word at a time. */
     let (word, leftover) = pager.read_word();
     let attr = pager.highlight_word(word);
-    let leftover_attr = pager.highlight_word(fmt!("%c", leftover));
+    let leftover_attr = pager.highlight_word(format!("{}", leftover));
 
     /* Get the current position on the screen. */
     getyx(stdscr, &mut pager.curr_y, &mut pager.curr_x);
@@ -336,7 +340,7 @@ fn prompt()
   attroff(A_BOLD());
 }
 
-fn open_file() -> @io::Reader
+fn open_file() -> io::file::FileReader
 {
   let args = os::args();
   if args.len() != 2
@@ -346,7 +350,6 @@ fn open_file() -> @io::Reader
     fail!("Exiting");
   }
 
-  let reader = io::file_reader(&path::Path(args[1]));
+  let reader = Path::new(args[1]).open_reader(io::Open);
   reader.expect("Unable to open file")
 }
-

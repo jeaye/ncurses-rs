@@ -9,6 +9,7 @@
 */
 
 #[feature(globs)];
+#[feature(managed_boxes)];
 
 extern mod ncurses;
 
@@ -43,7 +44,7 @@ fn main()
     /* Enable attributes and output message. */
     printw("\nKey pressed: ");
     attron(A_BOLD() | A_BLINK());
-    printw(fmt!("%c\n", char::from_u32(ch as u32).expect("Invalid char")));
+    printw(format!("{}\n", char::from_u32(ch as u32).expect("Invalid char")));
     attroff(A_BOLD() | A_BLINK());
   }
 

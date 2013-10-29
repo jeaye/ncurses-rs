@@ -14,13 +14,17 @@
 */
 
 #[feature(globs)];
+#[feature(managed_boxes)];
 
 extern mod ncurses;
 
-use std::{ io, os, path };
+use std::os;
+use std::rt::io;
+use std::rt::io::Reader;
+use std::rt::io::file::FileInfo;
 use ncurses::*;
 
-fn open_file() -> @io::Reader
+fn open_file() -> io::file::FileReader
 {
   let args = os::args();
   if args.len() != 2
@@ -30,7 +34,7 @@ fn open_file() -> @io::Reader
     fail!("Exiting");
   }
 
-  let reader = io::file_reader(&path::Path(args[1]));
+  let reader = Path::new(args[1]).open_reader(io::Open);
   reader.expect("Unable to open file")
 }
 
@@ -42,7 +46,7 @@ fn prompt()
 
 fn main()
 {
-  let reader = open_file();
+  let mut reader = open_file();
 
   /* Start ncurses. */
   initscr();
@@ -58,7 +62,10 @@ fn main()
   while !reader.eof()
   {
     /* Read a character at a time. */
-    let ch = reader.read_char();
+    let ch = reader.read_byte();
+    if ch.is_none()
+    { break; }
+    let ch = ch.unwrap();
 
     /* Get the current position on the screen. */
     let mut cur_x = 0;

@@ -11,6 +11,7 @@
 #[link(name="ncurses", vers="5.7")];
 #[crate_type = "lib"];
 #[feature(globs)];
+#[feature(managed_boxes)];
 
 use std::{ str, vec, char, libc, ptr };
 use self::ll::*;
