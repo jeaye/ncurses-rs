@@ -42,5 +42,5 @@ all: .build_examples
 
 clean:
 	find . -type f -name '.build_*' | xargs rm -f
-	echo "${PREFIX} Cleaned\n"
+	echo "${PREFIX} Cleaned"
 
