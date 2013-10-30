@@ -1163,17 +1163,17 @@ pub fn set_term(s: SCREEN) -> SCREEN
 pub fn slk_attroff(ch: u32) -> i32
 { unsafe { ll::slk_attroff(ch) } }
 
-#[fixed_stack_segment]
-pub fn slk_attr_off(ch: i32) -> i32
-{ unsafe { ll::slk_attr_off(ch, ptr::null()) } }
+//#[fixed_stack_segment]
+//pub fn slk_attr_off(ch: i32) -> i32
+//{ unsafe { ll::slk_attr_off(ch, ptr::null()) } }
 
 #[fixed_stack_segment]
 pub fn slk_attron(ch: u32) -> i32
 { unsafe { ll::slk_attron(ch) } }
 
-#[fixed_stack_segment]
-pub fn slk_attr_on(ch: i32) -> i32
-{ unsafe { ll::slk_attr_on(ch, ptr::null()) } }
+//#[fixed_stack_segment]
+//pub fn slk_attr_on(ch: i32) -> i32
+//{ unsafe { ll::slk_attr_on(ch, ptr::null()) } }
 
 #[fixed_stack_segment]
 pub fn slk_attrset(ch: u32) -> i32
