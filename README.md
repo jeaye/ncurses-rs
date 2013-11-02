@@ -1,4 +1,4 @@
-ncurses-rs
+ncurses-rs ![Build Status](https://travis-ci.org/jeaye/ncurses-rs.png)
 ==========
 
 There is not yet any test suite, so, rest assured, there
