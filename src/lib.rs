@@ -181,7 +181,7 @@ pub fn curs_set(visibility: CURSOR_VISIBILITY) -> Option<CURSOR_VISIBILITY>
     match ll::curs_set(visibility as i32)
     {
       ERR => None,
-      ret => Some(cast::transmute::<i64, CURSOR_VISIBILITY>(ret as i64)),
+      ret => Some(cast::transmute::<i8, CURSOR_VISIBILITY>(ret as i8)),
     }
   }
 }
