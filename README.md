@@ -8,7 +8,7 @@ submit a pull request!
 ## Building
 The compiled library will go to the `lib` directory.
 ```
-make
+make clean && make -B
 ```
 
 ## Examples
@@ -24,7 +24,7 @@ Current examples:
 **5.** [Pager & Syntax Highlighting](https://github.com/jeaye/ncurses-rs/blob/master/examples/ex_5.rs)  
 
 ## Thanks
-Thanks for pnkfelix for his initial version of this
+Thanks to pnkfelix for his initial version of this
 library, [rust-curses](https://github.com/pnkfelix/rust-curses),
 from which ncurses-rs was able to blossom.
 

@@ -15,16 +15,16 @@
 
 #[feature(globs)];
 #[feature(managed_boxes)];
+#[link_args = "-lncursesw -lncurses"];
 
 extern mod ncurses;
 
 use std::os;
 use std::rt::io;
-use std::rt::io::Reader;
-use std::rt::io::file::FileInfo;
+use std::rt::io::File;
 use ncurses::*;
 
-fn open_file() -> io::file::FileReader
+fn open_file() -> io::File
 {
   let args = os::args();
   if args.len() != 2
@@ -34,7 +34,7 @@ fn open_file() -> io::file::FileReader
     fail!("Exiting");
   }
 
-  let reader = Path::new(args[1]).open_reader(io::Open);
+  let reader = File::open(&Path::new(args[1]));
   reader.expect("Unable to open file")
 }
 

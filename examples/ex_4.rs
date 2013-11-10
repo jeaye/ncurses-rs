@@ -12,6 +12,7 @@
 
 #[feature(globs)];
 #[feature(managed_boxes)];
+#[link_args = "-lncursesw -lncurses"];
 
 extern mod ncurses;
 

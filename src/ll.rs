@@ -31,7 +31,7 @@ pub type va_list = *u8;
 pub struct WINDOW_impl;
 pub struct SCREEN_impl;
 
-#[link_args = "-lncurses"]
+#[link_args = "-lncursesw -lncurses"]
 extern
 {
   pub fn addch(_:chtype) -> c_int;

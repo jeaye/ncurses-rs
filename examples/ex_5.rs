@@ -16,13 +16,13 @@
 
 #[feature(globs)];
 #[feature(managed_boxes)];
+#[link_args = "-lncursesw -lncurses"];
 
 extern mod ncurses;
 
 use std::{ char, os };
 use std::rt::io;
-use std::rt::io::Reader;
-use std::rt::io::file::FileInfo;
+use std::rt::io::File;
 use ncurses::*;
 
 /* Individual color handles. */
@@ -70,7 +70,7 @@ static word_limits: &'static [u8] = &'static
 
 struct Pager
 {
-  file_reader: io::file::FileReader,
+  file_reader: io::File,
 
   in_comment: bool,
   in_string: bool,
@@ -340,7 +340,7 @@ fn prompt()
   attroff(A_BOLD());
 }
 
-fn open_file() -> io::file::FileReader
+fn open_file() -> io::File
 {
   let args = os::args();
   if args.len() != 2
@@ -350,6 +350,6 @@ fn open_file() -> io::file::FileReader
     fail!("Exiting");
   }
 
-  let reader = Path::new(args[1]).open_reader(io::Open);
+  let reader = File::open(&Path::new(args[1]));
   reader.expect("Unable to open file")
 }
