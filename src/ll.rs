@@ -31,7 +31,12 @@ pub type va_list = *u8;
 pub struct WINDOW_impl;
 pub struct SCREEN_impl;
 
-#[link_args = "-lncursesw -lncurses"]
+#[nolink]
+#[cfg(target_os = "linux")]
+#[link_args="-lGL"]
+extern { }
+
+#[link_args = "-lncurses"]
 extern
 {
   pub fn addch(_:chtype) -> c_int;
