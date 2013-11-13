@@ -12,11 +12,16 @@
 
 #[feature(globs)];
 #[feature(managed_boxes)];
-#[link_args = "-lncursesw -lncurses"];
+#[link_args = "-lncurses"];
 
 extern mod ncurses;
 
 use ncurses::*;
+
+#[nolink]
+#[cfg(target_os = "linux")]
+#[link_args="-lGL"]
+extern { }
 
 static WINDOW_HEIGHT: i32 = 3;
 static WINDOW_WIDTH: i32 = 10;

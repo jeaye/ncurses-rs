@@ -16,7 +16,7 @@
 
 #[feature(globs)];
 #[feature(managed_boxes)];
-#[link_args = "-lncursesw -lncurses"];
+#[link_args = "-lncurses"];
 
 extern mod ncurses;
 
@@ -24,6 +24,11 @@ use std::{ char, os };
 use std::rt::io;
 use std::rt::io::File;
 use ncurses::*;
+
+#[nolink]
+#[cfg(target_os = "linux")]
+#[link_args="-lGL"]
+extern { }
 
 /* Individual color handles. */
 static COLOR_BACKGROUND: i16 = 16;

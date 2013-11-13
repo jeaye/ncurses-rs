@@ -42,5 +42,6 @@ all: .build_examples
 
 clean:
 	find . -type f -name '.build_*' | xargs rm -f
+	rm lib/libncurses*
 	echo "${PREFIX} Cleaned"
 

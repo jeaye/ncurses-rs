@@ -15,7 +15,7 @@
 
 #[feature(globs)];
 #[feature(managed_boxes)];
-#[link_args = "-lncursesw -lncurses"];
+#[link_args = "-lncurses"];
 
 extern mod ncurses;
 
@@ -23,6 +23,11 @@ use std::os;
 use std::rt::io;
 use std::rt::io::File;
 use ncurses::*;
+
+#[nolink]
+#[cfg(target_os = "linux")]
+#[link_args="-lGL"]
+extern { }
 
 fn open_file() -> io::File
 {
