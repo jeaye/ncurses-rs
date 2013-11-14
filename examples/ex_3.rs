@@ -20,8 +20,8 @@
 extern mod ncurses;
 
 use std::os;
-use std::rt::io;
-use std::rt::io::File;
+use std::io;
+use std::io::File;
 use ncurses::*;
 
 #[nolink]
@@ -57,7 +57,7 @@ fn main()
   initscr();
   keypad(stdscr, true);
   noecho();
-  
+
   /* Get the screen bounds. */
   let mut max_x = 0;
   let mut max_y = 0;

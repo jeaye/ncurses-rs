@@ -21,8 +21,8 @@
 extern mod ncurses;
 
 use std::{ char, os };
-use std::rt::io;
-use std::rt::io::File;
+use std::io;
+use std::io::File;
 use ncurses::*;
 
 #[nolink]
