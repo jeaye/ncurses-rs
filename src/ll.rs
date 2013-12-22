@@ -33,10 +33,10 @@ pub struct SCREEN_impl;
 
 #[nolink]
 #[cfg(target_os = "linux")]
-#[link_args="-lGL"]
+#[link(name = "GL")]
 extern { }
 
-#[link_args = "-lncurses"]
+#[link(name = "ncurses")]
 extern
 {
   pub fn addch(_:chtype) -> c_int;
@@ -56,7 +56,7 @@ extern
   pub fn bkgd(_:chtype) -> c_int;
   pub fn bkgdset(_:chtype);
   pub fn border(_:chtype,_:chtype,_:chtype,_:chtype,_:chtype,_:chtype,_:chtype,_:chtype) -> c_int;
-  pub fn box(_:WINDOW, _:chtype, _:chtype) -> c_int;
+  pub fn box_(_:WINDOW, _:chtype, _:chtype) -> c_int;
   pub fn can_change_color() -> c_int;
   pub fn cbreak() -> c_int;
   pub fn chgat(_:c_int, _:attr_t, _:c_short, _:void_p) -> c_int;

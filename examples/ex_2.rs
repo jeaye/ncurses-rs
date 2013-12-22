@@ -10,7 +10,7 @@
 
 #[feature(globs)];
 #[feature(managed_boxes)];
-#[link_args = "-lncurses"];
+#[link(name = "ncurses")];
 
 extern mod ncurses;
 
@@ -19,7 +19,7 @@ use ncurses::*;
 
 #[nolink]
 #[cfg(target_os = "linux")]
-#[link_args="-lGL"]
+#[link(name = "GL")]
 extern { }
 
 fn main()
