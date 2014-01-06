@@ -16,7 +16,6 @@
 
 #[feature(globs)];
 #[feature(managed_boxes)];
-#[link(name = "ncurses")];
 
 extern mod ncurses;
 
