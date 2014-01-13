@@ -93,7 +93,7 @@ fn main()
 fn create_win(start_y: i32, start_x: i32) -> WINDOW
 {
   let win = newwin(WINDOW_HEIGHT, WINDOW_WIDTH, start_y, start_x);
-  box(win, 0, 0);
+  box_(win, 0, 0);
   wrefresh(win);
   win
 }
