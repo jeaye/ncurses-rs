@@ -12,6 +12,7 @@
 #[crate_type = "lib"];
 #[feature(globs)];
 #[feature(managed_boxes)];
+#[feature(macro_rules)];
 
 use std::{ str, char, libc, ptr };
 use self::ll::*;
