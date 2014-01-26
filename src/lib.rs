@@ -29,7 +29,8 @@ pub enum CURSOR_VISIBILITY
 
 pub type WINDOW = self::ll::WINDOW;
 pub type SCREEN = self::ll::SCREEN;
-
+pub type mmaskt = self::ll::mmask_t;
+pub type MEVENT = self::ll::MEVENT;
 
 pub fn addch(ch: u32) -> i32
 { unsafe { ll::addch(ch) } }
@@ -1966,3 +1967,30 @@ pub fn KEY_F(n: u8) -> i32
   KEY_F0 + n as i32
 }
 
+/*
+ * Added mouse support
+ */
+
+pub fn has_mouse() -> i32
+{ unsafe { ll::has_mouse() } }
+
+pub fn getmouse(event: *MEVENT) -> i32
+{ unsafe { ll::getmouse(event) } }
+
+pub fn ungetmouse(event: *MEVENT) -> i32
+{ unsafe { ll::ungetmouse(event) } }
+
+pub fn mouseinterval(n: i32) -> i32
+{ unsafe { ll::mouseinterval(n) } }
+
+pub fn mousemask(newmask: mmask_t, oldmask: &[mmask_t]) -> mmask_t
+{ unsafe { ll::mousemask(newmask, oldmask.as_ptr()) } }
+
+pub fn wenclose(w: WINDOW, y: i32, x: i32) -> i32
+{ unsafe { ll::wenclose(w, y as libc::c_int, x as libc::c_int) } }
+
+pub fn wmouse_trafo(w: *WINDOW, y: &[i32], x: &[i32], to_screen: bool) -> i32
+{ unsafe { ll::wmouse_trafo(w, y.as_ptr(), x.as_ptr(), to_screen as libc::c_int) } }
+
+pub fn mouse_trafo( y: &[i32], x: &[i32], to_screen: bool  ) -> i32
+{ unsafe { ll::mouse_trafo(y.as_ptr(), x.as_ptr(), to_screen as libc::c_int ) } }

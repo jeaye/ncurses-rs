@@ -13,6 +13,7 @@ use std::libc::{ c_char, c_int, c_short, c_uint, c_void, FILE };
 
 /* Intrinsic types. */
 pub type chtype = c_uint;
+pub type mmask_t = c_uint;
 pub type attr_t = c_int;
 pub type NCURSES_ATTR_T = attr_t;
 
@@ -30,6 +31,8 @@ pub type va_list = *u8;
 /* Custom Types. */
 pub struct WINDOW_impl;
 pub struct SCREEN_impl;
+
+pub struct MEVENT { id: c_short, x: c_int, y: c_int, z: c_int, bstate: mmask_t}
 
 #[nolink]
 #[cfg(target_os = "linux")]
@@ -346,5 +349,16 @@ extern
   pub fn is_scrollok(_:WINDOW) -> c_int;
   pub fn is_syncok(_:WINDOW) -> c_int;
   pub fn wgetscrreg(_:WINDOW, _:*c_int, _:*c_int) -> c_int;
+  /*
+   * Added mouse support
+   */
+  pub fn has_mouse() -> c_int; 
+  pub fn getmouse(_:*MEVENT) -> c_int;
+  pub fn ungetmouse(_:*MEVENT) -> c_int;
+  pub fn mousemask(_:mmask_t,_:*mmask_t) -> mmask_t;
+  pub fn wenclose(_:WINDOW,_:c_int,_:c_int) -> c_int;
+  pub fn mouseinterval(_:c_int) -> c_int;
+  pub fn wmouse_trafo(_:*WINDOW,_:*c_int,_:*c_int,_:c_int) -> c_int;
+  pub fn mouse_trafo(_:*c_int,_:*c_int,_:c_int) -> c_int;
 }
 
