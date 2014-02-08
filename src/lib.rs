@@ -1986,8 +1986,8 @@ pub fn mouseinterval(n: i32) -> i32
 
 pub fn mousemask(newmask: mmask_t, oldmask: Option<&mmask_t>) -> mmask_t
 {
-    if oldmask.is_none() { ll::mousemask(newmask, ptr::null()) }
-    else { ll::mousemask(newmask, oldmask.unwrap()) }
+    if oldmask.is_none() { unsafe { ll::mousemask(newmask, ptr::null()) } }
+    else { unsafe { ll::mousemask(newmask, oldmask.unwrap()) } }
 }
 
 pub fn wenclose(w: WINDOW, y: i32, x: i32) -> i32
