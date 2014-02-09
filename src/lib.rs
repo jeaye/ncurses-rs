@@ -275,7 +275,7 @@ pub fn getnstr(s: &mut ~str, n: i32) -> i32
   use std::cast;
 
   s.clear();
-  s.reserve_at_least(n as uint);
+  s.reserve(n as uint);
   unsafe
   {
     let buf = s.as_ptr();
@@ -386,7 +386,7 @@ pub fn inchnstr(s: &mut ~[u32], n: i32) -> i32
 {
   /* XXX: This is probably broken. */
   s.clear();
-  s.reserve_at_least(n as uint);
+  s.reserve(n as uint);
   unsafe
   {
     let ret = ll::inchnstr(s.as_ptr(), n);
@@ -440,7 +440,7 @@ pub fn innstr(s: &mut ~str, n: i32) -> i32
 
   /* XXX: This is probably broken. */
   s.clear();
-  s.reserve_at_least(n as uint);
+  s.reserve(n as uint);
   unsafe
   {
     let buf = s.as_ptr();
@@ -794,7 +794,7 @@ pub fn mvwgetnstr(w: WINDOW, y: i32, x: i32, s: &mut ~str, n: i32) -> i32
   use std::cast;
 
   s.clear();
-  s.reserve_at_least(n as uint);
+  s.reserve(n as uint);
   unsafe
   {
     let buf = s.as_ptr();
@@ -844,7 +844,7 @@ pub fn mvwinchnstr(w: WINDOW, y: i32, x: i32, s: &mut ~[u32], n: i32) -> i32
 {
   /* XXX: This is probably broken. */
   s.clear();
-  s.reserve_at_least(n as uint);
+  s.reserve(n as uint);
   unsafe
   {
     let ret = ll::mvwinchnstr(w, y, x, s.as_ptr(), n);
@@ -886,7 +886,7 @@ pub fn mvwinnstr(w: WINDOW, y: i32, x: i32, s: &mut ~str, n: i32) -> i32
 
   /* XXX: This is probably broken. */
   s.clear();
-  s.reserve_at_least(n as uint);
+  s.reserve(n as uint);
   unsafe
   {
     let buf = s.as_ptr();
@@ -1462,7 +1462,7 @@ pub fn wgetnstr(w: WINDOW, s: &mut ~str, n: i32) -> i32
   use std::cast;
 
   s.clear();
-  s.reserve_at_least(n as uint);
+  s.reserve(n as uint);
   unsafe
   {
     let buf = s.as_ptr();
@@ -1505,7 +1505,7 @@ pub fn winchnstr(w: WINDOW, s: &mut ~[u32], n: i32) -> i32
 {
   /* XXX: This is probably broken. */
   s.clear();
-  s.reserve_at_least(n as uint);
+  s.reserve(n as uint);
   unsafe
   {
     let ret = ll::winchnstr(w, s.as_ptr(), n);
@@ -1547,7 +1547,7 @@ pub fn winnstr(w: WINDOW, s: &mut ~str, n: i32) -> i32
 
   /* XXX: This is probably broken. */
   s.clear();
-  s.reserve_at_least(n as uint);
+  s.reserve(n as uint);
   unsafe
   {
     let buf = s.as_ptr();
