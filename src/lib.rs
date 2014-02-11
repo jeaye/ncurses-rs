@@ -12,6 +12,7 @@
 #[crate_type = "lib"];
 #[feature(globs)];
 #[feature(managed_boxes)];
+#[feature(macro_rules)];
 
 use std::{ str, char, libc, ptr };
 use self::ll::*;
@@ -29,7 +30,8 @@ pub enum CURSOR_VISIBILITY
 
 pub type WINDOW = self::ll::WINDOW;
 pub type SCREEN = self::ll::SCREEN;
-
+pub type mmaskt = self::ll::mmask_t;
+pub type MEVENT = self::ll::MEVENT;
 
 pub fn addch(ch: u32) -> i32
 { unsafe { ll::addch(ch) } }
@@ -273,7 +275,7 @@ pub fn getnstr(s: &mut ~str, n: i32) -> i32
   use std::cast;
 
   s.clear();
-  s.reserve_at_least(n as uint);
+  s.reserve(n as uint);
   unsafe
   {
     let buf = s.as_ptr();
@@ -384,7 +386,7 @@ pub fn inchnstr(s: &mut ~[u32], n: i32) -> i32
 {
   /* XXX: This is probably broken. */
   s.clear();
-  s.reserve_at_least(n as uint);
+  s.reserve(n as uint);
   unsafe
   {
     let ret = ll::inchnstr(s.as_ptr(), n);
@@ -438,7 +440,7 @@ pub fn innstr(s: &mut ~str, n: i32) -> i32
 
   /* XXX: This is probably broken. */
   s.clear();
-  s.reserve_at_least(n as uint);
+  s.reserve(n as uint);
   unsafe
   {
     let buf = s.as_ptr();
@@ -792,7 +794,7 @@ pub fn mvwgetnstr(w: WINDOW, y: i32, x: i32, s: &mut ~str, n: i32) -> i32
   use std::cast;
 
   s.clear();
-  s.reserve_at_least(n as uint);
+  s.reserve(n as uint);
   unsafe
   {
     let buf = s.as_ptr();
@@ -842,7 +844,7 @@ pub fn mvwinchnstr(w: WINDOW, y: i32, x: i32, s: &mut ~[u32], n: i32) -> i32
 {
   /* XXX: This is probably broken. */
   s.clear();
-  s.reserve_at_least(n as uint);
+  s.reserve(n as uint);
   unsafe
   {
     let ret = ll::mvwinchnstr(w, y, x, s.as_ptr(), n);
@@ -884,7 +886,7 @@ pub fn mvwinnstr(w: WINDOW, y: i32, x: i32, s: &mut ~str, n: i32) -> i32
 
   /* XXX: This is probably broken. */
   s.clear();
-  s.reserve_at_least(n as uint);
+  s.reserve(n as uint);
   unsafe
   {
     let buf = s.as_ptr();
@@ -1460,7 +1462,7 @@ pub fn wgetnstr(w: WINDOW, s: &mut ~str, n: i32) -> i32
   use std::cast;
 
   s.clear();
-  s.reserve_at_least(n as uint);
+  s.reserve(n as uint);
   unsafe
   {
     let buf = s.as_ptr();
@@ -1503,7 +1505,7 @@ pub fn winchnstr(w: WINDOW, s: &mut ~[u32], n: i32) -> i32
 {
   /* XXX: This is probably broken. */
   s.clear();
-  s.reserve_at_least(n as uint);
+  s.reserve(n as uint);
   unsafe
   {
     let ret = ll::winchnstr(w, s.as_ptr(), n);
@@ -1545,7 +1547,7 @@ pub fn winnstr(w: WINDOW, s: &mut ~str, n: i32) -> i32
 
   /* XXX: This is probably broken. */
   s.clear();
-  s.reserve_at_least(n as uint);
+  s.reserve(n as uint);
   unsafe
   {
     let buf = s.as_ptr();
@@ -1966,3 +1968,33 @@ pub fn KEY_F(n: u8) -> i32
   KEY_F0 + n as i32
 }
 
+/*
+ * Added mouse support
+ */
+
+pub fn has_mouse() -> i32
+{ unsafe { ll::has_mouse() } }
+
+pub fn getmouse(event: *MEVENT) -> i32
+{ unsafe { ll::getmouse(event) } }
+
+pub fn ungetmouse(event: *MEVENT) -> i32
+{ unsafe { ll::ungetmouse(event) } }
+
+pub fn mouseinterval(n: i32) -> i32
+{ unsafe { ll::mouseinterval(n) } }
+
+pub fn mousemask(newmask: mmask_t, oldmask: Option<&mmask_t>) -> mmask_t
+{
+    if oldmask.is_none() { unsafe { ll::mousemask(newmask, ptr::null()) } }
+    else { unsafe { ll::mousemask(newmask, oldmask.unwrap()) } }
+}
+
+pub fn wenclose(w: WINDOW, y: i32, x: i32) -> i32
+{ unsafe { ll::wenclose(w, y as libc::c_int, x as libc::c_int) } }
+
+pub fn wmouse_trafo(w: *WINDOW, y: &[i32], x: &[i32], to_screen: bool) -> i32
+{ unsafe { ll::wmouse_trafo(w, y.as_ptr(), x.as_ptr(), to_screen as libc::c_int) } }
+
+pub fn mouse_trafo( y: &[i32], x: &[i32], to_screen: bool  ) -> i32
+{ unsafe { ll::mouse_trafo(y.as_ptr(), x.as_ptr(), to_screen as libc::c_int ) } }

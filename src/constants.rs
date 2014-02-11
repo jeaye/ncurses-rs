@@ -182,3 +182,58 @@ pub static KEY_RESIZE: i32=	0x19a;		/* Terminal resize event */
 pub static KEY_EVENT: i32=	0x19b;		/* We were interrupted by an event */
 pub static KEY_MAX: i32=	0x1ff;		/* Maximum key value is 0633 */
 
+/* Mouse Support */
+macro_rules! ncurses_mouse_mask( ($b: expr $m: expr) => ($m << (($b - 1) * 5)); )
+pub static NCURSES_BUTTON_RELEASED: i32=	0x001;
+pub static NCURSES_BUTTON_PRESSED: i32=		0x002;
+pub static NCURSES_BUTTON_CLICKED: i32=		0x004;
+pub static NCURSES_DOUBLE_CLICKED: i32=		0x008;
+pub static NCURSES_TRIPLE_CLICKED: i32=		0x010;
+pub static NCURSES_RESERVED_EVENT: i32=		0x020;
+
+/* event masks */
+pub static BUTTON1_RELEASED: i32=	ncurses_mouse_mask!(1 NCURSES_BUTTON_RELEASED);
+pub static BUTTON1_PRESSED: i32=	ncurses_mouse_mask!(1 NCURSES_BUTTON_PRESSED);
+pub static BUTTON1_CLICKED: i32=	ncurses_mouse_mask!(1 NCURSES_BUTTON_CLICKED);
+pub static BUTTON1_DOUBLE_CLICKED: i32=	ncurses_mouse_mask!(1 NCURSES_DOUBLE_CLICKED);
+pub static BUTTON1_TRIPLE_CLICKED: i32=	ncurses_mouse_mask!(1 NCURSES_TRIPLE_CLICKED);
+
+pub static BUTTON2_RELEASED: i32=       ncurses_mouse_mask!(2 NCURSES_BUTTON_RELEASED);
+pub static BUTTON2_PRESSED: i32=        ncurses_mouse_mask!(2 NCURSES_BUTTON_PRESSED);
+pub static BUTTON2_CLICKED: i32=        ncurses_mouse_mask!(2 NCURSES_BUTTON_CLICKED);
+pub static BUTTON2_DOUBLE_CLICKED: i32= ncurses_mouse_mask!(2 NCURSES_DOUBLE_CLICKED);
+pub static BUTTON2_TRIPLE_CLICKED: i32= ncurses_mouse_mask!(2 NCURSES_TRIPLE_CLICKED);
+
+pub static BUTTON3_RELEASED: i32=       ncurses_mouse_mask!(3 NCURSES_BUTTON_RELEASED);
+pub static BUTTON3_PRESSED: i32=        ncurses_mouse_mask!(3 NCURSES_BUTTON_PRESSED);
+pub static BUTTON3_CLICKED: i32=        ncurses_mouse_mask!(3 NCURSES_BUTTON_CLICKED);
+pub static BUTTON3_DOUBLE_CLICKED: i32= ncurses_mouse_mask!(3 NCURSES_DOUBLE_CLICKED);
+pub static BUTTON3_TRIPLE_CLICKED: i32= ncurses_mouse_mask!(3 NCURSES_TRIPLE_CLICKED);
+
+pub static BUTTON4_RELEASED: i32=       ncurses_mouse_mask!(4 NCURSES_BUTTON_RELEASED);
+pub static BUTTON4_PRESSED: i32=        ncurses_mouse_mask!(4 NCURSES_BUTTON_PRESSED);
+pub static BUTTON4_CLICKED: i32=        ncurses_mouse_mask!(4 NCURSES_BUTTON_CLICKED);
+pub static BUTTON4_DOUBLE_CLICKED: i32= ncurses_mouse_mask!(4 NCURSES_DOUBLE_CLICKED);
+pub static BUTTON4_TRIPLE_CLICKED: i32= ncurses_mouse_mask!(4 NCURSES_TRIPLE_CLICKED);
+
+pub static BUTTON5_RELEASED: i32=       ncurses_mouse_mask!(5 NCURSES_BUTTON_RELEASED);
+pub static BUTTON5_PRESSED: i32=        ncurses_mouse_mask!(5 NCURSES_BUTTON_PRESSED);
+pub static BUTTON5_CLICKED: i32=        ncurses_mouse_mask!(5 NCURSES_BUTTON_CLICKED);
+pub static BUTTON5_DOUBLE_CLICKED: i32= ncurses_mouse_mask!(5 NCURSES_DOUBLE_CLICKED);
+pub static BUTTON5_TRIPLE_CLICKED: i32= ncurses_mouse_mask!(5 NCURSES_TRIPLE_CLICKED);
+
+pub static BUTTON_CTRL: i32=		ncurses_mouse_mask!(6 0x001);
+pub static BUTTON_SHIFT: i32=		ncurses_mouse_mask!(6 0x002);
+pub static BUTTON_ALT: i32=		ncurses_mouse_mask!(6 0x004);
+pub static REPORT_MOUSE_POSITION: i32=	ncurses_mouse_mask!(6 0x008);
+
+pub static ALL_MOUSE_EVENTS: i32=	REPORT_MOUSE_POSITION - 1;
+
+/* macros to extract single event-bits from masks */
+macro_rules! button_release( ($e: expr $x: expr) => (e & ncurses_mouse_mask!(x 0x001)); )
+macro_rules! button_press( ($e: expr $x: expr) => (e & ncurses_mouse_mask!(x 0x002)); )
+macro_rules! button_click( ($e: expr $x: expr) => (e & ncurses_mouse_mask!(x 0x004)); )
+macro_rules! button_double_click( ($e: expr $x: expr) => (e & ncurses_mouse_mask!(x 0x008)); )
+macro_rules! button_triple_click( ($e: expr $x: expr) => (e & ncurses_mouse_mask!(x 0x010)); )
+macro_rules! button_reserved_event( ($e: expr $x: expr) => (e & ncurses_mouse_mask!(x 0x020)); )
+
