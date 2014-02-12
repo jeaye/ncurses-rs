@@ -39,7 +39,9 @@ pub struct MEVENT { id: c_short, x: c_int, y: c_int, z: c_int, bstate: mmask_t}
 #[link(name = "GL")]
 extern { }
 
-#[link(name = "ncurses")]
+macro_rules! define_sharedffi(
+  ($cfgopt:attr, $link:attr) => (
+  $cfgopt  $link
 extern
 {
   pub fn addch(_:chtype) -> c_int;
@@ -361,4 +363,7 @@ extern
   pub fn wmouse_trafo(_:*WINDOW,_:*c_int,_:*c_int,_:c_int) -> c_int;
   pub fn mouse_trafo(_:*c_int,_:*c_int,_:c_int) -> c_int;
 }
+))//end macro rules
 
+define_sharedffi!(#[cfg(ncursesw)], #[link(name="ncursesw")])
+define_sharedffi!(#[cfg(not(ncursesw))], #[link(name="ncurses")])
