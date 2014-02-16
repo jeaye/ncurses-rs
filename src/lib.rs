@@ -75,8 +75,8 @@ pub fn attr_get(attrs: &mut i32, pair: &mut i16) -> i32
 {
   unsafe
   {
-    ll::attr_get(ptr::to_unsafe_ptr(attrs),
-                 ptr::to_unsafe_ptr(pair),
+    ll::attr_get(&*attrs as *i32,
+                 &*pair as *i16,
                  ptr::null())
   }
 }
@@ -151,9 +151,9 @@ pub fn color_content(color: i16, r: &mut i16, g: &mut i16, b: &mut i16) -> i32
   unsafe
   {
     ll::color_content(color,
-                      ptr::to_unsafe_ptr(r),
-                      ptr::to_unsafe_ptr(g),
-                      ptr::to_unsafe_ptr(b))
+                      &*r as *i16,
+                      &*g as *i16,
+                      &*b as *i16)
   }
 }
 
@@ -1027,7 +1027,7 @@ pub fn overwrite(src: WINDOW, dst: WINDOW) -> i32
 
 
 pub fn pair_content(pair: i16, f: &mut i16, b: &mut i16) -> i32
-{ unsafe { ll::pair_content(pair, ptr::to_unsafe_ptr(f), ptr::to_unsafe_ptr(b)) } }
+{ unsafe { ll::pair_content(pair, &*f as *i16, &*b as *i16) } }
 
 
 pub fn PAIR_NUMBER(attr: i32) -> i32
@@ -1385,7 +1385,7 @@ pub fn wattrset(w: WINDOW, attr: i32) -> i32
 
 
 pub fn wattr_get(w: WINDOW, attrs: &mut i32, pair: &mut i16) -> i32
-{ unsafe { ll::wattr_get(w, ptr::to_unsafe_ptr(attrs), ptr::to_unsafe_ptr(pair), ptr::null()) } }
+{ unsafe { ll::wattr_get(w, &*attrs as *i32, &*pair as *i16, ptr::null()) } }
 
 
 pub fn wattr_on(w: WINDOW, attr: i32) -> i32
@@ -1690,7 +1690,7 @@ pub fn wgetparent(w: WINDOW) -> WINDOW
 
 
 pub fn wgetscrreg(w: WINDOW, top: &mut i32, bot: &mut i32) -> i32
-{ unsafe { ll::wgetscrreg(w, ptr::to_unsafe_ptr(top), ptr::to_unsafe_ptr(bot)) } }
+{ unsafe { ll::wgetscrreg(w, &*top as *i32, &*bot as *i32) } }
 
 /* Attributes */
 pub fn NCURSES_BITS(mask: u32, shift: u32) -> u32
