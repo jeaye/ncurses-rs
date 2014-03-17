@@ -16,7 +16,7 @@
 #[feature(globs)];
 #[feature(managed_boxes)];
 
-extern crate ncurses;
+extern mod ncurses;
 
 use std::os;
 use std::io;
@@ -39,7 +39,7 @@ fn open_file() -> io::File
   }
 
   let reader = File::open(&Path::new(args[1]));
-  reader.ok().expect("Unable to open file")
+  reader.expect("Unable to open file")
 }
 
 fn prompt()
@@ -67,7 +67,7 @@ fn main()
   {
     /* Read a character at a time. */
     let ch = reader.read_byte();
-    if ch.is_err()
+    if ch.is_none()
     { break; }
     let ch = ch.unwrap();
 
