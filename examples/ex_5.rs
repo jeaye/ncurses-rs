@@ -17,7 +17,7 @@
 #[feature(globs)];
 #[feature(managed_boxes)];
 
-extern crate ncurses;
+extern mod ncurses;
 
 use std::{ char, os };
 use std::io;
@@ -144,13 +144,13 @@ impl Pager
   pub fn read_word(&mut self) -> (~str, char)
   {
     let mut s = ~"";
-    let mut ch = self.file_reader.read_byte().ok().expect("Unable to read byte");
+    let mut ch = self.file_reader.read_byte().expect("Unable to read byte");
 
     /* Read until we hit a word delimiter. */
     while !word_limits.contains(&ch)
     {
       s.push_char(char::from_u32(ch as u32).unwrap());
-      ch = self.file_reader.read_byte().ok().expect("Unable to read byte");
+      ch = self.file_reader.read_byte().expect("Unable to read byte");
     }
 
     /* Return the word string and the terminating delimiter. */
@@ -355,5 +355,5 @@ fn open_file() -> io::File
   }
 
   let reader = File::open(&Path::new(args[1]));
-  reader.ok().expect("Unable to open file")
+  reader.expect("Unable to open file")
 }

@@ -13,7 +13,7 @@
 #[feature(globs)];
 #[feature(managed_boxes)];
 
-extern crate ncurses;
+extern mod ncurses;
 
 use ncurses::*;
 
