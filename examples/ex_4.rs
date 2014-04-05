@@ -10,8 +10,8 @@
       around the screen.
 */
 
-#[feature(globs)];
-#[feature(managed_boxes)];
+#![feature(globs)]
+#![feature(managed_boxes)]
 
 extern crate ncurses;
 
@@ -101,8 +101,7 @@ fn create_win(start_y: i32, start_x: i32) -> WINDOW
 fn destroy_win(win: WINDOW)
 {
   let ch = ' ' as u32;
-	wborder(win, ch, ch, ch, ch, ch, ch, ch, ch);
-	wrefresh(win);
-	delwin(win);
+        wborder(win, ch, ch, ch, ch, ch, ch, ch, ch);
+        wrefresh(win);
+        delwin(win);
 }
-

@@ -8,8 +8,8 @@
       Basic input and attribute example.
 */
 
-#[feature(globs)];
-#[feature(managed_boxes)];
+#![feature(globs)]
+#![feature(managed_boxes)]
 
 extern crate ncurses;
 
@@ -60,4 +60,3 @@ fn main()
   getch();
   endwin();
 }
-

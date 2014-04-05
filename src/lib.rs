@@ -8,11 +8,12 @@
       Safe wrappers for ncurses functions.
 */
 
-#[crate_id = "ncurses#5.71"];
-#[crate_type = "lib"];
-#[feature(globs)];
-#[feature(managed_boxes)];
-#[feature(macro_rules)];
+#![crate_id = "ncurses#5.71"]
+#![crate_type = "lib"]
+#![feature(globs)]
+#![feature(managed_boxes)]
+#![feature(macro_rules)]
+#![allow(non_camel_case_types)]
 
 use std::{ str, char, libc, ptr };
 use self::ll::*;
@@ -436,7 +437,7 @@ pub fn init_pair(pair: i16, f: i16, b: i16) -> i32
 
 pub fn innstr(s: &mut ~str, n: i32) -> i32
 {
-  use std::cast; 
+  use std::cast;
 
   /* XXX: This is probably broken. */
   s.clear();
@@ -496,7 +497,7 @@ pub fn insstr(s: &str) -> i32
 
 pub fn instr(s: &mut ~str) -> i32
 {
-  use std::cast; 
+  use std::cast;
 
   /* XXX: This is probably broken. */
   unsafe
@@ -882,7 +883,7 @@ pub fn mvwinchstr(w: WINDOW, y: i32, x: i32, s: &mut ~[u32]) -> i32
 
 pub fn mvwinnstr(w: WINDOW, y: i32, x: i32, s: &mut ~str, n: i32) -> i32
 {
-  use std::cast; 
+  use std::cast;
 
   /* XXX: This is probably broken. */
   s.clear();
@@ -930,7 +931,7 @@ pub fn mvwinsstr(w: WINDOW, y: i32, x: i32, s: &str) -> i32
 
 pub fn mvwinstr(w: WINDOW, y: i32, x: i32, s: &mut ~str) -> i32
 {
-  use std::cast; 
+  use std::cast;
 
   /* XXX: This is probably broken. */
   unsafe
@@ -1543,7 +1544,7 @@ pub fn winchstr(w: WINDOW, s: &mut ~[u32]) -> i32
 
 pub fn winnstr(w: WINDOW, s: &mut ~str, n: i32) -> i32
 {
-  use std::cast; 
+  use std::cast;
 
   /* XXX: This is probably broken. */
   s.clear();
@@ -1603,7 +1604,7 @@ pub fn winsstr(w: WINDOW, s: &str) -> i32
 
 pub fn winstr(w: WINDOW, s: &mut ~str) -> i32
 {
-  use std::cast; 
+  use std::cast;
 
   /* XXX: This is probably broken. */
   unsafe
@@ -1799,7 +1800,7 @@ pub fn getsyx(y: &mut i32, x: &mut i32)
 
 pub fn setsyx(y: &mut i32, x: &mut i32)
 {
-  unsafe 
+  unsafe
   {
     if newscr !=(0 as WINDOW)
     {
@@ -1854,10 +1855,10 @@ pub fn ACS_VLINE() -> char
 pub fn ACS_PLUS() -> char
 { NCURSES_ACS('n') } /* large plus or crossover */
 
-pub fn ACS_S1() -> char	
+pub fn ACS_S1() -> char
 { NCURSES_ACS('o') } /* scan line 1 */
 
-pub fn ACS_S9() -> char	
+pub fn ACS_S9() -> char
 { NCURSES_ACS('s') } /* scan line 9 */
 
 pub fn ACS_DIAMOND() -> char
@@ -1902,10 +1903,10 @@ pub fn ACS_BLOCK() -> char
  *(you can spot pprryyzz{{||}} in a lot of AT&T terminfo strings).
  * The ACS_names may not match AT&T's, our source didn't know them.
  */
-pub fn ACS_S3() -> char	
+pub fn ACS_S3() -> char
 { NCURSES_ACS('p') } /* scan line 3 */
 
-pub fn ACS_S7() -> char	
+pub fn ACS_S7() -> char
 { NCURSES_ACS('r') } /* scan line 7 */
 
 pub fn ACS_LEQUAL() -> char
@@ -1914,7 +1915,7 @@ pub fn ACS_LEQUAL() -> char
 pub fn ACS_GEQUAL() -> char
 { NCURSES_ACS('z') } /* greater/equal */
 
-pub fn ACS_PI() -> char	
+pub fn ACS_PI() -> char
 { NCURSES_ACS('{') } /* Pi */
 
 pub fn ACS_NEQUAL() -> char

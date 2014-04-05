@@ -16,7 +16,7 @@ COLOR_GREEN=$(shell tput setaf 2)
 PREFIX=${COLOR_GREEN}»»»${COLOR_OFF}
 
 # CFG Directive Options
-CFG_OPT = 
+CFG_OPT =
 
 .SILENT:
 
@@ -24,7 +24,7 @@ CFG_OPT =
 
 all: .build_examples
 	echo "${PREFIX} Finished \o/"
-	
+
 link-ncursesw: CFG_OPT = --cfg ncursesw
 link-ncursesw: all
 
@@ -50,4 +50,3 @@ clean:
 	find . -type f -name '.build_*' | xargs rm -f
 	rm -f lib/libncurses*
 	echo "${PREFIX} Cleaned"
-
