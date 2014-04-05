@@ -8,8 +8,8 @@
       Simple "Hello, world" example.
 */
 
-#[feature(globs)];
-#[feature(managed_boxes)];
+#![feature(globs)]
+#![feature(managed_boxes)]
 
 extern crate ncurses;
 
@@ -32,4 +32,3 @@ fn main()
   /* Terminate ncurses. */
   endwin();
 }
-

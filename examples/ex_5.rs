@@ -14,8 +14,8 @@
         ./bin/ex_5 examples/ex_5.rs
 */
 
-#[feature(globs)];
-#[feature(managed_boxes)];
+#![feature(globs)]
+#![feature(managed_boxes)]
 
 extern crate ncurses;
 

@@ -13,8 +13,8 @@
         ./bin/ex_3 examples/ex_3.rs
 */
 
-#[feature(globs)];
-#[feature(managed_boxes)];
+#![feature(globs)]
+#![feature(managed_boxes)]
 
 extern crate ncurses;
 
@@ -94,4 +94,3 @@ fn main()
   prompt();
   endwin();
 }
-
