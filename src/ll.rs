@@ -9,7 +9,7 @@ Low-level interface to foreign
 ncurses functions.
  */
 
-use std::libc::{ c_char, c_int, c_short, c_uint, c_void, FILE };
+use libc::{ c_char, c_int, c_short, c_uint, c_void, FILE };
 
 /* Intrinsic types. */
 pub type chtype = c_uint;
