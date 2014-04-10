@@ -15,7 +15,9 @@
 #![feature(macro_rules)]
 #![allow(non_camel_case_types)]
 
-use std::{ str, char, libc, ptr };
+extern crate libc;
+
+use std::{ str, char, ptr };
 use self::ll::*;
 pub use self::constants::*;
 

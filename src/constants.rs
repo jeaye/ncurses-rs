@@ -10,7 +10,7 @@
       the safe wrappers.
 */
 
-use std::libc::{ c_char, c_int };
+use libc::{ c_char, c_int };
 use super::ll::*;
 
 extern
