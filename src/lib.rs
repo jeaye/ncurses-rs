@@ -385,7 +385,7 @@ pub fn inch() -> u32
 { unsafe { ll::inch() } }
 
 
-pub fn inchnstr(s: &mut ~[u32], n: i32) -> i32
+pub fn inchnstr(s: &mut Vec<u32>, n: i32) -> i32
 {
   /* XXX: This is probably broken. */
   s.clear();
@@ -406,7 +406,7 @@ pub fn inchnstr(s: &mut ~[u32], n: i32) -> i32
 }
 
 
-pub fn inchstr(s: &mut ~[u32]) -> i32
+pub fn inchstr(s: &mut Vec<u32>) -> i32
 {
   /* XXX: This is probably broken. */
   unsafe
@@ -683,7 +683,7 @@ pub fn mvinch(y: i32, x: i32) -> u32
 { unsafe { ll::mvinch(y, x) } }
 
 
-pub fn mvinchnstr(y: i32, x: i32, s: &mut ~[u32], n: i32) -> i32
+pub fn mvinchnstr(y: i32, x: i32, s: &mut Vec<u32>, n: i32) -> i32
 {
   if move(y, x) == ERR
   { return ERR; }
@@ -691,7 +691,7 @@ pub fn mvinchnstr(y: i32, x: i32, s: &mut ~[u32], n: i32) -> i32
 }
 
 
-pub fn mvinchstr(y: i32, x: i32, s: &mut ~[u32]) -> i32
+pub fn mvinchstr(y: i32, x: i32, s: &mut Vec<u32>) -> i32
 {
   if move(y, x) == ERR
   { return ERR; }
@@ -843,7 +843,7 @@ pub fn mvwinch(w: WINDOW, y: i32, x: i32) -> u32
 { unsafe { ll::mvwinch(w, y, x) } }
 
 
-pub fn mvwinchnstr(w: WINDOW, y: i32, x: i32, s: &mut ~[u32], n: i32) -> i32
+pub fn mvwinchnstr(w: WINDOW, y: i32, x: i32, s: &mut Vec<u32>, n: i32) -> i32
 {
   /* XXX: This is probably broken. */
   s.clear();
@@ -864,7 +864,7 @@ pub fn mvwinchnstr(w: WINDOW, y: i32, x: i32, s: &mut ~[u32], n: i32) -> i32
 }
 
 
-pub fn mvwinchstr(w: WINDOW, y: i32, x: i32, s: &mut ~[u32]) -> i32
+pub fn mvwinchstr(w: WINDOW, y: i32, x: i32, s: &mut Vec<u32>) -> i32
 {
   /* XXX: This is probably broken. */
   unsafe
@@ -1502,7 +1502,7 @@ pub fn winch(w: WINDOW) -> u32
 { unsafe { ll::winch(w) } }
 
 
-pub fn winchnstr(w: WINDOW, s: &mut ~[u32], n: i32) -> i32
+pub fn winchnstr(w: WINDOW, s: &mut Vec<u32>, n: i32) -> i32
 {
   /* XXX: This is probably broken. */
   s.clear();
@@ -1523,7 +1523,7 @@ pub fn winchnstr(w: WINDOW, s: &mut ~[u32], n: i32) -> i32
 }
 
 
-pub fn winchstr(w: WINDOW, s: &mut ~[u32]) -> i32
+pub fn winchstr(w: WINDOW, s: &mut Vec<u32>) -> i32
 {
   /* XXX: This is probably broken. */
   unsafe
