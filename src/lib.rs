@@ -11,7 +11,6 @@
 #![crate_id = "ncurses#5.71"]
 #![crate_type = "lib"]
 #![feature(globs)]
-#![feature(managed_boxes)]
 #![feature(macro_rules)]
 #![allow(non_camel_case_types)]
 
