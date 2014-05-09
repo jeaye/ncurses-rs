@@ -142,7 +142,7 @@ impl Pager
   /* Returns the word and delimiter following it. */
   pub fn read_word(&mut self) -> (~str, char)
   {
-    let mut s = ~"".into_strbuf();
+    let mut s = box "".into_strbuf();
     let mut ch = self.file_reader.read_byte().ok().expect("Unable to read byte");
 
     /* Read until we hit a word delimiter. */
