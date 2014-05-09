@@ -271,7 +271,7 @@ pub fn getch() -> i32
 { unsafe { ll::getch() } }
 
 
-pub fn getnstr(s: &mut ~StrBuf, n: i32) -> i32
+pub fn getnstr(s: &mut StrBuf, n: i32) -> i32
 {
   /* XXX: This is probably broken. */
   use std::cast;
@@ -295,7 +295,7 @@ pub fn getnstr(s: &mut ~StrBuf, n: i32) -> i32
 }
 
 
-pub fn getstr(s: &mut ~StrBuf) -> i32
+pub fn getstr(s: &mut StrBuf) -> i32
 {
   /* XXX: This is probably broken. */
   let mut ch = getch();
@@ -436,7 +436,7 @@ pub fn init_pair(pair: i16, f: i16, b: i16) -> i32
 { unsafe { ll::init_pair(pair, f, b) } }
 
 
-pub fn innstr(s: &mut ~StrBuf, n: i32) -> i32
+pub fn innstr(s: &mut StrBuf, n: i32) -> i32
 {
   use std::cast;
 
@@ -496,7 +496,7 @@ pub fn insstr(s: &str) -> i32
 }
 
 
-pub fn instr(s: &mut ~StrBuf) -> i32
+pub fn instr(s: &mut StrBuf) -> i32
 {
   use std::cast;
 
@@ -658,7 +658,7 @@ pub fn mvgetch(y: i32, x: i32) -> i32
 { unsafe { ll::mvgetch(y, x) } }
 
 
-pub fn mvgetnstr(y: i32, x: i32, s: &mut ~StrBuf, n: i32) -> i32
+pub fn mvgetnstr(y: i32, x: i32, s: &mut StrBuf, n: i32) -> i32
 {
   if move(y, x) == ERR
   { return ERR; }
@@ -666,7 +666,7 @@ pub fn mvgetnstr(y: i32, x: i32, s: &mut ~StrBuf, n: i32) -> i32
 }
 
 
-pub fn mvgetstr(y: i32, x: i32, s: &mut ~StrBuf) -> i32
+pub fn mvgetstr(y: i32, x: i32, s: &mut StrBuf) -> i32
 {
   if move(y, x) == ERR
   { return ERR; }
@@ -698,7 +698,7 @@ pub fn mvinchstr(y: i32, x: i32, s: &mut Vec<u32>) -> i32
 }
 
 
-pub fn mvinnstr(y: i32, x: i32, s: &mut ~StrBuf, n: i32) -> i32
+pub fn mvinnstr(y: i32, x: i32, s: &mut StrBuf, n: i32) -> i32
 {
   if move(y, x) == ERR
   { return ERR; }
@@ -726,7 +726,7 @@ pub fn mvinsstr(y: i32, x: i32, s: &str) -> i32
 }
 
 
-pub fn mvinstr(y: i32, x: i32, s: &mut ~StrBuf) -> i32
+pub fn mvinstr(y: i32, x: i32, s: &mut StrBuf) -> i32
 {
   if move(y, x) == ERR
   { return ERR; }
@@ -790,7 +790,7 @@ pub fn mvwgetch(w: WINDOW, y: i32, x: i32) -> i32
 { unsafe { ll::mvwgetch(w, y, x) } }
 
 
-pub fn mvwgetnstr(w: WINDOW, y: i32, x: i32, s: &mut ~StrBuf, n: i32) -> i32
+pub fn mvwgetnstr(w: WINDOW, y: i32, x: i32, s: &mut StrBuf, n: i32) -> i32
 {
   /* XXX: This is probably broken. */
   use std::cast;
@@ -814,7 +814,7 @@ pub fn mvwgetnstr(w: WINDOW, y: i32, x: i32, s: &mut ~StrBuf, n: i32) -> i32
 }
 
 
-pub fn mvwgetstr(w: WINDOW, y: i32, x: i32, s: &mut ~StrBuf) -> i32
+pub fn mvwgetstr(w: WINDOW, y: i32, x: i32, s: &mut StrBuf) -> i32
 {
   if move(y, x) == ERR
   { return ERR; }
@@ -882,7 +882,7 @@ pub fn mvwinchstr(w: WINDOW, y: i32, x: i32, s: &mut Vec<u32>) -> i32
 }
 
 
-pub fn mvwinnstr(w: WINDOW, y: i32, x: i32, s: &mut ~StrBuf, n: i32) -> i32
+pub fn mvwinnstr(w: WINDOW, y: i32, x: i32, s: &mut StrBuf, n: i32) -> i32
 {
   use std::cast;
 
@@ -930,7 +930,7 @@ pub fn mvwinsstr(w: WINDOW, y: i32, x: i32, s: &str) -> i32
 }
 
 
-pub fn mvwinstr(w: WINDOW, y: i32, x: i32, s: &mut ~StrBuf) -> i32
+pub fn mvwinstr(w: WINDOW, y: i32, x: i32, s: &mut StrBuf) -> i32
 {
   use std::cast;
 
@@ -1458,7 +1458,7 @@ pub fn wgetch(w: WINDOW) -> i32
 { unsafe { ll::wgetch(w) } }
 
 
-pub fn wgetnstr(w: WINDOW, s: &mut ~StrBuf, n: i32) -> i32
+pub fn wgetnstr(w: WINDOW, s: &mut StrBuf, n: i32) -> i32
 {
   /* XXX: This is probably broken. */
   use std::cast;
@@ -1480,7 +1480,7 @@ pub fn wgetnstr(w: WINDOW, s: &mut ~StrBuf, n: i32) -> i32
 }
 
 
-pub fn wgetstr(w: WINDOW, s: &mut ~StrBuf) -> i32
+pub fn wgetstr(w: WINDOW, s: &mut StrBuf) -> i32
 {
   /* XXX: This is probably broken. */
   let mut ch = wgetch(w);
@@ -1541,7 +1541,7 @@ pub fn winchstr(w: WINDOW, s: &mut Vec<u32>) -> i32
 }
 
 
-pub fn winnstr(w: WINDOW, s: &mut ~StrBuf, n: i32) -> i32
+pub fn winnstr(w: WINDOW, s: &mut StrBuf, n: i32) -> i32
 {
   use std::cast;
 
@@ -1601,7 +1601,7 @@ pub fn winsstr(w: WINDOW, s: &str) -> i32
 }
 
 
-pub fn winstr(w: WINDOW, s: &mut ~StrBuf) -> i32
+pub fn winstr(w: WINDOW, s: &mut StrBuf) -> i32
 {
   use std::cast;
 
