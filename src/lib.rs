@@ -14,8 +14,10 @@
 #![feature(macro_rules)]
 #![allow(non_camel_case_types)]
 
+extern crate core;
 extern crate libc;
 
+use core::mem;
 use std::{ str, char, ptr };
 use self::ll::*;
 pub use self::constants::*;
@@ -179,13 +181,12 @@ pub fn copywin(src_win: WINDOW, dest_win: WINDOW, src_min_row: i32,
 
 pub fn curs_set(visibility: CURSOR_VISIBILITY) -> Option<CURSOR_VISIBILITY>
 {
-  use std::cast;
   unsafe
   {
     match ll::curs_set(visibility as i32)
     {
       ERR => None,
-      ret => Some(cast::transmute::<i8, CURSOR_VISIBILITY>(ret as i8)),
+      ret => Some(mem::transmute::<i8, CURSOR_VISIBILITY>(ret as i8)),
     }
   }
 }
@@ -274,14 +275,12 @@ pub fn getch() -> i32
 pub fn getnstr(s: &mut StrBuf, n: i32) -> i32
 {
   /* XXX: This is probably broken. */
-  use std::cast;
-
   unsafe
   {
     s.as_mut_vec().clear();
     s.reserve(n as uint);
     let buf = s.as_bytes().as_ptr();
-    let ret = ll::getnstr(cast::transmute(buf), n);
+    let ret = ll::getnstr(mem::transmute(buf), n);
 
     let capacity = s.byte_capacity();
     match s.as_slice().find('\0')
@@ -438,15 +437,13 @@ pub fn init_pair(pair: i16, f: i16, b: i16) -> i32
 
 pub fn innstr(s: &mut StrBuf, n: i32) -> i32
 {
-  use std::cast;
-
   /* XXX: This is probably broken. */
   unsafe
   {
     s.as_mut_vec().clear();
     s.reserve(n as uint);
     let buf = s.as_bytes().as_ptr();
-    let ret = ll::innstr(cast::transmute(buf), n);
+    let ret = ll::innstr(mem::transmute(buf), n);
 
     let capacity = s.byte_capacity();
     match s.as_slice().find('\0')
@@ -474,37 +471,31 @@ pub fn insertln() -> i32
 
 pub fn insnstr(s: &str, n: i32) -> i32
 {
-  use std::cast;
-
   unsafe
   {
     let buf = s.as_ptr();
-    ll::insnstr(cast::transmute(buf), n)
+    ll::insnstr(mem::transmute(buf), n)
   }
 }
 
 
 pub fn insstr(s: &str) -> i32
 {
-  use std::cast;
-
   unsafe
   {
     let buf = s.as_ptr();
-    ll::insstr(cast::transmute(buf))
+    ll::insstr(mem::transmute(buf))
   }
 }
 
 
 pub fn instr(s: &mut StrBuf) -> i32
 {
-  use std::cast;
-
   /* XXX: This is probably broken. */
   unsafe
   {
     let buf = s.as_bytes().as_ptr();
-    let ret = ll::instr(cast::transmute(buf));
+    let ret = ll::instr(mem::transmute(buf));
 
     let capacity = s.byte_capacity();
     match s.as_slice().find('\0')
@@ -793,14 +784,12 @@ pub fn mvwgetch(w: WINDOW, y: i32, x: i32) -> i32
 pub fn mvwgetnstr(w: WINDOW, y: i32, x: i32, s: &mut StrBuf, n: i32) -> i32
 {
   /* XXX: This is probably broken. */
-  use std::cast;
-
   unsafe
   {
     s.as_mut_vec().clear();
     s.reserve(n as uint);
     let buf = s.as_bytes().as_ptr();
-    let ret = ll::mvwgetnstr(w, y, x, cast::transmute(buf), n);
+    let ret = ll::mvwgetnstr(w, y, x, mem::transmute(buf), n);
 
     let capacity = s.byte_capacity();
     match s.as_slice().find('\0')
@@ -884,15 +873,13 @@ pub fn mvwinchstr(w: WINDOW, y: i32, x: i32, s: &mut Vec<u32>) -> i32
 
 pub fn mvwinnstr(w: WINDOW, y: i32, x: i32, s: &mut StrBuf, n: i32) -> i32
 {
-  use std::cast;
-
   /* XXX: This is probably broken. */
   unsafe
   {
     s.as_mut_vec().clear();
     s.reserve(n as uint);
     let buf = s.as_bytes().as_ptr();
-    let ret = ll::mvwinnstr(w, y, x, cast::transmute(buf), n);
+    let ret = ll::mvwinnstr(w, y, x, mem::transmute(buf), n);
 
     let capacity = s.byte_capacity();
     match s.as_slice().find('\0')
@@ -932,13 +919,11 @@ pub fn mvwinsstr(w: WINDOW, y: i32, x: i32, s: &str) -> i32
 
 pub fn mvwinstr(w: WINDOW, y: i32, x: i32, s: &mut StrBuf) -> i32
 {
-  use std::cast;
-
   /* XXX: This is probably broken. */
   unsafe
   {
     let buf = s.as_bytes().as_ptr();
-    let ret = ll::mvwinstr(w, y, x, cast::transmute(buf));
+    let ret = ll::mvwinstr(w, y, x, mem::transmute(buf));
 
     let capacity = s.byte_capacity();
     match s.as_slice().find('\0')
@@ -1461,12 +1446,10 @@ pub fn wgetch(w: WINDOW) -> i32
 pub fn wgetnstr(w: WINDOW, s: &mut StrBuf, n: i32) -> i32
 {
   /* XXX: This is probably broken. */
-  use std::cast;
-
   unsafe
   {
     let buf = s.as_bytes().as_ptr();
-    let ret = ll::wgetnstr(w, cast::transmute(buf), n);
+    let ret = ll::wgetnstr(w, mem::transmute(buf), n);
 
     let capacity = s.byte_capacity();
     match s.as_slice().find('\0')
@@ -1543,15 +1526,13 @@ pub fn winchstr(w: WINDOW, s: &mut Vec<u32>) -> i32
 
 pub fn winnstr(w: WINDOW, s: &mut StrBuf, n: i32) -> i32
 {
-  use std::cast;
-
   /* XXX: This is probably broken. */
   unsafe
   {
     s.as_mut_vec().clear();
     s.reserve(n as uint);
     let buf = s.as_bytes().as_ptr();
-    let ret = ll::winnstr(w, cast::transmute(buf), n);
+    let ret = ll::winnstr(w, mem::transmute(buf), n);
 
     let capacity = s.byte_capacity();
     match s.as_slice().find('\0')
@@ -1579,37 +1560,31 @@ pub fn winsertln(w: WINDOW) -> i32
 
 pub fn winsnstr(w: WINDOW, s: &str, n: i32) -> i32
 {
-  use std::cast;
-
   unsafe
   {
     let buf = s.as_ptr();
-    ll::winsnstr(w, cast::transmute(buf), n)
+    ll::winsnstr(w, mem::transmute(buf), n)
   }
 }
 
 
 pub fn winsstr(w: WINDOW, s: &str) -> i32
 {
-  use std::cast;
-
   unsafe
   {
     let buf = s.as_ptr();
-    ll::winsstr(w, cast::transmute(buf))
+    ll::winsstr(w, mem::transmute(buf))
   }
 }
 
 
 pub fn winstr(w: WINDOW, s: &mut StrBuf) -> i32
 {
-  use std::cast;
-
   /* XXX: This is probably broken. */
   unsafe
   {
     let buf = s.as_bytes().as_ptr();
-    let ret = ll::winstr(w, cast::transmute(buf));
+    let ret = ll::winstr(w, mem::transmute(buf));
 
     let capacity = s.byte_capacity();
     match s.as_slice().find('\0')
