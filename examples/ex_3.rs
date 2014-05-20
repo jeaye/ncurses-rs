@@ -22,11 +22,6 @@ use std::io;
 use std::io::File;
 use ncurses::*;
 
-#[nolink]
-#[cfg(target_os = "linux")]
-#[link(name="GL")]
-extern { }
-
 fn open_file() -> io::File
 {
   let args = os::args();

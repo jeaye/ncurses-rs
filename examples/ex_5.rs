@@ -23,11 +23,6 @@ use std::io;
 use std::io::File;
 use ncurses::*;
 
-#[nolink]
-#[cfg(target_os = "linux")]
-#[link(name ="GL")]
-extern { }
-
 /* Individual color handles. */
 static COLOR_BACKGROUND: i16 = 16;
 static COLOR_FOREGROUND: i16 = 17;

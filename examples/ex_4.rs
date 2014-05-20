@@ -16,11 +16,6 @@ extern crate ncurses;
 
 use ncurses::*;
 
-#[nolink]
-#[cfg(target_os = "linux")]
-#[link(name = "GL")]
-extern { }
-
 static WINDOW_HEIGHT: i32 = 3;
 static WINDOW_WIDTH: i32 = 10;
 

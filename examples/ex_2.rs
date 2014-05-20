@@ -15,11 +15,6 @@ extern crate ncurses;
 use std::char;
 use ncurses::*;
 
-#[nolink]
-#[cfg(target_os = "linux")]
-#[link(name = "GL")]
-extern { }
-
 fn main()
 {
   /* Setup ncurses. */

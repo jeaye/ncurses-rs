@@ -34,13 +34,6 @@ pub struct SCREEN_impl;
 
 pub struct MEVENT { id: c_short, x: c_int, y: c_int, z: c_int, bstate: mmask_t}
 
-#[nolink]
-#[cfg(target_os = "linux")]
-#[link(name = "GL")]
-
-
-extern { }
-
 macro_rules! define_sharedffi(
     ($cfgopt: meta, $link: meta) => {
         #[$cfgopt] #[$link] extern {
