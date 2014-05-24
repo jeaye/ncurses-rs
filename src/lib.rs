@@ -959,12 +959,15 @@ pub fn newpad(lines: i32, cols: i32) -> WINDOW
 { unsafe { ll::newpad(lines, cols) } }
 
 
-pub fn newterm(ty: &str, out_fd: FILE_p, in_fd: FILE_p) -> SCREEN
+pub fn newterm(ty: Option<&str>, out_fd: FILE_p, in_fd: FILE_p) -> SCREEN
 {
   unsafe
   {
-    ty.to_c_str().with_ref( |c_str|
-    { ll::newterm(c_str, out_fd, in_fd) })
+    match ty {
+      Some(s) => s.to_c_str().with_ref( |c_str|
+        { ll::newterm(c_str, out_fd, in_fd) }),
+      None    => ll::newterm(std::ptr::null(), out_fd, in_fd),
+    }
   }
 }
 
