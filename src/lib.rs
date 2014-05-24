@@ -565,7 +565,7 @@ pub fn is_syncok(w: WINDOW) -> bool
 { unsafe { ll::is_syncok(w) == TRUE }}
 
 
-pub fn keyname(c: i32) -> ~str
+pub fn keyname(c: i32) -> StrBuf
 { unsafe { str::raw::from_c_str(ll::keyname(c)) } }
 
 
@@ -581,7 +581,7 @@ pub fn leaveok(w: WINDOW, bf: bool) -> i32
 { unsafe { ll::leaveok(w, bf as libc::c_int) } }
 
 
-pub fn longname() -> ~str
+pub fn longname() -> StrBuf
 { unsafe { str::raw::from_c_str(ll::longname()) } }
 
 
@@ -959,12 +959,15 @@ pub fn newpad(lines: i32, cols: i32) -> WINDOW
 { unsafe { ll::newpad(lines, cols) } }
 
 
-pub fn newterm(ty: &str, out_fd: FILE_p, in_fd: FILE_p) -> SCREEN
+pub fn newterm(ty: Option<&str>, out_fd: FILE_p, in_fd: FILE_p) -> SCREEN
 {
   unsafe
   {
-    ty.to_c_str().with_ref( |c_str|
-    { ll::newterm(c_str, out_fd, in_fd) })
+    match ty {
+      Some(s) => s.to_c_str().with_ref( |c_str|
+        { ll::newterm(c_str, out_fd, in_fd) }),
+      None    => ll::newterm(std::ptr::null(), out_fd, in_fd),
+    }
   }
 }
 
@@ -1189,7 +1192,7 @@ pub fn slk_init(fmt: i32) -> i32
 { unsafe { ll::slk_init(fmt) } }
 
 
-pub fn slk_label(n: i32) -> ~str
+pub fn slk_label(n: i32) -> StrBuf
 { unsafe { str::raw::from_c_str(ll::slk_label(n)) } }
 
 
@@ -1247,7 +1250,7 @@ pub fn termattrs() -> u32
 { unsafe { ll::termattrs() } }
 
 
-pub fn termname() -> ~str
+pub fn termname() -> StrBuf
 { unsafe { str::raw::from_c_str(ll::termname()) } }
 
 
@@ -1287,7 +1290,7 @@ pub fn tigetnum(capname: &str) -> i32
 }
 
 
-pub fn tigetstr(capname: &str) -> ~str
+pub fn tigetstr(capname: &str) -> StrBuf
 {
   unsafe
   {
@@ -1297,7 +1300,7 @@ pub fn tigetstr(capname: &str) -> ~str
 }
 
 
-pub fn tparm(s: &str) -> ~str
+pub fn tparm(s: &str) -> StrBuf
 {
   unsafe
   {

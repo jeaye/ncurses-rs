@@ -135,7 +135,7 @@ impl Pager
   }
 
   /* Returns the word and delimiter following it. */
-  pub fn read_word(&mut self) -> (~str, char)
+  pub fn read_word(&mut self) -> (StrBuf, char)
   {
     let mut s = box "".into_strbuf();
     let mut ch = self.file_reader.read_byte().ok().expect("Unable to read byte");
@@ -166,7 +166,7 @@ impl Pager
       self.in_comment = false;
       return COLOR_PAIR(COLOR_PAIR_COMMENT);
     }
-    else if !self.in_comment && word.contains("/" + "*")
+    else if !self.in_comment && word.contains("/*")
     {
       self.in_comment = true;
       return COLOR_PAIR(COLOR_PAIR_COMMENT);
@@ -301,8 +301,8 @@ fn main()
   {
     /* Read a word at a time. */
     let (word, leftover) = pager.read_word();
-    let attr = pager.highlight_word(word);
-    let leftover_attr = pager.highlight_word(format!("{}", leftover));
+    let attr = pager.highlight_word(word.as_slice());
+    let leftover_attr = pager.highlight_word(format!("{}", leftover).as_slice());
 
     /* Get the current position on the screen. */
     getyx(stdscr, &mut pager.curr_y, &mut pager.curr_x);
@@ -319,7 +319,7 @@ fn main()
     else
     {
       attron(attr);
-      printw(word);
+      printw(word.as_slice());
       attroff(attr);
 
       attron(leftover_attr);
