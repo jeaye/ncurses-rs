@@ -272,7 +272,7 @@ pub fn getch() -> i32
 { unsafe { ll::getch() } }
 
 
-pub fn getnstr(s: &mut StrBuf, n: i32) -> i32
+pub fn getnstr(s: &mut String, n: i32) -> i32
 {
   /* XXX: This is probably broken. */
   unsafe
@@ -294,7 +294,7 @@ pub fn getnstr(s: &mut StrBuf, n: i32) -> i32
 }
 
 
-pub fn getstr(s: &mut StrBuf) -> i32
+pub fn getstr(s: &mut String) -> i32
 {
   /* XXX: This is probably broken. */
   let mut ch = getch();
@@ -435,7 +435,7 @@ pub fn init_pair(pair: i16, f: i16, b: i16) -> i32
 { unsafe { ll::init_pair(pair, f, b) } }
 
 
-pub fn innstr(s: &mut StrBuf, n: i32) -> i32
+pub fn innstr(s: &mut String, n: i32) -> i32
 {
   /* XXX: This is probably broken. */
   unsafe
@@ -489,7 +489,7 @@ pub fn insstr(s: &str) -> i32
 }
 
 
-pub fn instr(s: &mut StrBuf) -> i32
+pub fn instr(s: &mut String) -> i32
 {
   /* XXX: This is probably broken. */
   unsafe
@@ -565,7 +565,7 @@ pub fn is_syncok(w: WINDOW) -> bool
 { unsafe { ll::is_syncok(w) == TRUE }}
 
 
-pub fn keyname(c: i32) -> StrBuf
+pub fn keyname(c: i32) -> String
 { unsafe { str::raw::from_c_str(ll::keyname(c)) } }
 
 
@@ -581,7 +581,7 @@ pub fn leaveok(w: WINDOW, bf: bool) -> i32
 { unsafe { ll::leaveok(w, bf as libc::c_int) } }
 
 
-pub fn longname() -> StrBuf
+pub fn longname() -> String
 { unsafe { str::raw::from_c_str(ll::longname()) } }
 
 
@@ -649,7 +649,7 @@ pub fn mvgetch(y: i32, x: i32) -> i32
 { unsafe { ll::mvgetch(y, x) } }
 
 
-pub fn mvgetnstr(y: i32, x: i32, s: &mut StrBuf, n: i32) -> i32
+pub fn mvgetnstr(y: i32, x: i32, s: &mut String, n: i32) -> i32
 {
   if move(y, x) == ERR
   { return ERR; }
@@ -657,7 +657,7 @@ pub fn mvgetnstr(y: i32, x: i32, s: &mut StrBuf, n: i32) -> i32
 }
 
 
-pub fn mvgetstr(y: i32, x: i32, s: &mut StrBuf) -> i32
+pub fn mvgetstr(y: i32, x: i32, s: &mut String) -> i32
 {
   if move(y, x) == ERR
   { return ERR; }
@@ -689,7 +689,7 @@ pub fn mvinchstr(y: i32, x: i32, s: &mut Vec<u32>) -> i32
 }
 
 
-pub fn mvinnstr(y: i32, x: i32, s: &mut StrBuf, n: i32) -> i32
+pub fn mvinnstr(y: i32, x: i32, s: &mut String, n: i32) -> i32
 {
   if move(y, x) == ERR
   { return ERR; }
@@ -717,7 +717,7 @@ pub fn mvinsstr(y: i32, x: i32, s: &str) -> i32
 }
 
 
-pub fn mvinstr(y: i32, x: i32, s: &mut StrBuf) -> i32
+pub fn mvinstr(y: i32, x: i32, s: &mut String) -> i32
 {
   if move(y, x) == ERR
   { return ERR; }
@@ -781,7 +781,7 @@ pub fn mvwgetch(w: WINDOW, y: i32, x: i32) -> i32
 { unsafe { ll::mvwgetch(w, y, x) } }
 
 
-pub fn mvwgetnstr(w: WINDOW, y: i32, x: i32, s: &mut StrBuf, n: i32) -> i32
+pub fn mvwgetnstr(w: WINDOW, y: i32, x: i32, s: &mut String, n: i32) -> i32
 {
   /* XXX: This is probably broken. */
   unsafe
@@ -803,7 +803,7 @@ pub fn mvwgetnstr(w: WINDOW, y: i32, x: i32, s: &mut StrBuf, n: i32) -> i32
 }
 
 
-pub fn mvwgetstr(w: WINDOW, y: i32, x: i32, s: &mut StrBuf) -> i32
+pub fn mvwgetstr(w: WINDOW, y: i32, x: i32, s: &mut String) -> i32
 {
   if move(y, x) == ERR
   { return ERR; }
@@ -871,7 +871,7 @@ pub fn mvwinchstr(w: WINDOW, y: i32, x: i32, s: &mut Vec<u32>) -> i32
 }
 
 
-pub fn mvwinnstr(w: WINDOW, y: i32, x: i32, s: &mut StrBuf, n: i32) -> i32
+pub fn mvwinnstr(w: WINDOW, y: i32, x: i32, s: &mut String, n: i32) -> i32
 {
   /* XXX: This is probably broken. */
   unsafe
@@ -917,7 +917,7 @@ pub fn mvwinsstr(w: WINDOW, y: i32, x: i32, s: &str) -> i32
 }
 
 
-pub fn mvwinstr(w: WINDOW, y: i32, x: i32, s: &mut StrBuf) -> i32
+pub fn mvwinstr(w: WINDOW, y: i32, x: i32, s: &mut String) -> i32
 {
   /* XXX: This is probably broken. */
   unsafe
@@ -1192,7 +1192,7 @@ pub fn slk_init(fmt: i32) -> i32
 { unsafe { ll::slk_init(fmt) } }
 
 
-pub fn slk_label(n: i32) -> StrBuf
+pub fn slk_label(n: i32) -> String
 { unsafe { str::raw::from_c_str(ll::slk_label(n)) } }
 
 
@@ -1250,7 +1250,7 @@ pub fn termattrs() -> u32
 { unsafe { ll::termattrs() } }
 
 
-pub fn termname() -> StrBuf
+pub fn termname() -> String
 { unsafe { str::raw::from_c_str(ll::termname()) } }
 
 
@@ -1290,7 +1290,7 @@ pub fn tigetnum(capname: &str) -> i32
 }
 
 
-pub fn tigetstr(capname: &str) -> StrBuf
+pub fn tigetstr(capname: &str) -> String
 {
   unsafe
   {
@@ -1300,7 +1300,7 @@ pub fn tigetstr(capname: &str) -> StrBuf
 }
 
 
-pub fn tparm(s: &str) -> StrBuf
+pub fn tparm(s: &str) -> String
 {
   unsafe
   {
@@ -1446,7 +1446,7 @@ pub fn wgetch(w: WINDOW) -> i32
 { unsafe { ll::wgetch(w) } }
 
 
-pub fn wgetnstr(w: WINDOW, s: &mut StrBuf, n: i32) -> i32
+pub fn wgetnstr(w: WINDOW, s: &mut String, n: i32) -> i32
 {
   /* XXX: This is probably broken. */
   unsafe
@@ -1466,7 +1466,7 @@ pub fn wgetnstr(w: WINDOW, s: &mut StrBuf, n: i32) -> i32
 }
 
 
-pub fn wgetstr(w: WINDOW, s: &mut StrBuf) -> i32
+pub fn wgetstr(w: WINDOW, s: &mut String) -> i32
 {
   /* XXX: This is probably broken. */
   let mut ch = wgetch(w);
@@ -1527,7 +1527,7 @@ pub fn winchstr(w: WINDOW, s: &mut Vec<u32>) -> i32
 }
 
 
-pub fn winnstr(w: WINDOW, s: &mut StrBuf, n: i32) -> i32
+pub fn winnstr(w: WINDOW, s: &mut String, n: i32) -> i32
 {
   /* XXX: This is probably broken. */
   unsafe
@@ -1581,7 +1581,7 @@ pub fn winsstr(w: WINDOW, s: &str) -> i32
 }
 
 
-pub fn winstr(w: WINDOW, s: &mut StrBuf) -> i32
+pub fn winstr(w: WINDOW, s: &mut String) -> i32
 {
   /* XXX: This is probably broken. */
   unsafe
