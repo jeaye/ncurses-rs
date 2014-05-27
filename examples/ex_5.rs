@@ -135,7 +135,7 @@ impl Pager
   }
 
   /* Returns the word and delimiter following it. */
-  pub fn read_word(&mut self) -> (StrBuf, char)
+  pub fn read_word(&mut self) -> (String, char)
   {
     let mut s = box "".into_strbuf();
     let mut ch = self.file_reader.read_byte().ok().expect("Unable to read byte");
