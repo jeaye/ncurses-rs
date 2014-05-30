@@ -32,7 +32,7 @@ fn open_file() -> io::File
     fail!("Exiting");
   }
 
-  let reader = File::open(&Path::new(args.get(1).to_owned()));
+  let reader = File::open(&Path::new(args.get(1).to_string()));
   reader.ok().expect("Unable to open file")
 }
 
