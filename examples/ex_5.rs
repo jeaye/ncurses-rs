@@ -150,8 +150,8 @@ impl Pager
     /* Return the word string and the terminating delimiter. */
     match char::from_u32(ch as u32)
     {
-      Some(ch) => (s.into_owned(), ch),
-      None => (s.into_owned(), ' '),
+      Some(ch) => (s.into_string(), ch),
+      None => (s.into_string(), ' '),
     }
   }
 
