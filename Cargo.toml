@@ -1,0 +1,7 @@
+[package]
+name = "ncurses"
+version = "5.71.0"
+authors = [ "contact@jeaye.com" ]
+
+[[lib]]
+name = "ncurses"
