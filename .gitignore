@@ -1,8 +1,3 @@
-# Build files
-.build_*
-.setup_*
-
-# Output binaries
+target
 bin
-lib
-
+.*

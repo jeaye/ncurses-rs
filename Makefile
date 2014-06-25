@@ -1,52 +1,33 @@
-# Copyright © 2013 Free Software Foundation, Inc
-# See licensing in LICENSE file
-#
-# File: Makefile
-# Author: Jesse 'Jeaye' Wilkerson
-# Description:
-# 	Builds ncurses-rs
-
 # Sources
-LIB_SRC=$(shell find src -type f -name '*.rs')
-EXAMPLES_SRC=$(shell find examples -type f -name '*.rs')
+LIB_SRC = src/ncurses.rs
+LIB_DEPS = $(shell head -n1 target/.ncurses.deps 2> /dev/null)
+EXAMPLES_SRC = $(wildcard examples/*.rs)
 
-# Colors
-COLOR_OFF=$(shell tput sgr0)
-COLOR_GREEN=$(shell tput setaf 2)
-PREFIX=${COLOR_GREEN}»»»${COLOR_OFF}
+# Objects
+LIB = target/$(shell rustc --crate-file-name ${LIB_SRC})
+EXAMPLES_BIN = $(EXAMPLES_SRC:examples/%.rs=bin/%)
 
 # CFG Directive Options
-CFG_OPT =
+CFG_OPT ?= -O
 
-.SILENT:
+all: ${LIB} ${EXAMPLES_BIN}
 
-.PHONY: all clean link-ncursesw
-
-all: .build_examples
-	echo "${PREFIX} Finished \o/"
+lib: ${LIB}
 
 link-ncursesw: CFG_OPT = --cfg ncursesw
 link-ncursesw: all
 
-.build_lib: .setup_lib ${LIB_SRC}
-	echo "${PREFIX} Building ncurses-rs "
-	rustc ${CFG_OPT} --out-dir lib src/lib.rs
-	touch .build_lib
+${LIB}: ${LIB_DEPS}
+	@mkdir -p target
+	rustc ${CFG_OPT} --out-dir target ${LIB_SRC}
+	@rustc --no-trans --dep-info target/.ncurses.deps ${LIB_SRC}
+	@sed -i 's/.*: //' target/.ncurses.deps
 
-.setup_lib:
-	mkdir -p lib
-	touch .setup_lib
-
-.build_examples: .build_lib .setup_examples ${EXAMPLES_SRC}
-	echo "${PREFIX} Building examples "
-	$(foreach file, ${EXAMPLES_SRC}, rustc --out-dir bin -Llib $(file);)
-	touch .build_examples
-
-.setup_examples:
-	mkdir -p bin
-	touch .setup_examples
+${EXAMPLES_BIN}: bin/%: examples/%.rs ${LIB}
+	@mkdir -p bin
+	rustc --out-dir bin -L target $<
 
 clean:
-	find . -type f -name '.build_*' | xargs rm -f
-	rm -f lib/libncurses*
-	echo "${PREFIX} Cleaned"
+	rm -rf target bin
+
+.PHONY: all clean link-ncursesw

@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 /*
 Copyright © 2013 Free Software Foundation, Inc
 See licensing in LICENSE file

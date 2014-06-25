@@ -15,6 +15,7 @@
 */
 
 #![feature(globs)]
+#![feature(unsafe_destructor)]
 
 extern crate ncurses;
 
