@@ -21,7 +21,7 @@ ${LIB}: ${LIB_DEPS}
 	@mkdir -p target
 	rustc ${CFG_OPT} --out-dir target ${LIB_SRC}
 	@rustc --no-trans --dep-info target/.ncurses.deps ${LIB_SRC}
-	@sed -i 's/.*: //' target/.ncurses.deps
+	@perl -p -i -e 's/.*: //' target/.ncurses.deps
 
 ${EXAMPLES_BIN}: bin/%: examples/%.rs ${LIB}
 	@mkdir -p bin
