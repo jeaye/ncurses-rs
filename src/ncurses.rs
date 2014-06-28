@@ -1673,7 +1673,7 @@ pub fn wgetscrreg(w: WINDOW, top: &mut i32, bot: &mut i32) -> i32
 
 /* Attributes */
 pub fn NCURSES_BITS(mask: u32, shift: u32) -> u32
-{ ((mask) << ((shift) + NCURSES_ATTR_SHIFT)) }
+{ mask << (shift + NCURSES_ATTR_SHIFT) as uint }
 
 pub fn A_NORMAL() -> i32
 { (1u32 - 1u32) as i32 }
@@ -1685,7 +1685,7 @@ pub fn A_CHARTEXT() -> i32
 {(NCURSES_BITS(1u32, 0u32) - 1u32) as i32 }
 
 pub fn A_COLOR() -> i32
-{ NCURSES_BITS(((1u32) << 8u32) - 1u32, 0u32) as i32 }
+{ NCURSES_BITS(((1u32) << 8u) - 1u32, 0u32) as i32 }
 
 pub fn A_STANDOUT() -> i32
 { NCURSES_BITS(1u32, 8u32) as i32 }
