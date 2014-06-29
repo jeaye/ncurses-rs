@@ -80,8 +80,8 @@ pub fn attr_get(attrs: &mut i32, pair: &mut i16) -> i32
 {
   unsafe
   {
-    ll::attr_get(&*attrs as *i32,
-                 &*pair as *i16,
+    ll::attr_get(&mut*attrs as *mut i32,
+                 &mut*pair as *mut i16,
                  ptr::null())
   }
 }
@@ -156,9 +156,9 @@ pub fn color_content(color: i16, r: &mut i16, g: &mut i16, b: &mut i16) -> i32
   unsafe
   {
     ll::color_content(color,
-                      &*r as *i16,
-                      &*g as *i16,
-                      &*b as *i16)
+                      &mut*r as *mut i16,
+                      &mut*g as *mut i16,
+                      &mut*b as *mut i16)
   }
 }
 
@@ -308,7 +308,7 @@ pub fn getstr(s: &mut String) -> i32
 }
 
 
-pub fn getwin(reader: *libc::FILE) -> WINDOW
+pub fn getwin(reader: *mut libc::FILE) -> WINDOW
 { unsafe { ll::getwin(reader) } } /* TODO: Make this safe. */
 
 
@@ -567,7 +567,7 @@ pub fn is_syncok(w: WINDOW) -> bool
 
 
 pub fn keyname(c: i32) -> String
-{ unsafe { str::raw::from_c_str(ll::keyname(c)) } }
+{ unsafe { str::raw::from_c_str(ll::keyname(c) as *const i8) } }
 
 
 pub fn keypad(w: WINDOW, bf: bool) -> i32
@@ -583,7 +583,7 @@ pub fn leaveok(w: WINDOW, bf: bool) -> i32
 
 
 pub fn longname() -> String
-{ unsafe { str::raw::from_c_str(ll::longname()) } }
+{ unsafe { str::raw::from_c_str(ll::longname() as *const i8) } }
 
 
 pub fn meta(w: WINDOW, bf: bool) -> i32
@@ -1018,7 +1018,7 @@ pub fn overwrite(src: WINDOW, dst: WINDOW) -> i32
 
 
 pub fn pair_content(pair: i16, f: &mut i16, b: &mut i16) -> i32
-{ unsafe { ll::pair_content(pair, &*f as *i16, &*b as *i16) } }
+{ unsafe { ll::pair_content(pair, &mut*f as *mut i16, &mut*b as *mut i16) } }
 
 
 pub fn PAIR_NUMBER(attr: i32) -> i32
@@ -1194,7 +1194,7 @@ pub fn slk_init(fmt: i32) -> i32
 
 
 pub fn slk_label(n: i32) -> String
-{ unsafe { str::raw::from_c_str(ll::slk_label(n)) } }
+{ unsafe { str::raw::from_c_str(ll::slk_label(n) as *const i8) } }
 
 
 pub fn slk_noutrefresh() -> i32
@@ -1252,7 +1252,7 @@ pub fn termattrs() -> u32
 
 
 pub fn termname() -> String
-{ unsafe { str::raw::from_c_str(ll::termname()) } }
+{ unsafe { str::raw::from_c_str(ll::termname() as *const i8) } }
 
 
 pub fn timeout(delay: i32)
@@ -1296,7 +1296,7 @@ pub fn tigetstr(capname: &str) -> String
   unsafe
   {
     capname.to_c_str().with_ref( |c_str|
-    { str::raw::from_c_str(ll::tigetstr(c_str)) })
+    { str::raw::from_c_str(ll::tigetstr(c_str) as *const i8) })
   }
 }
 
@@ -1306,7 +1306,7 @@ pub fn tparm(s: &str) -> String
   unsafe
   {
     s.to_c_str().with_ref( |c_str|
-    { str::raw::from_c_str(ll::tparm(c_str)) })
+    { str::raw::from_c_str(ll::tparm(c_str) as *const i8) })
   }
 }
 
@@ -1376,7 +1376,7 @@ pub fn wattrset(w: WINDOW, attr: i32) -> i32
 
 
 pub fn wattr_get(w: WINDOW, attrs: &mut i32, pair: &mut i16) -> i32
-{ unsafe { ll::wattr_get(w, &*attrs as *i32, &*pair as *i16, ptr::null()) } }
+{ unsafe { ll::wattr_get(w, &mut*attrs as *mut i32, &mut*pair as *mut i16, ptr::null()) } }
 
 
 pub fn wattr_on(w: WINDOW, attr: i32) -> i32
@@ -1669,7 +1669,7 @@ pub fn wgetparent(w: WINDOW) -> WINDOW
 
 
 pub fn wgetscrreg(w: WINDOW, top: &mut i32, bot: &mut i32) -> i32
-{ unsafe { ll::wgetscrreg(w, &*top as *i32, &*bot as *i32) } }
+{ unsafe { ll::wgetscrreg(w, &mut*top as *mut i32, &mut*bot as *mut i32) } }
 
 /* Attributes */
 pub fn NCURSES_BITS(mask: u32, shift: u32) -> u32
@@ -1762,7 +1762,7 @@ pub fn getsyx(y: &mut i32, x: &mut i32)
 {
   unsafe
   {
-    if newscr != ptr::null()
+    if newscr != ptr::mut_null()
     {
       if ll::is_leaveok(newscr) == TRUE
       {
@@ -1797,7 +1797,7 @@ pub fn setsyx(y: &mut i32, x: &mut i32)
 
 /* Line graphics */
 pub fn NCURSES_ACS(c: char) -> char
-{ unsafe { char::from_u32(*((acs_map as i32 + 4 * (c as i32)) as *u32)).expect("Invalid char") } }
+{ unsafe { char::from_u32(*((acs_map as i32 + 4 * (c as i32)) as *mut u32)).expect("Invalid char") } }
 
 /* VT100 symbols begin here */
 pub fn ACS_ULCORNER() -> char
@@ -1878,7 +1878,7 @@ pub fn ACS_BLOCK() -> char
 
 /*
  * These aren't documented, but a lot of System Vs have them anyway
- *(you can spot pprryyzz{{||}} in a lot of AT&T terminfo strings).
+ * (you can spot pprryyzz{{||}} in a lot of AT&T terminfo strings).
  * The ACS_names may not match AT&T's, our source didn't know them.
  */
 pub fn ACS_S3() -> char
@@ -1954,26 +1954,26 @@ pub fn KEY_F(n: u8) -> i32
 pub fn has_mouse() -> i32
 { unsafe { ll::has_mouse() } }
 
-pub fn getmouse(event: *MEVENT) -> i32
+pub fn getmouse(event: *mut MEVENT) -> i32
 { unsafe { ll::getmouse(event) } }
 
-pub fn ungetmouse(event: *MEVENT) -> i32
+pub fn ungetmouse(event: *mut MEVENT) -> i32
 { unsafe { ll::ungetmouse(event) } }
 
 pub fn mouseinterval(n: i32) -> i32
 { unsafe { ll::mouseinterval(n) } }
 
-pub fn mousemask(newmask: mmask_t, oldmask: Option<&mmask_t>) -> mmask_t
+pub fn mousemask(newmask: mmask_t, oldmask: Option<&mut mmask_t>) -> mmask_t
 {
-    if oldmask.is_none() { unsafe { ll::mousemask(newmask, ptr::null()) } }
+    if oldmask.is_none() { unsafe { ll::mousemask(newmask, ptr::mut_null()) } }
     else { unsafe { ll::mousemask(newmask, oldmask.unwrap()) } }
 }
 
 pub fn wenclose(w: WINDOW, y: i32, x: i32) -> i32
 { unsafe { ll::wenclose(w, y as libc::c_int, x as libc::c_int) } }
 
-pub fn wmouse_trafo(w: *WINDOW, y: &[i32], x: &[i32], to_screen: bool) -> i32
-{ unsafe { ll::wmouse_trafo(w, y.as_ptr(), x.as_ptr(), to_screen as libc::c_int) } }
+pub fn wmouse_trafo(w: *mut WINDOW, y: &mut[i32], x: &mut[i32], to_screen: bool) -> i32
+{ unsafe { ll::wmouse_trafo(w, y.as_mut_ptr(), x.as_mut_ptr(), to_screen as libc::c_int) } }
 
-pub fn mouse_trafo( y: &[i32], x: &[i32], to_screen: bool  ) -> i32
-{ unsafe { ll::mouse_trafo(y.as_ptr(), x.as_ptr(), to_screen as libc::c_int ) } }
+pub fn mouse_trafo( y: &mut[i32], x: &mut[i32], to_screen: bool  ) -> i32
+{ unsafe { ll::mouse_trafo(y.as_mut_ptr(), x.as_mut_ptr(), to_screen as libc::c_int ) } }

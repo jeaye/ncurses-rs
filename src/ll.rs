@@ -20,15 +20,15 @@ pub type attr_t = c_int;
 pub type NCURSES_ATTR_T = attr_t;
 
 /* Pointer types. */
-pub type attr_t_p = *attr_t;
-pub type short_p = *c_short;
-pub type void_p = *c_void;
-pub type char_p = *c_char;
-pub type chtype_p = *chtype;
-pub type WINDOW = *WINDOW_impl;
-pub type SCREEN = *SCREEN_impl;
-pub type FILE_p = *FILE;
-pub type va_list = *u8;
+pub type attr_t_p = *mut attr_t;
+pub type short_p = *mut c_short;
+pub type void_p = *const c_void;
+pub type char_p = *const c_char;
+pub type chtype_p = *const chtype;
+pub type WINDOW = *mut WINDOW_impl;
+pub type SCREEN = *mut SCREEN_impl;
+pub type FILE_p = *mut FILE;
+pub type va_list = *mut u8;
 
 /* Custom Types. */
 pub struct WINDOW_impl;
@@ -40,10 +40,10 @@ macro_rules! define_sharedffi(
     ($cfgopt: meta, $link: meta) => {
         #[$cfgopt] #[$link] extern {
             pub fn addch(_:chtype) -> c_int;
-            pub fn addchnstr(_:*chtype, _:c_int) -> c_int;
-            pub fn addchstr(_:*chtype) -> c_int;
-            pub fn addnstr(_:*c_char, _:c_int) -> c_int;
-            pub fn addstr(_:*c_char) -> c_int;
+            pub fn addchnstr(_:*const chtype, _:c_int) -> c_int;
+            pub fn addchstr(_:*const chtype) -> c_int;
+            pub fn addnstr(_:*const c_char, _:c_int) -> c_int;
+            pub fn addstr(_:*const c_char) -> c_int;
             pub fn attroff(_:NCURSES_ATTR_T) -> c_int;
             pub fn attron(_:NCURSES_ATTR_T) -> c_int;
             pub fn attrset(_:NCURSES_ATTR_T) -> c_int;
@@ -117,11 +117,11 @@ macro_rules! define_sharedffi(
             pub fn isendwin() -> c_int;
             pub fn is_linetouched(_:WINDOW,_:c_int) -> c_int;
             pub fn is_wintouched(_:WINDOW) -> c_int;
-            pub fn keyname(_:c_int) -> *c_char;
+            pub fn keyname(_:c_int) -> *const c_char;
             pub fn keypad(_:WINDOW, _:c_int) -> c_int;
             pub fn killchar() -> c_char;
             pub fn leaveok(_:WINDOW,_:c_int) -> c_int;
-            pub fn longname() -> *c_char;
+            pub fn longname() -> *mut c_char;
             pub fn meta(_:WINDOW,_:c_int) -> c_int;
             pub fn move(_:c_int, _:c_int) -> c_int;
             pub fn mvaddch(_:c_int, _:c_int, _:chtype) -> c_int;
@@ -246,7 +246,7 @@ macro_rules! define_sharedffi(
             pub fn use_env(_:c_int);
             pub fn vidattr(_:chtype) -> c_int;
             //  fn vidputs(_:chtype, extern  fn f(c_int) -> c_int) -> c_int;
-            //pub fn vidputs(_:chtype, f:*c_char) -> c_int;
+            //pub fn vidputs(_:chtype, f:*mut c_char) -> c_int;
             pub fn vline(_:chtype, _:c_int) -> c_int;
             pub fn vwprintw(_:WINDOW, _:char_p, _:va_list) -> c_int;
             pub fn vw_printw(_:WINDOW, _:char_p,_:va_list) -> c_int;
@@ -312,10 +312,10 @@ macro_rules! define_sharedffi(
              */
             pub fn tigetflag(_:char_p) -> c_int;
             pub fn tigetnum(_:char_p) -> c_int;
-            pub fn tigetstr(_:char_p) -> *c_char;
+            pub fn tigetstr(_:char_p) -> *mut c_char;
             pub fn putp(_:char_p) -> c_int;
 
-            pub fn tparm(_:char_p) -> *c_char;
+            pub fn tparm(_:char_p) -> *mut c_char;
 
             /*
              * These functions are not in X/Open, but we use them in macro definitions:
@@ -345,18 +345,18 @@ macro_rules! define_sharedffi(
             pub fn is_notimeout(_:WINDOW) -> c_int;
             pub fn is_scrollok(_:WINDOW) -> c_int;
             pub fn is_syncok(_:WINDOW) -> c_int;
-            pub fn wgetscrreg(_:WINDOW, _:*c_int, _:*c_int) -> c_int;
+            pub fn wgetscrreg(_:WINDOW, _:*mut c_int, _:*mut c_int) -> c_int;
             /*
              * Added mouse support
              */
             pub fn has_mouse() -> c_int;
-            pub fn getmouse(_:*MEVENT) -> c_int;
-            pub fn ungetmouse(_:*MEVENT) -> c_int;
-            pub fn mousemask(_:mmask_t,_:*mmask_t) -> mmask_t;
+            pub fn getmouse(_:*mut MEVENT) -> c_int;
+            pub fn ungetmouse(_:*mut MEVENT) -> c_int;
+            pub fn mousemask(_:mmask_t,_:*mut mmask_t) -> mmask_t;
             pub fn wenclose(_:WINDOW,_:c_int,_:c_int) -> c_int;
             pub fn mouseinterval(_:c_int) -> c_int;
-            pub fn wmouse_trafo(_:*WINDOW,_:*c_int,_:*c_int,_:c_int) -> c_int;
-            pub fn mouse_trafo(_:*c_int,_:*c_int,_:c_int) -> c_int;
+            pub fn wmouse_trafo(_:*mut WINDOW,_:*mut c_int,_:*mut c_int,_:c_int) -> c_int;
+            pub fn mouse_trafo(_:*mut c_int,_:*mut c_int,_:c_int) -> c_int;
         }
     })
 
