@@ -14,11 +14,11 @@ use libc::{ c_char, c_int };
 use super::ll::*;
 
 extern
-{ 
+{
   pub static curscr: WINDOW;
   pub static newscr: WINDOW;
   pub static stdscr: WINDOW;
-  pub static ttytype: *c_char;
+  pub static ttytype: *mut c_char;
   pub static COLORS: c_int;
   pub static COLOR_PAIRS: c_int;
   pub static COLS: c_int;
