@@ -1796,84 +1796,85 @@ pub fn setsyx(y: &mut i32, x: &mut i32)
 }
 
 /* Line graphics */
-pub fn NCURSES_ACS(c: char) -> char
-{ unsafe { char::from_u32(*((acs_map as i32 + 4 * (c as i32)) as *mut u32)).expect("Invalid char") } }
+pub fn NCURSES_ACS(c: char) -> chtype {
+    unsafe { *acs_map.as_ptr().offset(c as int) }
+}
 
 /* VT100 symbols begin here */
-pub fn ACS_ULCORNER() -> char
+pub fn ACS_ULCORNER() -> chtype
 { NCURSES_ACS('l') } /* upper left corner */
 
-pub fn ACS_LLCORNER() -> char
+pub fn ACS_LLCORNER() -> chtype
 { NCURSES_ACS('m') } /* lower left corner */
 
-pub fn ACS_URCORNER() -> char
+pub fn ACS_URCORNER() -> chtype
 { NCURSES_ACS('k') } /* upper right corner */
 
-pub fn ACS_LRCORNER() -> char
+pub fn ACS_LRCORNER() -> chtype
 { NCURSES_ACS('j') } /* lower right corner */
 
-pub fn ACS_LTEE() -> char
+pub fn ACS_LTEE() -> chtype
 { NCURSES_ACS('t') } /* tee pointing right */
 
-pub fn ACS_RTEE() -> char
+pub fn ACS_RTEE() -> chtype
 { NCURSES_ACS('u') } /* tee pointing left */
 
-pub fn ACS_BTEE() -> char
+pub fn ACS_BTEE() -> chtype
 { NCURSES_ACS('v') } /* tee pointing up */
 
-pub fn ACS_TTEE() -> char
+pub fn ACS_TTEE() -> chtype
 { NCURSES_ACS('w') } /* tee pointing down */
 
-pub fn ACS_HLINE() -> char
+pub fn ACS_HLINE() -> chtype
 { NCURSES_ACS('q') } /* horizontal line */
 
-pub fn ACS_VLINE() -> char
+pub fn ACS_VLINE() -> chtype
 { NCURSES_ACS('x') } /* vertical line */
 
-pub fn ACS_PLUS() -> char
+pub fn ACS_PLUS() -> chtype
 { NCURSES_ACS('n') } /* large plus or crossover */
 
-pub fn ACS_S1() -> char
+pub fn ACS_S1() -> chtype
 { NCURSES_ACS('o') } /* scan line 1 */
 
-pub fn ACS_S9() -> char
+pub fn ACS_S9() -> chtype
 { NCURSES_ACS('s') } /* scan line 9 */
 
-pub fn ACS_DIAMOND() -> char
+pub fn ACS_DIAMOND() -> chtype
 { NCURSES_ACS('`') } /* diamond */
 
-pub fn ACS_CKBOARD() -> char
+pub fn ACS_CKBOARD() -> chtype
 { NCURSES_ACS('a') } /* checker board(stipple) */
 
-pub fn ACS_DEGREE() -> char
+pub fn ACS_DEGREE() -> chtype
 { NCURSES_ACS('f') } /* degree symbol */
 
-pub fn ACS_PLMINUS() -> char
+pub fn ACS_PLMINUS() -> chtype
 { NCURSES_ACS('g') } /* plus/minus */
 
-pub fn ACS_BULLET() -> char
+pub fn ACS_BULLET() -> chtype
 { NCURSES_ACS('~') } /* bullet */
 
 /* Teletype 5410v1 symbols begin here */
-pub fn ACS_LARROW() -> char
+pub fn ACS_LARROW() -> chtype
 { NCURSES_ACS(',') } /* arrow pointing left */
 
-pub fn ACS_RARROW() -> char
+pub fn ACS_RARROW() -> chtype
 { NCURSES_ACS('+') } /* arrow pointing right */
 
-pub fn ACS_DARROW() -> char
+pub fn ACS_DARROW() -> chtype
 { NCURSES_ACS('.') } /* arrow pointing down */
 
-pub fn ACS_UARROW() -> char
+pub fn ACS_UARROW() -> chtype
 { NCURSES_ACS('-') } /* arrow pointing up */
 
-pub fn ACS_BOARD() -> char
+pub fn ACS_BOARD() -> chtype
 { NCURSES_ACS('h') } /* board of squares */
 
-pub fn ACS_LANTERN() -> char
+pub fn ACS_LANTERN() -> chtype
 { NCURSES_ACS('i') } /* lantern symbol */
 
-pub fn ACS_BLOCK() -> char
+pub fn ACS_BLOCK() -> chtype
 { NCURSES_ACS('0') } /* solid square block */
 
 /*
@@ -1881,25 +1882,25 @@ pub fn ACS_BLOCK() -> char
  * (you can spot pprryyzz{{||}} in a lot of AT&T terminfo strings).
  * The ACS_names may not match AT&T's, our source didn't know them.
  */
-pub fn ACS_S3() -> char
+pub fn ACS_S3() -> chtype
 { NCURSES_ACS('p') } /* scan line 3 */
 
-pub fn ACS_S7() -> char
+pub fn ACS_S7() -> chtype
 { NCURSES_ACS('r') } /* scan line 7 */
 
-pub fn ACS_LEQUAL() -> char
+pub fn ACS_LEQUAL() -> chtype
 { NCURSES_ACS('y') } /* less/equal */
 
-pub fn ACS_GEQUAL() -> char
+pub fn ACS_GEQUAL() -> chtype
 { NCURSES_ACS('z') } /* greater/equal */
 
-pub fn ACS_PI() -> char
+pub fn ACS_PI() -> chtype
 { NCURSES_ACS('{') } /* Pi */
 
-pub fn ACS_NEQUAL() -> char
+pub fn ACS_NEQUAL() -> chtype
 { NCURSES_ACS('|') } /* not equal */
 
-pub fn ACS_STERLING() -> char
+pub fn ACS_STERLING() -> chtype
 { NCURSES_ACS('}') } /* UK pound sign */
 
 /*
@@ -1908,37 +1909,37 @@ pub fn ACS_STERLING() -> char
  * be B(blank), S(single), D(double), or T(thick). The subset defined
  * here only uses B and S.
  */
-pub fn ACS_BSSB() -> char
+pub fn ACS_BSSB() -> chtype
 { ACS_ULCORNER() }
 
-pub fn ACS_SSBB() -> char
+pub fn ACS_SSBB() -> chtype
 { ACS_LLCORNER() }
 
-pub fn ACS_BBSS() -> char
+pub fn ACS_BBSS() -> chtype
 { ACS_URCORNER() }
 
-pub fn ACS_SBBS() -> char
+pub fn ACS_SBBS() -> chtype
 { ACS_LRCORNER() }
 
-pub fn ACS_SBSS() -> char
+pub fn ACS_SBSS() -> chtype
 { ACS_RTEE() }
 
-pub fn ACS_SSSB() -> char
+pub fn ACS_SSSB() -> chtype
 { ACS_LTEE() }
 
-pub fn ACS_SSBS() -> char
+pub fn ACS_SSBS() -> chtype
 { ACS_BTEE() }
 
-pub fn ACS_BSSS() -> char
+pub fn ACS_BSSS() -> chtype
 { ACS_TTEE() }
 
-pub fn ACS_BSBS() -> char
+pub fn ACS_BSBS() -> chtype
 { ACS_HLINE() }
 
-pub fn ACS_SBSB() -> char
+pub fn ACS_SBSB() -> chtype
 { ACS_VLINE() }
 
-pub fn ACS_SSSS() -> char
+pub fn ACS_SSSS() -> chtype
 { ACS_PLUS() }
 
 pub fn KEY_F(n: u8) -> i32
