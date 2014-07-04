@@ -51,17 +51,11 @@ pub fn addchstr(s: &[u32]) -> i32
 
 
 pub fn addnstr(s: &str, n: i32) -> i32
-{
-  s.to_c_str().with_ref(|c_str|
-  { unsafe { ll::addnstr(c_str, n) } })
-}
+{ unsafe { ll::addnstr(s.to_c_str().as_ptr(), n) } }
 
 
 pub fn addstr(s: &str) -> i32
-{
-  s.to_c_str().with_ref( |c_str|
-  { unsafe { ll::addstr(c_str) } })
-}
+{ unsafe { ll::addstr(s.to_c_str().as_ptr()) } }
 
 
 pub fn attroff(a: i32) -> i32
@@ -751,23 +745,11 @@ pub fn mvwaddchstr(w: WINDOW, y: i32, x: i32, s: &[u32]) -> i32
 
 
 pub fn mvwaddnstr(w: WINDOW, y: i32, x: i32, s: &str, n: i32) -> i32
-{
-  unsafe
-  {
-    s.to_c_str().with_ref( |c_str|
-    { ll::mvwaddnstr(w, y, x, c_str, n) })
-  }
-}
+{ unsafe { ll::mvwaddnstr(w, y, x, s.to_c_str().as_ptr(), n) } }
 
 
 pub fn mvwaddstr(w: WINDOW, y: i32, x: i32, s: &str) -> i32
-{
-  unsafe
-  {
-    s.to_c_str().with_ref( |c_str|
-    { ll::mvwaddstr(w, y, x, c_str) })
-  }
-}
+{ unsafe { ll::mvwaddstr(w, y, x, s.to_c_str().as_ptr()) } }
 
 
 pub fn mvwchgat(w: WINDOW, y: i32, x: i32, n: i32, attr: i32, color: i16) -> i32
@@ -899,23 +881,11 @@ pub fn mvwinsch(w: WINDOW, y: i32, x: i32, ch: u32) -> i32
 
 
 pub fn mvwinsnstr(w: WINDOW, y: i32, x: i32, s: &str, n: i32) -> i32
-{
-  unsafe
-  {
-    s.to_c_str().with_ref( |c_str|
-    { ll::mvwinsnstr(w, y, x, c_str, n) })
-  }
-}
+{ unsafe { ll::mvwinsnstr(w, y, x, s.to_c_str().as_ptr(), n) } }
 
 
 pub fn mvwinsstr(w: WINDOW, y: i32, x: i32, s: &str) -> i32
-{
-  unsafe
-  {
-    s.to_c_str().with_ref( |c_str|
-    { ll::mvwinsstr(w, y, x, c_str) })
-  }
-}
+{ unsafe { ll::mvwinsstr(w, y, x, s.to_c_str().as_ptr()) } }
 
 
 pub fn mvwinstr(w: WINDOW, y: i32, x: i32, s: &mut String) -> i32
@@ -939,13 +909,7 @@ pub fn mvwinstr(w: WINDOW, y: i32, x: i32, s: &mut String) -> i32
 
 
 pub fn mvwprintw(w: WINDOW, y: i32, x: i32, s: &str) -> i32
-{
-  unsafe
-  {
-    s.to_c_str().with_ref( |c_str|
-    { ll::mvwprintw(w, y, x, c_str) })
-  }
-}
+{ unsafe { ll::mvwprintw(w, y, x, s.to_c_str().as_ptr()) } }
 
 
 pub fn mvwvline(w: WINDOW, y: i32, x: i32, ch: u32, n: i32) -> i32
@@ -965,8 +929,7 @@ pub fn newterm(ty: Option<&str>, out_fd: FILE_p, in_fd: FILE_p) -> SCREEN
   unsafe
   {
     match ty {
-      Some(s) => s.to_c_str().with_ref( |c_str|
-        { ll::newterm(c_str, out_fd, in_fd) }),
+      Some(s) => ll::newterm(s.to_c_str().as_ptr(), out_fd, in_fd),
       None    => ll::newterm(std::ptr::null(), out_fd, in_fd),
     }
   }
@@ -1038,23 +1001,11 @@ pub fn prefresh(pad: WINDOW, pmin_row: i32, pmin_col: i32, smin_row: i32, smin_c
 
 
 pub fn printw(s: &str) -> i32
-{
-  unsafe
-  {
-    s.to_c_str().with_ref( |c_str|
-    { ll::printw(c_str) })
-  }
-}
+{ unsafe { ll::printw(s.to_c_str().as_ptr()) } }
 
 
 pub fn putp(s: &str) -> i32
-{
-  unsafe
-  {
-    s.to_c_str().with_ref( |c_str|
-    { ll::putp(c_str) })
-  }
-}
+{ unsafe { ll::putp(s.to_c_str().as_ptr()) } }
 
 
 pub fn putwin(w: WINDOW, f: FILE_p) -> i32
@@ -1094,23 +1045,11 @@ pub fn savetty() -> i32
 
 
 pub fn scr_dump(filename: &str) -> i32
-{
-  unsafe
-  {
-    filename.to_c_str().with_ref( |c_str|
-    { ll::scr_dump(c_str) })
-  }
-}
+{ unsafe { ll::scr_dump(filename.to_c_str().as_ptr()) } }
 
 
 pub fn scr_init(filename: &str) -> i32
-{
-  unsafe
-  {
-    filename.to_c_str().with_ref( |c_str|
-    { ll::scr_init(c_str) })
-  }
-}
+{ unsafe { ll::scr_init(filename.to_c_str().as_ptr()) } }
 
 
 pub fn scrl(n: i32) -> i32
@@ -1126,23 +1065,11 @@ pub fn scrollok(w: WINDOW, bf: bool) -> i32
 
 
 pub fn scr_restore(filename: &str) -> i32
-{
-  unsafe
-  {
-    filename.to_c_str().with_ref( |c_str|
-    { ll::scr_restore(c_str) })
-  }
-}
+{ unsafe { ll::scr_restore(filename.to_c_str().as_ptr()) } }
 
 
 pub fn scr_set(filename: &str) -> i32
-{
-  unsafe
-  {
-    filename.to_c_str().with_ref( |c_str|
-    { ll::scr_set(c_str) })
-  }
-}
+{ unsafe { ll::scr_set(filename.to_c_str().as_ptr()) } }
 
 
 pub fn setscrreg(top: i32, bot: i32) -> i32
@@ -1210,13 +1137,7 @@ pub fn slk_restore() -> i32
 
 
 pub fn slk_set(n: i32, s: &str, fmt: i32) -> i32
-{
-  unsafe
-  {
-    s.to_c_str().with_ref( |c_str|
-    { ll::slk_set(n, c_str, fmt) })
-  }
-}
+{ unsafe { ll::slk_set(n, s.to_c_str().as_ptr(), fmt) } }
 
 
 pub fn slk_touch() -> i32
@@ -1272,43 +1193,19 @@ pub fn typeahead(fd: i32) -> i32
 
 
 pub fn tigetflag(capname: &str) -> i32
-{
-  unsafe
-  {
-    capname.to_c_str().with_ref( |c_str|
-    { ll::tigetflag(c_str) })
-  }
-}
+{ unsafe { ll::tigetflag(capname.to_c_str().as_ptr()) } }
 
 
 pub fn tigetnum(capname: &str) -> i32
-{
-  unsafe
-  {
-    capname.to_c_str().with_ref( |c_str|
-    { ll::tigetnum(c_str) })
-  }
-}
+{ unsafe { ll::tigetnum(capname.to_c_str().as_ptr()) } }
 
 
 pub fn tigetstr(capname: &str) -> String
-{
-  unsafe
-  {
-    capname.to_c_str().with_ref( |c_str|
-    { str::raw::from_c_str(ll::tigetstr(c_str) as *const i8) })
-  }
-}
+{ unsafe { { str::raw::from_c_str(ll::tigetstr(capname.to_c_str().as_ptr()) as *const i8) } } }
 
 
 pub fn tparm(s: &str) -> String
-{
-  unsafe
-  {
-    s.to_c_str().with_ref( |c_str|
-    { str::raw::from_c_str(ll::tparm(c_str) as *const i8) })
-  }
-}
+{ unsafe { { str::raw::from_c_str(ll::tparm(s.to_c_str().as_ptr()) as *const i8) } } }
 
 
 pub fn ungetch(ch: i32) -> i32
@@ -1344,23 +1241,11 @@ pub fn waddchstr(w: WINDOW, s: &[u32]) -> i32
 
 
 pub fn waddnstr(w: WINDOW, s: &str, n: i32) -> i32
-{
-  unsafe
-  {
-    s.to_c_str().with_ref( |c_str|
-    { ll::waddnstr(w, c_str, n) })
-  }
-}
+{ unsafe { ll::waddnstr(w, s.to_c_str().as_ptr(), n) } }
 
 
 pub fn waddstr(w: WINDOW, s: &str) -> i32
-{
-  unsafe
-  {
-    s.to_c_str().with_ref( |c_str|
-    { ll::waddstr(w, c_str) })
-  }
-}
+{ unsafe { ll::waddstr(w, s.to_c_str().as_ptr()) } }
 
 
 pub fn wattron(w: WINDOW, attr: i32) -> i32
@@ -1611,13 +1496,7 @@ pub fn wnoutrefresh(w: WINDOW) -> i32
 
 
 pub fn wprintw(w: WINDOW, s: &str) -> i32
-{
-  unsafe
-  {
-    s.to_c_str().with_ref(|c_str|
-    { ll::wprintw(w, c_str) })
-  }
-}
+{ unsafe { ll::wprintw(w, s.to_c_str().as_ptr()) } }
 
 
 pub fn wredrawln(w: WINDOW, start: i32, n: i32) -> i32

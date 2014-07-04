@@ -217,7 +217,7 @@ impl Pager
     { return 0; }
 
     /* If it starts with a number, it is a number. */
-    if word[0] >= '0' as u8 && word[0] <= '9' as u8
+    if word.as_bytes()[0] >= '0' as u8 && word.as_bytes()[0] <= '9' as u8
     { return COLOR_PAIR(COLOR_PAIR_NUMBER); }
 
     match word
