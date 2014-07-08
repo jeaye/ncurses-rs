@@ -46,7 +46,7 @@ static COLOR_PAIR_CHAR: i16 = 7;
 static COLOR_PAIR_NUMBER: i16 = 8;
 
 /* Word delimiters. */
-static word_limits: &'static [u8] = &'static
+static word_limits: &'static [u8] = &
 [
   ' ' as u8,
   '(' as u8,
