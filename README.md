@@ -4,7 +4,7 @@ ncurses-rs ![Build Status](https://travis-ci.org/jeaye/ncurses-rs.png)
 This is a very thin wrapper around the ncurses TUI lib.
 
 ## Building
-The compiled library will go to the `lib` directory.
+The compiled library will go to the `target` directory.
 ```
 make clean && make
 ```
