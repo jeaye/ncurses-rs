@@ -20,7 +20,7 @@ extern crate libc;
 
 use core::mem;
 use std::{ str, char, ptr };
-use self::ll::*;
+use self::ll::{ chtype, FILE_p, mmask_t };
 pub use self::constants::*;
 
 pub mod ll;
