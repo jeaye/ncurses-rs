@@ -4,7 +4,7 @@ LIB_DEPS = $(shell head -n1 target/.ncurses.deps 2> /dev/null)
 EXAMPLES_SRC = $(wildcard examples/*.rs)
 
 # Objects
-LIB = target/$(shell rustc --crate-file-name ${LIB_SRC})
+LIB = target/$(shell rustc --print-file-name ${LIB_SRC})
 EXAMPLES_BIN = $(EXAMPLES_SRC:examples/%.rs=bin/%)
 
 # CFG Directive Options
