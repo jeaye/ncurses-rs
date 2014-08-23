@@ -19,7 +19,7 @@ extern crate core;
 extern crate libc;
 
 use core::mem;
-use std::{ str, char, ptr };
+use std::{ string, char, ptr };
 use self::ll::{ chtype, FILE_p, mmask_t };
 pub use self::constants::*;
 
@@ -561,7 +561,7 @@ pub fn is_syncok(w: WINDOW) -> bool
 
 
 pub fn keyname(c: i32) -> String
-{ unsafe { str::raw::from_c_str(ll::keyname(c) as *const i8) } }
+{ unsafe { string::raw::from_buf(ll::keyname(c) as *const u8) } }
 
 
 pub fn keypad(w: WINDOW, bf: bool) -> i32
@@ -577,7 +577,7 @@ pub fn leaveok(w: WINDOW, bf: bool) -> i32
 
 
 pub fn longname() -> String
-{ unsafe { str::raw::from_c_str(ll::longname() as *const i8) } }
+{ unsafe { string::raw::from_buf(ll::longname() as *const u8) } }
 
 
 pub fn meta(w: WINDOW, bf: bool) -> i32
@@ -1121,7 +1121,7 @@ pub fn slk_init(fmt: i32) -> i32
 
 
 pub fn slk_label(n: i32) -> String
-{ unsafe { str::raw::from_c_str(ll::slk_label(n) as *const i8) } }
+{ unsafe { string::raw::from_buf(ll::slk_label(n) as *const u8) } }
 
 
 pub fn slk_noutrefresh() -> i32
@@ -1173,7 +1173,7 @@ pub fn termattrs() -> u32
 
 
 pub fn termname() -> String
-{ unsafe { str::raw::from_c_str(ll::termname() as *const i8) } }
+{ unsafe { string::raw::from_buf(ll::termname() as *const u8) } }
 
 
 pub fn timeout(delay: i32)
@@ -1201,11 +1201,11 @@ pub fn tigetnum(capname: &str) -> i32
 
 
 pub fn tigetstr(capname: &str) -> String
-{ unsafe { { str::raw::from_c_str(ll::tigetstr(capname.to_c_str().as_ptr()) as *const i8) } } }
+{ unsafe { { string::raw::from_buf(ll::tigetstr(capname.to_c_str().as_ptr()) as *const u8) } } }
 
 
 pub fn tparm(s: &str) -> String
-{ unsafe { { str::raw::from_c_str(ll::tparm(s.to_c_str().as_ptr()) as *const i8) } } }
+{ unsafe { { string::raw::from_buf(ll::tparm(s.to_c_str().as_ptr()) as *const u8) } } }
 
 
 pub fn ungetch(ch: i32) -> i32
