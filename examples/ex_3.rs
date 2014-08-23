@@ -27,12 +27,12 @@ fn open_file() -> io::File
   let args = os::args();
   if args.len() != 2
   {
-    println!("Usage:\n\t{} <rust file>", args.get(0));
-    println!("Example:\n\t{} examples/ex_3.rs", args.get(0));
+    println!("Usage:\n\t{} <rust file>", args[0]);
+    println!("Example:\n\t{} examples/ex_3.rs", args[0]);
     fail!("Exiting");
   }
 
-  let reader = File::open(&Path::new(args.get(1).to_string()));
+  let reader = File::open(&Path::new(args[1].to_string()));
   reader.ok().expect("Unable to open file")
 }
 
