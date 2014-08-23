@@ -8,7 +8,7 @@
       Safe wrappers for ncurses functions.
 */
 
-#![crate_id = "ncurses#5.71"]
+#![crate_name = "ncurses"]
 #![crate_type = "lib"]
 #![feature(globs)]
 #![feature(macro_rules)]
