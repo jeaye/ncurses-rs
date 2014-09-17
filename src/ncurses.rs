@@ -1649,7 +1649,7 @@ pub fn getsyx(y: &mut i32, x: &mut i32)
 {
   unsafe
   {
-    if newscr != ptr::mut_null()
+    if newscr != ptr::null_mut()
     {
       if ll::is_leaveok(newscr) == TRUE
       {
@@ -1853,7 +1853,7 @@ pub fn mouseinterval(n: i32) -> i32
 
 pub fn mousemask(newmask: mmask_t, oldmask: Option<&mut mmask_t>) -> mmask_t
 {
-    if oldmask.is_none() { unsafe { ll::mousemask(newmask, ptr::mut_null()) } }
+    if oldmask.is_none() { unsafe { ll::mousemask(newmask, ptr::null_mut()) } }
     else { unsafe { ll::mousemask(newmask, oldmask.unwrap()) } }
 }
 
