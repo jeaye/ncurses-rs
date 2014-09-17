@@ -46,6 +46,7 @@ macro_rules! define_sharedffi(
             pub fn addchstr(_:*const chtype) -> c_int;
             pub fn addnstr(_:*const c_char, _:c_int) -> c_int;
             pub fn addstr(_:*const c_char) -> c_int;
+            pub fn assume_default_colors(_:c_int, _:c_int) -> c_int;
             pub fn attroff(_:NCURSES_ATTR_T) -> c_int;
             pub fn attron(_:NCURSES_ATTR_T) -> c_int;
             pub fn attrset(_:NCURSES_ATTR_T) -> c_int;
@@ -246,6 +247,7 @@ macro_rules! define_sharedffi(
             pub fn ungetch(_:c_int) -> c_int;
             pub fn untouchwin(_:WINDOW) -> c_int;
             pub fn use_env(_:c_int);
+            pub fn use_default_colors() -> c_int;
             pub fn vidattr(_:chtype) -> c_int;
             //  fn vidputs(_:chtype, extern  fn f(c_int) -> c_int) -> c_int;
             //pub fn vidputs(_:chtype, f:*mut c_char) -> c_int;
