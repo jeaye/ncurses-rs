@@ -58,6 +58,10 @@ pub fn addstr(s: &str) -> i32
 { unsafe { ll::addstr(s.to_c_str().as_ptr()) } }
 
 
+pub fn assume_default_colors(fg: i32, bg: i32) -> i32
+{ unsafe { ll::assume_default_colors(fg, bg) } }
+
+
 pub fn attroff(a: i32) -> i32
 { unsafe { ll::attroff(a) } }
 
@@ -1218,6 +1222,10 @@ pub fn untouchwin(w: WINDOW) -> i32
 
 pub fn use_env(f: bool)
 { unsafe { ll::use_env(f as libc::c_int) } }
+
+
+pub fn use_default_colors() -> i32
+{ unsafe { ll::use_default_colors() } }
 
 
 pub fn vidattr(attrs: u32) -> i32
