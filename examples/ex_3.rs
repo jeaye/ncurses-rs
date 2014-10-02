@@ -77,14 +77,14 @@ fn main()
 
       /* Once a key is pressed, clear the screen and continue. */
       clear();
-      move(0, 0);
+      mv(0, 0);
     }
     else
     { addch(ch as u32); }
   }
 
   /* Terminate ncurses. */
-  move(max_y -1, 0);
+  mv(max_y -1, 0);
   prompt();
   endwin();
 }
