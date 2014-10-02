@@ -126,7 +126,8 @@ macro_rules! define_sharedffi(
             pub fn leaveok(_:WINDOW,_:c_int) -> c_int;
             pub fn longname() -> *mut c_char;
             pub fn meta(_:WINDOW,_:c_int) -> c_int;
-            pub fn move(_:c_int, _:c_int) -> c_int;
+            #[link_name = "move"]
+            pub fn mv(_:c_int, _:c_int) -> c_int;
             pub fn mvaddch(_:c_int, _:c_int, _:chtype) -> c_int;
             pub fn mvaddchnstr(_:c_int, _:c_int, _:chtype_p, _:c_int) -> c_int;
             pub fn mvaddchstr(_:c_int, _:c_int, _:chtype_p) -> c_int;
