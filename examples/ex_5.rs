@@ -286,7 +286,7 @@ impl Drop for Pager
   fn drop(&mut self)
   {
     /* Final prompt before closing. */
-    move(self.screen_height - 1, 0);
+    mv(self.screen_height - 1, 0);
     prompt();
     endwin();
   }
@@ -315,7 +315,7 @@ fn main()
 
       /* Once a key is pressed, clear the screen and continue. */
       clear();
-      move(0, 0);
+      mv(0, 0);
     }
     else
     {

@@ -588,8 +588,8 @@ pub fn meta(w: WINDOW, bf: bool) -> i32
 { unsafe { ll::meta(w, bf as libc::c_int) } }
 
 
-pub fn move(y: i32, x: i32) -> i32
-{ unsafe { ll::move(y, x) } }
+pub fn mv(y: i32, x: i32) -> i32
+{ unsafe { ll::mv(y, x) } }
 
 
 pub fn mvaddch(y: i32, x: i32, c: u32) -> i32
@@ -598,7 +598,7 @@ pub fn mvaddch(y: i32, x: i32, c: u32) -> i32
 
 pub fn mvaddchnstr(y: i32, x: i32, s: &[u32], n: i32) -> i32
 {
-  if move(y, x) == ERR
+  if mv(y, x) == ERR
   { return ERR; }
   addchnstr(s, n)
 }
@@ -606,7 +606,7 @@ pub fn mvaddchnstr(y: i32, x: i32, s: &[u32], n: i32) -> i32
 
 pub fn mvaddchstr(y: i32, x: i32, s: &[u32]) -> i32
 {
-  if move(y, x) == ERR
+  if mv(y, x) == ERR
   { return ERR; }
   addchstr(s)
 }
@@ -614,7 +614,7 @@ pub fn mvaddchstr(y: i32, x: i32, s: &[u32]) -> i32
 
 pub fn mvaddnstr(y: i32, x: i32, s: &str, n: i32) -> i32
 {
-  if move(y, x) == ERR
+  if mv(y, x) == ERR
   { return ERR; }
   addnstr(s, n)
 }
@@ -622,7 +622,7 @@ pub fn mvaddnstr(y: i32, x: i32, s: &str, n: i32) -> i32
 
 pub fn mvaddstr(y: i32, x: i32, s: &str) -> i32
 {
-  if move(y, x) == ERR
+  if mv(y, x) == ERR
   { return ERR; }
   addstr(s)
 }
@@ -650,7 +650,7 @@ pub fn mvgetch(y: i32, x: i32) -> i32
 
 pub fn mvgetnstr(y: i32, x: i32, s: &mut String, n: i32) -> i32
 {
-  if move(y, x) == ERR
+  if mv(y, x) == ERR
   { return ERR; }
   getnstr(s, n)
 }
@@ -658,7 +658,7 @@ pub fn mvgetnstr(y: i32, x: i32, s: &mut String, n: i32) -> i32
 
 pub fn mvgetstr(y: i32, x: i32, s: &mut String) -> i32
 {
-  if move(y, x) == ERR
+  if mv(y, x) == ERR
   { return ERR; }
   getstr(s)
 }
@@ -674,7 +674,7 @@ pub fn mvinch(y: i32, x: i32) -> u32
 
 pub fn mvinchnstr(y: i32, x: i32, s: &mut Vec<u32>, n: i32) -> i32
 {
-  if move(y, x) == ERR
+  if mv(y, x) == ERR
   { return ERR; }
   inchnstr(s, n)
 }
@@ -682,7 +682,7 @@ pub fn mvinchnstr(y: i32, x: i32, s: &mut Vec<u32>, n: i32) -> i32
 
 pub fn mvinchstr(y: i32, x: i32, s: &mut Vec<u32>) -> i32
 {
-  if move(y, x) == ERR
+  if mv(y, x) == ERR
   { return ERR; }
   inchstr(s)
 }
@@ -690,7 +690,7 @@ pub fn mvinchstr(y: i32, x: i32, s: &mut Vec<u32>) -> i32
 
 pub fn mvinnstr(y: i32, x: i32, s: &mut String, n: i32) -> i32
 {
-  if move(y, x) == ERR
+  if mv(y, x) == ERR
   { return ERR; }
   innstr(s, n)
 }
@@ -702,7 +702,7 @@ pub fn mvinsch(y: i32, x: i32, ch: u32) -> i32
 
 pub fn mvinsnstr(y: i32, x: i32, s: &str, n: i32) -> i32
 {
-  if move(y, x) == ERR
+  if mv(y, x) == ERR
   { return ERR; }
   insnstr(s, n)
 }
@@ -710,7 +710,7 @@ pub fn mvinsnstr(y: i32, x: i32, s: &str, n: i32) -> i32
 
 pub fn mvinsstr(y: i32, x: i32, s: &str) -> i32
 {
-  if move(y, x) == ERR
+  if mv(y, x) == ERR
   { return ERR; }
   insstr(s)
 }
@@ -718,7 +718,7 @@ pub fn mvinsstr(y: i32, x: i32, s: &str) -> i32
 
 pub fn mvinstr(y: i32, x: i32, s: &mut String) -> i32
 {
-  if move(y, x) == ERR
+  if mv(y, x) == ERR
   { return ERR; }
   instr(s)
 }
@@ -726,7 +726,7 @@ pub fn mvinstr(y: i32, x: i32, s: &mut String) -> i32
 
 pub fn mvprintw(y: i32, x: i32, s: &str) -> i32
 {
-  if move(y, x) == ERR
+  if mv(y, x) == ERR
   { return ERR; }
   printw(s)
 }
@@ -792,7 +792,7 @@ pub fn mvwgetnstr(w: WINDOW, y: i32, x: i32, s: &mut String, n: i32) -> i32
 
 pub fn mvwgetstr(w: WINDOW, y: i32, x: i32, s: &mut String) -> i32
 {
-  if move(y, x) == ERR
+  if mv(y, x) == ERR
   { return ERR; }
 
   /* XXX: This is probably broken. */
