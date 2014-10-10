@@ -281,7 +281,7 @@ pub fn getnstr(s: &mut String, n: i32) -> i32
     let buf = s.as_bytes().as_ptr();
     let ret = ll::getnstr(mem::transmute(buf), n);
 
-    let capacity = s.byte_capacity();
+    let capacity = s.capacity();
     match s.as_slice().find('\0')
     {
       Some(index) => s.as_mut_vec().set_len(index as uint),
@@ -299,7 +299,7 @@ pub fn getstr(s: &mut String) -> i32
   let mut ch = getch();
   while ch != '\n' as i32 && ch != '\r' as i32
   {
-    unsafe { s.push_byte(ch as u8); }
+    unsafe { s.as_mut_vec().push(ch as u8); }
     ch = getch();
   }
   OK
@@ -444,7 +444,7 @@ pub fn innstr(s: &mut String, n: i32) -> i32
     let buf = s.as_bytes().as_ptr();
     let ret = ll::innstr(mem::transmute(buf), n);
 
-    let capacity = s.byte_capacity();
+    let capacity = s.capacity();
     match s.as_slice().find('\0')
     {
       Some(index) => s.as_mut_vec().set_len(index as uint),
@@ -496,7 +496,7 @@ pub fn instr(s: &mut String) -> i32
     let buf = s.as_bytes().as_ptr();
     let ret = ll::instr(mem::transmute(buf));
 
-    let capacity = s.byte_capacity();
+    let capacity = s.capacity();
     match s.as_slice().find('\0')
     {
       Some(index) => s.as_mut_vec().set_len(index as uint),
@@ -778,7 +778,7 @@ pub fn mvwgetnstr(w: WINDOW, y: i32, x: i32, s: &mut String, n: i32) -> i32
     let buf = s.as_bytes().as_ptr();
     let ret = ll::mvwgetnstr(w, y, x, mem::transmute(buf), n);
 
-    let capacity = s.byte_capacity();
+    let capacity = s.capacity();
     match s.as_slice().find('\0')
     {
       Some(index) => s.as_mut_vec().set_len(index as uint),
@@ -799,7 +799,7 @@ pub fn mvwgetstr(w: WINDOW, y: i32, x: i32, s: &mut String) -> i32
   let mut ch = wgetch(w);
   while ch != '\n' as i32 && ch != '\r' as i32
   {
-    unsafe { s.push_byte(ch as u8); }
+    unsafe { s.as_mut_vec().push(ch as u8); }
     ch = wgetch(w);
   }
   OK
@@ -868,7 +868,7 @@ pub fn mvwinnstr(w: WINDOW, y: i32, x: i32, s: &mut String, n: i32) -> i32
     let buf = s.as_bytes().as_ptr();
     let ret = ll::mvwinnstr(w, y, x, mem::transmute(buf), n);
 
-    let capacity = s.byte_capacity();
+    let capacity = s.capacity();
     match s.as_slice().find('\0')
     {
       Some(index) => s.as_mut_vec().set_len(index as uint),
@@ -900,7 +900,7 @@ pub fn mvwinstr(w: WINDOW, y: i32, x: i32, s: &mut String) -> i32
     let buf = s.as_bytes().as_ptr();
     let ret = ll::mvwinstr(w, y, x, mem::transmute(buf));
 
-    let capacity = s.byte_capacity();
+    let capacity = s.capacity();
     match s.as_slice().find('\0')
     {
       Some(index) => s.as_mut_vec().set_len(index as uint),
@@ -1348,7 +1348,7 @@ pub fn wgetnstr(w: WINDOW, s: &mut String, n: i32) -> i32
     let buf = s.as_bytes().as_ptr();
     let ret = ll::wgetnstr(w, mem::transmute(buf), n);
 
-    let capacity = s.byte_capacity();
+    let capacity = s.capacity();
     match s.as_slice().find('\0')
     {
       Some(index) => s.as_mut_vec().set_len(index as uint),
@@ -1366,7 +1366,7 @@ pub fn wgetstr(w: WINDOW, s: &mut String) -> i32
   let mut ch = wgetch(w);
   while ch != '\n' as i32 && ch != '\r' as i32
   {
-    unsafe { s.push_byte(ch as u8); }
+    unsafe { s.as_mut_vec().push(ch as u8); }
     ch = wgetch(w);
   }
   OK
@@ -1431,7 +1431,7 @@ pub fn winnstr(w: WINDOW, s: &mut String, n: i32) -> i32
     let buf = s.as_bytes().as_ptr();
     let ret = ll::winnstr(w, mem::transmute(buf), n);
 
-    let capacity = s.byte_capacity();
+    let capacity = s.capacity();
     match s.as_slice().find('\0')
     {
       Some(index) => s.as_mut_vec().set_len(index as uint),
@@ -1483,7 +1483,7 @@ pub fn winstr(w: WINDOW, s: &mut String) -> i32
     let buf = s.as_bytes().as_ptr();
     let ret = ll::winstr(w, mem::transmute(buf));
 
-    let capacity = s.byte_capacity();
+    let capacity = s.capacity();
     match s.as_slice().find('\0')
     {
       Some(index) => s.as_mut_vec().set_len(index as uint),

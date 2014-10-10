@@ -144,7 +144,7 @@ impl Pager
     /* Read until we hit a word delimiter. */
     while !word_limits.contains(&ch)
     {
-      s.push_char(char::from_u32(ch as u32).unwrap());
+      s.push(char::from_u32(ch as u32).unwrap());
       ch = self.file_reader.read_byte().ok().expect("Unable to read byte");
     }
 
