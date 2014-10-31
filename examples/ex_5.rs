@@ -46,7 +46,7 @@ static COLOR_PAIR_CHAR: i16 = 7;
 static COLOR_PAIR_NUMBER: i16 = 8;
 
 /* Word delimiters. */
-static word_limits: &'static [u8] = &
+static WORD_LIMITS: &'static [u8] = &
 [
   ' ' as u8,
   '(' as u8,
@@ -142,7 +142,7 @@ impl Pager
     let mut ch = self.file_reader.read_byte().ok().expect("Unable to read byte");
 
     /* Read until we hit a word delimiter. */
-    while !word_limits.contains(&ch)
+    while !WORD_LIMITS.contains(&ch)
     {
       s.push(char::from_u32(ch as u32).unwrap());
       ch = self.file_reader.read_byte().ok().expect("Unable to read byte");
@@ -212,7 +212,7 @@ impl Pager
 
     /* Trim the word of all delimiters. */
     let word = word.trim_chars(|ch: char|
-                               { word_limits.contains(&(ch as u8)) });
+                               { WORD_LIMITS.contains(&(ch as u8)) });
     if word.len() == 0
     { return 0; }
 
