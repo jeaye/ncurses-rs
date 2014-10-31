@@ -29,7 +29,7 @@ fn open_file() -> io::File
   {
     println!("Usage:\n\t{} <rust file>", args[0]);
     println!("Example:\n\t{} examples/ex_3.rs", args[0]);
-    fail!("Exiting");
+    panic!("Exiting");
   }
 
   let reader = File::open(&Path::new(args[1].to_string()));
