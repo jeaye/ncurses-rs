@@ -138,21 +138,21 @@ impl Pager
   /* Returns the word and delimiter following it. */
   pub fn read_word(&mut self) -> (String, char)
   {
-    let mut s = box "".into_string();
+    let mut s: Vec<u8> = vec![];
     let mut ch = self.file_reader.read_byte().ok().expect("Unable to read byte");
 
     /* Read until we hit a word delimiter. */
     while !WORD_LIMITS.contains(&ch)
     {
-      s.push(char::from_u32(ch as u32).unwrap());
+      s.push(ch);
       ch = self.file_reader.read_byte().ok().expect("Unable to read byte");
     }
 
     /* Return the word string and the terminating delimiter. */
     match char::from_u32(ch as u32)
     {
-      Some(ch) => (s.into_string(), ch),
-      None => (s.into_string(), ' '),
+      Some(ch) => (String::from_utf8(s).ok().expect("utf-8 conversion failed"), ch),
+      None => (String::from_utf8(s).ok().expect("utf-8 conversion failed"), ' '),
     }
   }
 
