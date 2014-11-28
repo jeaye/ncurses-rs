@@ -13,7 +13,7 @@ CFG_OPT ?= -O
 SED_OPT=-i
 
 ifeq ($(shell uname),Darwin)
-	SED_OPT=-i -e
+	SED_OPT=-i ''
 endif
 
 all: ${LIB} ${EXAMPLES_BIN}
