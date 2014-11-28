@@ -10,6 +10,12 @@ EXAMPLES_BIN = $(EXAMPLES_SRC:examples/%.rs=bin/%)
 # CFG Directive Options
 CFG_OPT ?= -O
 
+SED_OPT=-i
+
+ifeq ($(shell uname),Darwin)
+	SED_OPT=-i -e
+endif
+
 all: ${LIB} ${EXAMPLES_BIN}
 
 lib: ${LIB}
@@ -21,7 +27,7 @@ ${LIB}: ${LIB_DEPS}
 	@mkdir -p target
 	rustc ${CFG_OPT} --out-dir target ${LIB_SRC}
 	@rustc --no-trans --dep-info target/.ncurses.deps ${LIB_SRC}
-	@sed -i 's/.*: //' target/.ncurses.deps
+	sed ${SED_OPT} 's/.*: //' target/.ncurses.deps
 
 ${EXAMPLES_BIN}: bin/%: examples/%.rs ${LIB}
 	@mkdir -p bin
