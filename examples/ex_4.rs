@@ -30,7 +30,7 @@ fn main()
   noecho();
 
   /* Invisible cursor. */
-  curs_set(CURSOR_INVISIBLE);
+  curs_set(CURSOR_VISIBILITY::CURSOR_INVISIBLE);
 
   /* Status/help info. */
   printw("Use the arrow keys to move");
