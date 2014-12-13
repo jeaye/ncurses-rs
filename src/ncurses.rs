@@ -26,6 +26,7 @@ pub use self::constants::*;
 pub mod ll;
 pub mod constants;
 
+#[deriving(Copy)]
 pub enum CURSOR_VISIBILITY
 {
   CURSOR_INVISIBLE = 0,
