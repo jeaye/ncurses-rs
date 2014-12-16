@@ -67,6 +67,10 @@ static WORD_LIMITS: &'static [u8] = &
   -1 as u8,
 ];
 
+fn is_limit(c: char) -> bool {
+    return WORD_LIMITS.contains(&(c as u8));
+}
+
 struct Pager
 {
   file_reader: io::File,
@@ -211,8 +215,8 @@ impl Pager
     }
 
     /* Trim the word of all delimiters. */
-    let word = word.trim_chars(|ch: char|
-                               { WORD_LIMITS.contains(&(ch as u8)) });
+    let word = word.trim_chars(is_limit);
+
     if word.len() == 0
     { return 0; }
 
