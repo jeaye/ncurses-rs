@@ -183,7 +183,7 @@ pub const KEY_EVENT: i32=	0x19b;		/* We were interrupted by an event */
 pub const KEY_MAX: i32=	0x1ff;		/* Maximum key value is 0633 */
 
 /* Mouse Support */
-macro_rules! ncurses_mouse_mask( ($b: expr $m: expr) => ($m << (($b - 1) * 5)); )
+macro_rules! ncurses_mouse_mask( ($b: expr $m: expr) => ($m << (($b - 1) * 5)); );
 pub const NCURSES_BUTTON_RELEASED: i32=	0x001;
 pub const NCURSES_BUTTON_PRESSED: i32=		0x002;
 pub const NCURSES_BUTTON_CLICKED: i32=		0x004;
@@ -230,10 +230,10 @@ pub const REPORT_MOUSE_POSITION: i32=	ncurses_mouse_mask!(6 0x008);
 pub const ALL_MOUSE_EVENTS: i32=	REPORT_MOUSE_POSITION - 1;
 
 /* macros to extract single event-bits from masks */
-macro_rules! button_release( ($e: expr $x: expr) => (e & ncurses_mouse_mask!(x 0x001)); )
-macro_rules! button_press( ($e: expr $x: expr) => (e & ncurses_mouse_mask!(x 0x002)); )
-macro_rules! button_click( ($e: expr $x: expr) => (e & ncurses_mouse_mask!(x 0x004)); )
-macro_rules! button_double_click( ($e: expr $x: expr) => (e & ncurses_mouse_mask!(x 0x008)); )
-macro_rules! button_triple_click( ($e: expr $x: expr) => (e & ncurses_mouse_mask!(x 0x010)); )
-macro_rules! button_reserved_event( ($e: expr $x: expr) => (e & ncurses_mouse_mask!(x 0x020)); )
+macro_rules! button_release( ($e: expr $x: expr) => (e & ncurses_mouse_mask!(x 0x001)); );
+macro_rules! button_press( ($e: expr $x: expr) => (e & ncurses_mouse_mask!(x 0x002)); );
+macro_rules! button_click( ($e: expr $x: expr) => (e & ncurses_mouse_mask!(x 0x004)); );
+macro_rules! button_double_click( ($e: expr $x: expr) => (e & ncurses_mouse_mask!(x 0x008)); );
+macro_rules! button_triple_click( ($e: expr $x: expr) => (e & ncurses_mouse_mask!(x 0x010)); );
+macro_rules! button_reserved_event( ($e: expr $x: expr) => (e & ncurses_mouse_mask!(x 0x020)); );
 

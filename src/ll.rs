@@ -366,9 +366,9 @@ macro_rules! define_sharedffi(
             pub fn wmouse_trafo(_:*mut WINDOW,_:*mut c_int,_:*mut c_int,_:c_int) -> c_int;
             pub fn mouse_trafo(_:*mut c_int,_:*mut c_int,_:c_int) -> c_int;
         }
-    })
+    });
 
 //end macro rules
 
-define_sharedffi!(cfg(ncursesw), link(name="ncursesw"))
-define_sharedffi!(cfg(not(ncursesw)), link(name="ncurses"))
+define_sharedffi!(cfg(ncursesw), link(name="ncursesw"));
+define_sharedffi!(cfg(not(ncursesw)), link(name="ncurses"));
