@@ -211,7 +211,7 @@ impl Pager
     }
 
     /* Trim the word of all delimiters. */
-    let word = word.trim_chars(|ch: char|
+    let word = word.trim_chars(|&: ch: char|
                                { WORD_LIMITS.contains(&(ch as u8)) });
     if word.len() == 0
     { return 0; }
