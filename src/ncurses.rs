@@ -20,13 +20,14 @@ extern crate libc;
 
 use core::mem;
 use std::{ char, ptr };
+use std::c_str::ToCStr;
 use self::ll::{ chtype, FILE_p, mmask_t };
 pub use self::constants::*;
 
 pub mod ll;
 pub mod constants;
 
-#[deriving(Copy)]
+#[derive(Copy)]
 pub enum CURSOR_VISIBILITY
 {
   CURSOR_INVISIBLE = 0,

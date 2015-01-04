@@ -27,7 +27,7 @@ extern
   pub static TABSIZE: c_int;
 
   /* Line graphics */
-  pub static acs_map: [chtype, ..0];
+  pub static acs_map: [chtype; 0];
 }
 
 /* Success/Failure. */
