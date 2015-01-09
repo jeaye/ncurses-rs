@@ -34,7 +34,7 @@ impl FromCStr for String {
         unsafe {
             let len = libc::funcs::c95::string::strlen(s);
             let buf = Vec::from_raw_buf(s, len as usize);
-            String::from_utf8_unchecked(std::mem::transmute(buf))
+            String::from_utf8_unchecked(mem::transmute(buf))
         }
     }
 }
