@@ -13,8 +13,6 @@
         ./bin/ex_3 examples/ex_3.rs
 */
 
-#![feature(globs)]
-
 extern crate ncurses;
 
 use std::os;

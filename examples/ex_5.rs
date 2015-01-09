@@ -14,7 +14,6 @@
         ./bin/ex_5 examples/ex_5.rs
 */
 
-#![feature(globs)]
 #![feature(unsafe_destructor)]
 
 extern crate ncurses;

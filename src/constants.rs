@@ -183,7 +183,7 @@ pub const KEY_EVENT: i32=	0x19b;		/* We were interrupted by an event */
 pub const KEY_MAX: i32=	0x1ff;		/* Maximum key value is 0633 */
 
 /* Mouse Support */
-macro_rules! ncurses_mouse_mask( ($b: expr $m: expr) => ($m << (($b - 1) * 5)); );
+macro_rules! ncurses_mouse_mask( ($b:expr, $m:expr) => ($m << (($b - 1) * 5)); );
 pub const NCURSES_BUTTON_RELEASED: i32=	0x001;
 pub const NCURSES_BUTTON_PRESSED: i32=		0x002;
 pub const NCURSES_BUTTON_CLICKED: i32=		0x004;
@@ -192,48 +192,48 @@ pub const NCURSES_TRIPLE_CLICKED: i32=		0x010;
 pub const NCURSES_RESERVED_EVENT: i32=		0x020;
 
 /* event masks */
-pub const BUTTON1_RELEASED: i32=	ncurses_mouse_mask!(1 NCURSES_BUTTON_RELEASED);
-pub const BUTTON1_PRESSED: i32=	ncurses_mouse_mask!(1 NCURSES_BUTTON_PRESSED);
-pub const BUTTON1_CLICKED: i32=	ncurses_mouse_mask!(1 NCURSES_BUTTON_CLICKED);
-pub const BUTTON1_DOUBLE_CLICKED: i32=	ncurses_mouse_mask!(1 NCURSES_DOUBLE_CLICKED);
-pub const BUTTON1_TRIPLE_CLICKED: i32=	ncurses_mouse_mask!(1 NCURSES_TRIPLE_CLICKED);
+pub const BUTTON1_RELEASED: i32=	ncurses_mouse_mask!(1, NCURSES_BUTTON_RELEASED);
+pub const BUTTON1_PRESSED: i32=	ncurses_mouse_mask!(1, NCURSES_BUTTON_PRESSED);
+pub const BUTTON1_CLICKED: i32=	ncurses_mouse_mask!(1, NCURSES_BUTTON_CLICKED);
+pub const BUTTON1_DOUBLE_CLICKED: i32=	ncurses_mouse_mask!(1, NCURSES_DOUBLE_CLICKED);
+pub const BUTTON1_TRIPLE_CLICKED: i32=	ncurses_mouse_mask!(1, NCURSES_TRIPLE_CLICKED);
 
-pub const BUTTON2_RELEASED: i32=       ncurses_mouse_mask!(2 NCURSES_BUTTON_RELEASED);
-pub const BUTTON2_PRESSED: i32=        ncurses_mouse_mask!(2 NCURSES_BUTTON_PRESSED);
-pub const BUTTON2_CLICKED: i32=        ncurses_mouse_mask!(2 NCURSES_BUTTON_CLICKED);
-pub const BUTTON2_DOUBLE_CLICKED: i32= ncurses_mouse_mask!(2 NCURSES_DOUBLE_CLICKED);
-pub const BUTTON2_TRIPLE_CLICKED: i32= ncurses_mouse_mask!(2 NCURSES_TRIPLE_CLICKED);
+pub const BUTTON2_RELEASED: i32=       ncurses_mouse_mask!(2, NCURSES_BUTTON_RELEASED);
+pub const BUTTON2_PRESSED: i32=        ncurses_mouse_mask!(2, NCURSES_BUTTON_PRESSED);
+pub const BUTTON2_CLICKED: i32=        ncurses_mouse_mask!(2, NCURSES_BUTTON_CLICKED);
+pub const BUTTON2_DOUBLE_CLICKED: i32= ncurses_mouse_mask!(2, NCURSES_DOUBLE_CLICKED);
+pub const BUTTON2_TRIPLE_CLICKED: i32= ncurses_mouse_mask!(2, NCURSES_TRIPLE_CLICKED);
 
-pub const BUTTON3_RELEASED: i32=       ncurses_mouse_mask!(3 NCURSES_BUTTON_RELEASED);
-pub const BUTTON3_PRESSED: i32=        ncurses_mouse_mask!(3 NCURSES_BUTTON_PRESSED);
-pub const BUTTON3_CLICKED: i32=        ncurses_mouse_mask!(3 NCURSES_BUTTON_CLICKED);
-pub const BUTTON3_DOUBLE_CLICKED: i32= ncurses_mouse_mask!(3 NCURSES_DOUBLE_CLICKED);
-pub const BUTTON3_TRIPLE_CLICKED: i32= ncurses_mouse_mask!(3 NCURSES_TRIPLE_CLICKED);
+pub const BUTTON3_RELEASED: i32=       ncurses_mouse_mask!(3, NCURSES_BUTTON_RELEASED);
+pub const BUTTON3_PRESSED: i32=        ncurses_mouse_mask!(3, NCURSES_BUTTON_PRESSED);
+pub const BUTTON3_CLICKED: i32=        ncurses_mouse_mask!(3, NCURSES_BUTTON_CLICKED);
+pub const BUTTON3_DOUBLE_CLICKED: i32= ncurses_mouse_mask!(3, NCURSES_DOUBLE_CLICKED);
+pub const BUTTON3_TRIPLE_CLICKED: i32= ncurses_mouse_mask!(3, NCURSES_TRIPLE_CLICKED);
 
-pub const BUTTON4_RELEASED: i32=       ncurses_mouse_mask!(4 NCURSES_BUTTON_RELEASED);
-pub const BUTTON4_PRESSED: i32=        ncurses_mouse_mask!(4 NCURSES_BUTTON_PRESSED);
-pub const BUTTON4_CLICKED: i32=        ncurses_mouse_mask!(4 NCURSES_BUTTON_CLICKED);
-pub const BUTTON4_DOUBLE_CLICKED: i32= ncurses_mouse_mask!(4 NCURSES_DOUBLE_CLICKED);
-pub const BUTTON4_TRIPLE_CLICKED: i32= ncurses_mouse_mask!(4 NCURSES_TRIPLE_CLICKED);
+pub const BUTTON4_RELEASED: i32=       ncurses_mouse_mask!(4, NCURSES_BUTTON_RELEASED);
+pub const BUTTON4_PRESSED: i32=        ncurses_mouse_mask!(4, NCURSES_BUTTON_PRESSED);
+pub const BUTTON4_CLICKED: i32=        ncurses_mouse_mask!(4, NCURSES_BUTTON_CLICKED);
+pub const BUTTON4_DOUBLE_CLICKED: i32= ncurses_mouse_mask!(4, NCURSES_DOUBLE_CLICKED);
+pub const BUTTON4_TRIPLE_CLICKED: i32= ncurses_mouse_mask!(4, NCURSES_TRIPLE_CLICKED);
 
-pub const BUTTON5_RELEASED: i32=       ncurses_mouse_mask!(5 NCURSES_BUTTON_RELEASED);
-pub const BUTTON5_PRESSED: i32=        ncurses_mouse_mask!(5 NCURSES_BUTTON_PRESSED);
-pub const BUTTON5_CLICKED: i32=        ncurses_mouse_mask!(5 NCURSES_BUTTON_CLICKED);
-pub const BUTTON5_DOUBLE_CLICKED: i32= ncurses_mouse_mask!(5 NCURSES_DOUBLE_CLICKED);
-pub const BUTTON5_TRIPLE_CLICKED: i32= ncurses_mouse_mask!(5 NCURSES_TRIPLE_CLICKED);
+pub const BUTTON5_RELEASED: i32=       ncurses_mouse_mask!(5, NCURSES_BUTTON_RELEASED);
+pub const BUTTON5_PRESSED: i32=        ncurses_mouse_mask!(5, NCURSES_BUTTON_PRESSED);
+pub const BUTTON5_CLICKED: i32=        ncurses_mouse_mask!(5, NCURSES_BUTTON_CLICKED);
+pub const BUTTON5_DOUBLE_CLICKED: i32= ncurses_mouse_mask!(5, NCURSES_DOUBLE_CLICKED);
+pub const BUTTON5_TRIPLE_CLICKED: i32= ncurses_mouse_mask!(5, NCURSES_TRIPLE_CLICKED);
 
-pub const BUTTON_CTRL: i32=		ncurses_mouse_mask!(6 0x001);
-pub const BUTTON_SHIFT: i32=		ncurses_mouse_mask!(6 0x002);
-pub const BUTTON_ALT: i32=		ncurses_mouse_mask!(6 0x004);
-pub const REPORT_MOUSE_POSITION: i32=	ncurses_mouse_mask!(6 0x008);
+pub const BUTTON_CTRL: i32=		ncurses_mouse_mask!(6, 0x001);
+pub const BUTTON_SHIFT: i32=		ncurses_mouse_mask!(6, 0x002);
+pub const BUTTON_ALT: i32=		ncurses_mouse_mask!(6, 0x004);
+pub const REPORT_MOUSE_POSITION: i32=	ncurses_mouse_mask!(6, 0x008);
 
 pub const ALL_MOUSE_EVENTS: i32=	REPORT_MOUSE_POSITION - 1;
 
 /* macros to extract single event-bits from masks */
-macro_rules! button_release( ($e: expr $x: expr) => (e & ncurses_mouse_mask!(x 0x001)); );
-macro_rules! button_press( ($e: expr $x: expr) => (e & ncurses_mouse_mask!(x 0x002)); );
-macro_rules! button_click( ($e: expr $x: expr) => (e & ncurses_mouse_mask!(x 0x004)); );
-macro_rules! button_double_click( ($e: expr $x: expr) => (e & ncurses_mouse_mask!(x 0x008)); );
-macro_rules! button_triple_click( ($e: expr $x: expr) => (e & ncurses_mouse_mask!(x 0x010)); );
-macro_rules! button_reserved_event( ($e: expr $x: expr) => (e & ncurses_mouse_mask!(x 0x020)); );
+macro_rules! button_release( ($e: expr, $x: expr) => (e & ncurses_mouse_mask!(x, 0x001)); );
+macro_rules! button_press( ($e: expr, $x: expr) => (e & ncurses_mouse_mask!(x, 0x002)); );
+macro_rules! button_click( ($e: expr, $x: expr) => (e & ncurses_mouse_mask!(x, 0x004)); );
+macro_rules! button_double_click( ($e: expr, $x: expr) => (e & ncurses_mouse_mask!(x, 0x008)); );
+macro_rules! button_triple_click( ($e: expr, $x: expr) => (e & ncurses_mouse_mask!(x, 0x010)); );
+macro_rules! button_reserved_event( ($e: expr, $x: expr) => (e & ncurses_mouse_mask!(x, 0x020)); );
 

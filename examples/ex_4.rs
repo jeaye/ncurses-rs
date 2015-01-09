@@ -10,8 +10,6 @@
       around the screen.
 */
 
-#![feature(globs)]
-
 extern crate ncurses;
 
 use ncurses::*;
