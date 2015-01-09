@@ -10,8 +10,6 @@
 
 #![crate_name = "ncurses"]
 #![crate_type = "lib"]
-#![feature(globs)]
-#![feature(macro_rules)]
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
 
@@ -20,12 +18,36 @@ extern crate libc;
 
 use core::mem;
 use std::{ char, ptr };
-use std::c_str::ToCStr;
+use std::ffi::CString;
 use self::ll::{ chtype, FILE_p, mmask_t };
 pub use self::constants::*;
 
 pub mod ll;
 pub mod constants;
+
+trait FromCStr {
+    fn from_c_str(s: *const libc::c_char) -> Self;
+}
+
+impl FromCStr for String {
+    fn from_c_str(s: *const libc::c_char) -> String {
+        unsafe {
+            let len = libc::funcs::c95::string::strlen(s);
+            let buf = Vec::from_raw_buf(s, len as usize);
+            String::from_utf8_unchecked(std::mem::transmute(buf))
+        }
+    }
+}
+
+trait ToCStr {
+    fn to_c_str(&self) -> CString;
+}
+
+impl <'a>ToCStr for &'a str {
+    fn to_c_str(&self) -> CString {
+        CString::from_slice(self.as_bytes())
+    }
+}
 
 #[derive(Copy)]
 pub enum CURSOR_VISIBILITY
@@ -53,11 +75,11 @@ pub fn addchstr(s: &[u32]) -> i32
 
 
 pub fn addnstr(s: &str, n: i32) -> i32
-{ unsafe { ll::addnstr(s.to_c_str().as_ptr(), n) } }
+{ unsafe { ll::addnstr(CString::from_slice(s.as_bytes()).as_ptr(), n) } }
 
 
 pub fn addstr(s: &str) -> i32
-{ unsafe { ll::addstr(s.to_c_str().as_ptr()) } }
+{ unsafe { ll::addstr(CString::from_slice(s.as_bytes()).as_ptr()) } }
 
 
 pub fn assume_default_colors(fg: i32, bg: i32) -> i32
@@ -279,14 +301,14 @@ pub fn getnstr(s: &mut String, n: i32) -> i32
   unsafe
   {
     s.as_mut_vec().clear();
-    s.reserve(n as uint);
+    s.reserve(n as usize);
     let buf = s.as_bytes().as_ptr();
     let ret = ll::getnstr(mem::transmute(buf), n);
 
     let capacity = s.capacity();
     match s.as_slice().find('\0')
     {
-      Some(index) => s.as_mut_vec().set_len(index as uint),
+      Some(index) => s.as_mut_vec().set_len(index as usize),
       None => s.as_mut_vec().set_len(capacity),
     }
 
@@ -388,7 +410,7 @@ pub fn inchnstr(s: &mut Vec<u32>, n: i32) -> i32
 {
   /* XXX: This is probably broken. */
   s.clear();
-  s.reserve(n as uint);
+  s.reserve(n as usize);
   unsafe
   {
     let ret = ll::inchnstr(s.as_ptr(), n);
@@ -396,7 +418,7 @@ pub fn inchnstr(s: &mut Vec<u32>, n: i32) -> i32
     let capacity = s.capacity();
     match s.iter().position(|x| *x == 0)
     {
-      Some(index) => s.set_len(index as uint),
+      Some(index) => s.set_len(index as usize),
       None => s.set_len(capacity),
     }
 
@@ -415,7 +437,7 @@ pub fn inchstr(s: &mut Vec<u32>) -> i32
     let capacity = s.capacity();
     match s.iter().position(|x| *x == 0)
     {
-      Some(index) => s.set_len(index as uint),
+      Some(index) => s.set_len(index as usize),
       None => s.set_len(capacity),
     }
 
@@ -442,14 +464,14 @@ pub fn innstr(s: &mut String, n: i32) -> i32
   unsafe
   {
     s.as_mut_vec().clear();
-    s.reserve(n as uint);
+    s.reserve(n as usize);
     let buf = s.as_bytes().as_ptr();
     let ret = ll::innstr(mem::transmute(buf), n);
 
     let capacity = s.capacity();
     match s.as_slice().find('\0')
     {
-      Some(index) => s.as_mut_vec().set_len(index as uint),
+      Some(index) => s.as_mut_vec().set_len(index as usize),
       None => s.as_mut_vec().set_len(capacity),
     }
 
@@ -501,7 +523,7 @@ pub fn instr(s: &mut String) -> i32
     let capacity = s.capacity();
     match s.as_slice().find('\0')
     {
-      Some(index) => s.as_mut_vec().set_len(index as uint),
+      Some(index) => s.as_mut_vec().set_len(index as usize),
       None => s.as_mut_vec().set_len(capacity),
     }
 
@@ -567,7 +589,7 @@ pub fn is_syncok(w: WINDOW) -> bool
 
 
 pub fn keyname(c: i32) -> String
-{ unsafe { String::from_raw_buf(ll::keyname(c) as *const u8) } }
+{ unsafe { FromCStr::from_c_str(ll::keyname(c)) } }
 
 
 pub fn keypad(w: WINDOW, bf: bool) -> i32
@@ -583,7 +605,7 @@ pub fn leaveok(w: WINDOW, bf: bool) -> i32
 
 
 pub fn longname() -> String
-{ unsafe { String::from_raw_buf(ll::longname() as *const u8) } }
+{ unsafe { FromCStr::from_c_str(ll::longname()) } }
 
 
 pub fn meta(w: WINDOW, bf: bool) -> i32
@@ -776,14 +798,14 @@ pub fn mvwgetnstr(w: WINDOW, y: i32, x: i32, s: &mut String, n: i32) -> i32
   unsafe
   {
     s.as_mut_vec().clear();
-    s.reserve(n as uint);
+    s.reserve(n as usize);
     let buf = s.as_bytes().as_ptr();
     let ret = ll::mvwgetnstr(w, y, x, mem::transmute(buf), n);
 
     let capacity = s.capacity();
     match s.as_slice().find('\0')
     {
-      Some(index) => s.as_mut_vec().set_len(index as uint),
+      Some(index) => s.as_mut_vec().set_len(index as usize),
       None => s.as_mut_vec().set_len(capacity),
     }
 
@@ -824,7 +846,7 @@ pub fn mvwinchnstr(w: WINDOW, y: i32, x: i32, s: &mut Vec<u32>, n: i32) -> i32
 {
   /* XXX: This is probably broken. */
   s.clear();
-  s.reserve(n as uint);
+  s.reserve(n as usize);
   unsafe
   {
     let ret = ll::mvwinchnstr(w, y, x, s.as_ptr(), n);
@@ -832,7 +854,7 @@ pub fn mvwinchnstr(w: WINDOW, y: i32, x: i32, s: &mut Vec<u32>, n: i32) -> i32
     let capacity = s.capacity();
     match s.iter().position(|x| *x == 0)
     {
-      Some(index) => s.set_len(index as uint),
+      Some(index) => s.set_len(index as usize),
       None => s.set_len(capacity),
     }
 
@@ -851,7 +873,7 @@ pub fn mvwinchstr(w: WINDOW, y: i32, x: i32, s: &mut Vec<u32>) -> i32
     let capacity = s.capacity();
     match s.iter().position(|x| *x == 0)
     {
-      Some(index) => s.set_len(index as uint),
+      Some(index) => s.set_len(index as usize),
       None => s.set_len(capacity),
     }
 
@@ -866,14 +888,14 @@ pub fn mvwinnstr(w: WINDOW, y: i32, x: i32, s: &mut String, n: i32) -> i32
   unsafe
   {
     s.as_mut_vec().clear();
-    s.reserve(n as uint);
+    s.reserve(n as usize);
     let buf = s.as_bytes().as_ptr();
     let ret = ll::mvwinnstr(w, y, x, mem::transmute(buf), n);
 
     let capacity = s.capacity();
     match s.as_slice().find('\0')
     {
-      Some(index) => s.as_mut_vec().set_len(index as uint),
+      Some(index) => s.as_mut_vec().set_len(index as usize),
       None => s.as_mut_vec().set_len(capacity),
     }
 
@@ -905,7 +927,7 @@ pub fn mvwinstr(w: WINDOW, y: i32, x: i32, s: &mut String) -> i32
     let capacity = s.capacity();
     match s.as_slice().find('\0')
     {
-      Some(index) => s.as_mut_vec().set_len(index as uint),
+      Some(index) => s.as_mut_vec().set_len(index as usize),
       None => s.as_mut_vec().set_len(capacity),
     }
 
@@ -1127,7 +1149,7 @@ pub fn slk_init(fmt: i32) -> i32
 
 
 pub fn slk_label(n: i32) -> String
-{ unsafe { String::from_raw_buf(ll::slk_label(n) as *const u8) } }
+{ unsafe { FromCStr::from_c_str(ll::slk_label(n)) } }
 
 
 pub fn slk_noutrefresh() -> i32
@@ -1179,7 +1201,7 @@ pub fn termattrs() -> u32
 
 
 pub fn termname() -> String
-{ unsafe { String::from_raw_buf(ll::termname() as *const u8) } }
+{ unsafe { FromCStr::from_c_str(ll::termname()) } }
 
 
 pub fn timeout(delay: i32)
@@ -1207,11 +1229,11 @@ pub fn tigetnum(capname: &str) -> i32
 
 
 pub fn tigetstr(capname: &str) -> String
-{ unsafe { { String::from_raw_buf(ll::tigetstr(capname.to_c_str().as_ptr()) as *const u8) } } }
+{ unsafe { { FromCStr::from_c_str(ll::tigetstr(capname.to_c_str().as_ptr())) } } }
 
 
 pub fn tparm(s: &str) -> String
-{ unsafe { { String::from_raw_buf(ll::tparm(s.to_c_str().as_ptr()) as *const u8) } } }
+{ unsafe { { FromCStr::from_c_str(ll::tparm(s.to_c_str().as_ptr())) } } }
 
 
 pub fn ungetch(ch: i32) -> i32
@@ -1353,7 +1375,7 @@ pub fn wgetnstr(w: WINDOW, s: &mut String, n: i32) -> i32
     let capacity = s.capacity();
     match s.as_slice().find('\0')
     {
-      Some(index) => s.as_mut_vec().set_len(index as uint),
+      Some(index) => s.as_mut_vec().set_len(index as usize),
       None => s.as_mut_vec().set_len(capacity),
     }
 
@@ -1387,7 +1409,7 @@ pub fn winchnstr(w: WINDOW, s: &mut Vec<u32>, n: i32) -> i32
 {
   /* XXX: This is probably broken. */
   s.clear();
-  s.reserve(n as uint);
+  s.reserve(n as usize);
   unsafe
   {
     let ret = ll::winchnstr(w, s.as_ptr(), n);
@@ -1395,7 +1417,7 @@ pub fn winchnstr(w: WINDOW, s: &mut Vec<u32>, n: i32) -> i32
     let capacity = s.capacity();
     match s.iter().position(|x| *x == 0)
     {
-      Some(index) => s.set_len(index as uint),
+      Some(index) => s.set_len(index as usize),
       None => s.set_len(capacity),
     }
 
@@ -1414,7 +1436,7 @@ pub fn winchstr(w: WINDOW, s: &mut Vec<u32>) -> i32
     let capacity = s.capacity();
     match s.iter().position(|x| *x == 0)
     {
-      Some(index) => s.set_len(index as uint),
+      Some(index) => s.set_len(index as usize),
       None => s.set_len(capacity),
     }
 
@@ -1429,14 +1451,14 @@ pub fn winnstr(w: WINDOW, s: &mut String, n: i32) -> i32
   unsafe
   {
     s.as_mut_vec().clear();
-    s.reserve(n as uint);
+    s.reserve(n as usize);
     let buf = s.as_bytes().as_ptr();
     let ret = ll::winnstr(w, mem::transmute(buf), n);
 
     let capacity = s.capacity();
     match s.as_slice().find('\0')
     {
-      Some(index) => s.as_mut_vec().set_len(index as uint),
+      Some(index) => s.as_mut_vec().set_len(index as usize),
       None => s.as_mut_vec().set_len(capacity),
     }
 
@@ -1488,7 +1510,7 @@ pub fn winstr(w: WINDOW, s: &mut String) -> i32
     let capacity = s.capacity();
     match s.as_slice().find('\0')
     {
-      Some(index) => s.as_mut_vec().set_len(index as uint),
+      Some(index) => s.as_mut_vec().set_len(index as usize),
       None => s.as_mut_vec().set_len(capacity),
     }
 
@@ -1562,7 +1584,7 @@ pub fn wgetscrreg(w: WINDOW, top: &mut i32, bot: &mut i32) -> i32
 
 /* Attributes */
 pub fn NCURSES_BITS(mask: u32, shift: u32) -> u32
-{ mask << (shift + NCURSES_ATTR_SHIFT) as uint }
+{ mask << (shift + NCURSES_ATTR_SHIFT) as usize }
 
 pub fn A_NORMAL() -> i32
 { (1u32 - 1u32) as i32 }
@@ -1574,7 +1596,7 @@ pub fn A_CHARTEXT() -> i32
 {(NCURSES_BITS(1u32, 0u32) - 1u32) as i32 }
 
 pub fn A_COLOR() -> i32
-{ NCURSES_BITS(((1u32) << 8u) - 1u32, 0u32) as i32 }
+{ NCURSES_BITS(((1u32) << 8us) - 1u32, 0u32) as i32 }
 
 pub fn A_STANDOUT() -> i32
 { NCURSES_BITS(1u32, 8u32) as i32 }
@@ -1686,7 +1708,7 @@ pub fn setsyx(y: &mut i32, x: &mut i32)
 
 /* Line graphics */
 pub fn NCURSES_ACS(c: char) -> chtype {
-    unsafe { *acs_map.as_ptr().offset(c as int) }
+    unsafe { *acs_map.as_ptr().offset(c as isize) }
 }
 
 /* VT100 symbols begin here */

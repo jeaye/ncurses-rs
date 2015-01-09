@@ -1,0 +1,4 @@
+[root]
+name = "ncurses"
+version = "5.71.1"
+
