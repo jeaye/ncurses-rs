@@ -18,7 +18,7 @@ extern crate libc;
 
 use core::mem;
 use std::{ char, ptr };
-use std::ffi::CString;
+use std::ffi::{CString, c_str_to_bytes};
 use self::ll::{ chtype, FILE_p, mmask_t };
 pub use self::constants::*;
 
@@ -32,9 +32,8 @@ trait FromCStr {
 impl FromCStr for String {
     fn from_c_str(s: *const libc::c_char) -> String {
         unsafe {
-            let len = libc::funcs::c95::string::strlen(s);
-            let buf = Vec::from_raw_buf(s, len as usize);
-            String::from_utf8_unchecked(mem::transmute(buf))
+            let bytes = c_str_to_bytes(&s);
+            String::from_utf8_unchecked(bytes.to_vec())
         }
     }
 }
