@@ -8,8 +8,6 @@
       Basic input and attribute example.
 */
 
-#![feature(globs)]
-
 extern crate ncurses;
 
 use std::char;

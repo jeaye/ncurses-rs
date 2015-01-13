@@ -8,8 +8,6 @@
       Simple "Hello, world" example.
 */
 
-#![feature(globs)]
-
 extern crate ncurses;
 
 use ncurses::*;
