@@ -370,5 +370,5 @@ macro_rules! define_sharedffi(
 
 //end macro rules
 
-define_sharedffi!(cfg(ncursesw), link(name="ncursesw"));
-define_sharedffi!(cfg(not(ncursesw)), link(name="ncurses"));
+define_sharedffi!(cfg(feature="wide"), link(name="ncursesw"));
+define_sharedffi!(cfg(not(feature="wide")), link(name="ncurses"));

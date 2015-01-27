@@ -3,5 +3,9 @@ name = "ncurses"
 version = "5.71.1"
 authors = [ "contact@jeaye.com" ]
 
+[features]
+default=["wide"]
+wide = []
+
 [lib]
 name = "ncurses"
