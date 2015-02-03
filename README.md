@@ -6,7 +6,7 @@ This is a very thin wrapper around the ncurses TUI lib.
 ## Building
 The compiled library will go to the `target` directory.
 ```
-make clean && make
+cargo build
 ```
 
 ## Examples
