@@ -3,4 +3,4 @@ install:
   - tar xf rust-nightly-x86_64-unknown-linux-gnu.tar.gz
   - sudo rust-nightly-x86_64-unknown-linux-gnu/install.sh
 script:
-  - make
+  - cargo build

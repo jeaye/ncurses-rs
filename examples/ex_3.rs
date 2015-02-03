@@ -16,11 +16,11 @@
 extern crate ncurses;
 
 use std::os;
-use std::io;
-use std::io::File;
+use std::old_io;
+use std::old_io::File;
 use ncurses::*;
 
-fn open_file() -> io::File
+fn open_file() -> old_io::File
 {
   let args = os::args();
   if args.len() != 2
