@@ -19,8 +19,8 @@
 extern crate ncurses;
 
 use std::{ char, os };
-use std::io;
-use std::io::File;
+use std::old_io;
+use std::old_io::File;
 use ncurses::*;
 
 /* Individual color handles. */
@@ -68,7 +68,7 @@ static WORD_LIMITS: &'static [u8] = &
 
 struct Pager
 {
-  file_reader: io::File,
+  file_reader: old_io::File,
 
   in_comment: bool,
   in_string: bool,
@@ -339,7 +339,7 @@ fn prompt()
   attroff(A_BOLD());
 }
 
-fn open_file() -> io::File
+fn open_file() -> old_io::File
 {
   let args = os::args();
   if args.len() != 2
