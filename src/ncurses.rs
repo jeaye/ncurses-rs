@@ -12,6 +12,9 @@
 #![crate_type = "lib"]
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
+#![feature(core)]
+#![feature(std_misc)]
+#![feature(libc)]
 
 extern crate core;
 extern crate libc;
