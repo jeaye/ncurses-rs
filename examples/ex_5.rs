@@ -128,7 +128,7 @@ impl Pager
     init_pair(COLOR_PAIR_NUMBER, COLOR_NUMBER, COLOR_BACKGROUND);
 
     /* Set the window's background color. */
-    bkgd(' ' as u32 | COLOR_PAIR(COLOR_PAIR_DEFAULT) as u32);
+    bkgd(' ' as chtype | COLOR_PAIR(COLOR_PAIR_DEFAULT) as chtype);
 
     /* Get the screen bounds. */
     getmaxyx(stdscr, &mut self.screen_height, &mut self.screen_width);
@@ -156,7 +156,7 @@ impl Pager
   }
 
   /* Retuns the attribute the given word requires. */
-  pub fn highlight_word(&mut self, word: &str) -> i32
+  pub fn highlight_word(&mut self, word: &str) -> attr_t
   {
     /* Comments. */
     if self.in_comment && !word.contains("*/")
@@ -324,7 +324,7 @@ fn main()
       attroff(attr);
 
       attron(leftover_attr);
-      addch(leftover as u32);
+      addch(leftover as chtype);
       attroff(leftover_attr);
     }
   }

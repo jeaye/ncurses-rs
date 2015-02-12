@@ -92,7 +92,7 @@ fn create_win(start_y: i32, start_x: i32) -> WINDOW
 
 fn destroy_win(win: WINDOW)
 {
-  let ch = ' ' as u32;
+  let ch = ' ' as chtype;
         wborder(win, ch, ch, ch, ch, ch, ch, ch, ch);
         wrefresh(win);
         delwin(win);

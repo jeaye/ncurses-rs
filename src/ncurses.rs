@@ -22,8 +22,17 @@ extern crate libc;
 use core::mem;
 use std::{ char, ptr };
 use std::ffi::{CString, c_str_to_bytes};
-use self::ll::{ chtype, FILE_p, mmask_t };
+use self::ll::{FILE_p};
 pub use self::constants::*;
+
+#[cfg(target_arch = "x86_64")]
+pub type chtype = u64;
+#[cfg(not(target_arch = "x86_64"))]
+pub type chtype = u32;
+
+pub type mmask_t = chtype;
+pub type attr_t = chtype;
+pub type NCURSES_ATTR_T = attr_t;
 
 pub mod ll;
 pub mod constants;
@@ -64,15 +73,15 @@ pub type SCREEN = self::ll::SCREEN;
 pub type mmaskt = self::ll::mmask_t;
 pub type MEVENT = self::ll::MEVENT;
 
-pub fn addch(ch: u32) -> i32
+pub fn addch(ch: chtype) -> i32
 { unsafe { ll::addch(ch) } }
 
 
-pub fn addchnstr(s: &[u32], n: i32) -> i32
+pub fn addchnstr(s: &[chtype], n: i32) -> i32
 { unsafe { ll::addchnstr(s.as_ptr(), n) } }
 
 
-pub fn addchstr(s: &[u32]) -> i32
+pub fn addchstr(s: &[chtype]) -> i32
 { unsafe { ll::addchstr(s.as_ptr()) } }
 
 
@@ -88,38 +97,38 @@ pub fn assume_default_colors(fg: i32, bg: i32) -> i32
 { unsafe { ll::assume_default_colors(fg, bg) } }
 
 
-pub fn attroff(a: i32) -> i32
+pub fn attroff(a: NCURSES_ATTR_T) -> i32
 { unsafe { ll::attroff(a) } }
 
 
-pub fn attron(a: i32) -> i32
+pub fn attron(a: NCURSES_ATTR_T) -> i32
 { unsafe { ll::attron(a) } }
 
 
-pub fn attrset(a: i32) -> i32
+pub fn attrset(a: NCURSES_ATTR_T) -> i32
 { unsafe { ll::attrset(a) } }
 
 
-pub fn attr_get(attrs: &mut i32, pair: &mut i16) -> i32
+pub fn attr_get(attrs: &mut attr_t, pair: &mut i16) -> i32
 {
   unsafe
   {
-    ll::attr_get(&mut*attrs as *mut i32,
-                 &mut*pair as *mut i16,
+    ll::attr_get(&mut* attrs as *mut attr_t,
+                 &mut* pair as *mut i16,
                  ptr::null())
   }
 }
 
 
-pub fn attr_off(a: i32) -> i32
+pub fn attr_off(a: attr_t) -> i32
 { unsafe { ll::attr_off(a, ptr::null()) } }
 
 
-pub fn attr_on(a: i32) -> i32
+pub fn attr_on(a: attr_t) -> i32
 { unsafe { ll::attr_on(a, ptr::null()) } }
 
 
-pub fn attr_set(attr: i32, pair: i16) -> i32
+pub fn attr_set(attr: attr_t, pair: i16) -> i32
 { unsafe { ll::attr_set(attr, pair, ptr::null()) } }
 
 
@@ -131,19 +140,19 @@ pub fn beep() -> i32
 { unsafe { ll::beep() } }
 
 
-pub fn bkgd(ch: u32) -> i32
+pub fn bkgd(ch: chtype) -> i32
 { unsafe { ll::bkgd(ch) } }
 
 
-pub fn bkgdset(ch: u32)
+pub fn bkgdset(ch: chtype)
 { unsafe { ll::bkgdset(ch) } }
 
 
-pub fn border(ls: u32, rs: u32, ts: u32, bs: u32, tl: u32, tr: u32, bl: u32, br: u32) -> i32
+pub fn border(ls: chtype, rs: chtype, ts: chtype, bs: chtype, tl: chtype, tr: chtype, bl: chtype, br: chtype) -> i32
 { unsafe { ll::border(ls, rs, ts, bs, tl, tr, bl, br) } }
 
 
-#[link_name="box"] pub fn box_(w: WINDOW, v: u32, h: u32) -> i32
+#[link_name="box"] pub fn box_(w: WINDOW, v: chtype, h: chtype) -> i32
 { wborder(w, v, v, h, h, 0, 0, 0, 0) }
 
 
@@ -155,7 +164,7 @@ pub fn cbreak() -> i32
 { unsafe { ll::cbreak() } }
 
 
-pub fn chgat(n: i32, attr: i32, color: i16) -> i32
+pub fn chgat(n: i32, attr: attr_t, color: i16) -> i32
 { unsafe { ll::chgat(n, attr, color, ptr::null()) } }
 
 
@@ -261,7 +270,7 @@ pub fn echo() -> i32
 { unsafe { ll::echo() } }
 
 
-pub fn echochar(c: u32) -> i32
+pub fn echochar(c: chtype) -> i32
 { unsafe { ll::echochar(c) } }
 
 
@@ -289,7 +298,7 @@ pub fn flushinp() -> i32
 { unsafe { ll::flushinp() } }
 
 
-pub fn getbkgd(w: WINDOW) -> u32
+pub fn getbkgd(w: WINDOW) -> chtype
 { unsafe { ll::getbkgd(w) } }
 
 
@@ -388,7 +397,7 @@ pub fn has_il() -> bool
 { unsafe { ll::has_il() == TRUE } }
 
 
-pub fn hline(ch: u32, n: i32) -> i32
+pub fn hline(ch: chtype, n: i32) -> i32
 { unsafe { ll::hline(ch, n) } }
 
 
@@ -404,11 +413,11 @@ pub fn immedok(w: WINDOW, bf: bool)
 { unsafe { ll::immedok(w, bf as libc::c_int) } }
 
 
-pub fn inch() -> u32
+pub fn inch() -> chtype
 { unsafe { ll::inch() } }
 
 
-pub fn inchnstr(s: &mut Vec<u32>, n: i32) -> i32
+pub fn inchnstr(s: &mut Vec<chtype>, n: i32) -> i32
 {
   /* XXX: This is probably broken. */
   s.clear();
@@ -429,7 +438,7 @@ pub fn inchnstr(s: &mut Vec<u32>, n: i32) -> i32
 }
 
 
-pub fn inchstr(s: &mut Vec<u32>) -> i32
+pub fn inchstr(s: &mut Vec<chtype>) -> i32
 {
   /* XXX: This is probably broken. */
   unsafe
@@ -482,7 +491,7 @@ pub fn innstr(s: &mut String, n: i32) -> i32
 }
 
 
-pub fn insch(ch: u32) -> i32
+pub fn insch(ch: chtype) -> i32
 { unsafe { ll::insch(ch) } }
 
 
@@ -618,11 +627,11 @@ pub fn mv(y: i32, x: i32) -> i32
 { unsafe { ll::mv(y, x) } }
 
 
-pub fn mvaddch(y: i32, x: i32, c: u32) -> i32
+pub fn mvaddch(y: i32, x: i32, c: chtype) -> i32
 { unsafe { ll::mvaddch(y, x, c) } }
 
 
-pub fn mvaddchnstr(y: i32, x: i32, s: &[u32], n: i32) -> i32
+pub fn mvaddchnstr(y: i32, x: i32, s: &[chtype], n: i32) -> i32
 {
   if mv(y, x) == ERR
   { return ERR; }
@@ -630,7 +639,7 @@ pub fn mvaddchnstr(y: i32, x: i32, s: &[u32], n: i32) -> i32
 }
 
 
-pub fn mvaddchstr(y: i32, x: i32, s: &[u32]) -> i32
+pub fn mvaddchstr(y: i32, x: i32, s: &[chtype]) -> i32
 {
   if mv(y, x) == ERR
   { return ERR; }
@@ -654,7 +663,7 @@ pub fn mvaddstr(y: i32, x: i32, s: &str) -> i32
 }
 
 
-pub fn mvchgat(y: i32, x: i32, n: i32, attr: i32, color: i16) -> i32
+pub fn mvchgat(y: i32, x: i32, n: i32, attr: attr_t, color: i16) -> i32
 { unsafe { ll::mvchgat(y, x, n, attr, color, ptr::null()) } }
 
 
@@ -690,15 +699,15 @@ pub fn mvgetstr(y: i32, x: i32, s: &mut String) -> i32
 }
 
 
-pub fn mvhline(y: i32, x: i32, ch: u32, n: i32) -> i32
+pub fn mvhline(y: i32, x: i32, ch: chtype, n: i32) -> i32
 { unsafe { ll::mvhline(y, x, ch, n) } }
 
 
-pub fn mvinch(y: i32, x: i32) -> u32
+pub fn mvinch(y: i32, x: i32) -> chtype
 { unsafe { ll::mvinch(y, x) } }
 
 
-pub fn mvinchnstr(y: i32, x: i32, s: &mut Vec<u32>, n: i32) -> i32
+pub fn mvinchnstr(y: i32, x: i32, s: &mut Vec<chtype>, n: i32) -> i32
 {
   if mv(y, x) == ERR
   { return ERR; }
@@ -706,7 +715,7 @@ pub fn mvinchnstr(y: i32, x: i32, s: &mut Vec<u32>, n: i32) -> i32
 }
 
 
-pub fn mvinchstr(y: i32, x: i32, s: &mut Vec<u32>) -> i32
+pub fn mvinchstr(y: i32, x: i32, s: &mut Vec<chtype>) -> i32
 {
   if mv(y, x) == ERR
   { return ERR; }
@@ -722,7 +731,7 @@ pub fn mvinnstr(y: i32, x: i32, s: &mut String, n: i32) -> i32
 }
 
 
-pub fn mvinsch(y: i32, x: i32, ch: u32) -> i32
+pub fn mvinsch(y: i32, x: i32, ch: chtype) -> i32
 { unsafe { ll::mvinsch(y, x, ch) } }
 
 
@@ -758,19 +767,19 @@ pub fn mvprintw(y: i32, x: i32, s: &str) -> i32
 }
 
 
-pub fn mvvline(y: i32, x: i32, ch: u32, n: i32) -> i32
+pub fn mvvline(y: i32, x: i32, ch: chtype, n: i32) -> i32
 { unsafe { ll::mvvline(y, x, ch, n) } }
 
 
-pub fn mvwaddch(w: WINDOW, y: i32, x: i32, ch: u32) -> i32
+pub fn mvwaddch(w: WINDOW, y: i32, x: i32, ch: chtype) -> i32
 { unsafe { ll::mvwaddch(w, y, x, ch) } }
 
 
-pub fn mvwaddchnstr(w: WINDOW, y: i32, x: i32, s: &[u32], n: i32) -> i32
+pub fn mvwaddchnstr(w: WINDOW, y: i32, x: i32, s: &[chtype], n: i32) -> i32
 { unsafe { ll::mvwaddchnstr(w, y, x, s.as_ptr(), n) } }
 
 
-pub fn mvwaddchstr(w: WINDOW, y: i32, x: i32, s: &[u32]) -> i32
+pub fn mvwaddchstr(w: WINDOW, y: i32, x: i32, s: &[chtype]) -> i32
 { unsafe { ll::mvwaddchstr(w, y, x, s.as_ptr()) } }
 
 
@@ -782,7 +791,7 @@ pub fn mvwaddstr(w: WINDOW, y: i32, x: i32, s: &str) -> i32
 { unsafe { ll::mvwaddstr(w, y, x, s.to_c_str().as_ptr()) } }
 
 
-pub fn mvwchgat(w: WINDOW, y: i32, x: i32, n: i32, attr: i32, color: i16) -> i32
+pub fn mvwchgat(w: WINDOW, y: i32, x: i32, n: i32, attr: attr_t, color: i16) -> i32
 { unsafe { ll::mvwchgat(w, y, x, n, attr, color, ptr::null()) } }
 
 
@@ -832,7 +841,7 @@ pub fn mvwgetstr(w: WINDOW, y: i32, x: i32, s: &mut String) -> i32
 }
 
 
-pub fn mvwhline(w: WINDOW, y: i32, x: i32, ch: u32, n: i32) -> i32
+pub fn mvwhline(w: WINDOW, y: i32, x: i32, ch: chtype, n: i32) -> i32
 { unsafe { ll::mvwhline(w, y, x, ch, n) } }
 
 
@@ -840,11 +849,11 @@ pub fn mvwin(w: WINDOW, y: i32, x: i32) -> i32
 { unsafe { ll::mvwin(w, y, x) } }
 
 
-pub fn mvwinch(w: WINDOW, y: i32, x: i32) -> u32
+pub fn mvwinch(w: WINDOW, y: i32, x: i32) -> chtype
 { unsafe { ll::mvwinch(w, y, x) } }
 
 
-pub fn mvwinchnstr(w: WINDOW, y: i32, x: i32, s: &mut Vec<u32>, n: i32) -> i32
+pub fn mvwinchnstr(w: WINDOW, y: i32, x: i32, s: &mut Vec<chtype>, n: i32) -> i32
 {
   /* XXX: This is probably broken. */
   s.clear();
@@ -865,7 +874,7 @@ pub fn mvwinchnstr(w: WINDOW, y: i32, x: i32, s: &mut Vec<u32>, n: i32) -> i32
 }
 
 
-pub fn mvwinchstr(w: WINDOW, y: i32, x: i32, s: &mut Vec<u32>) -> i32
+pub fn mvwinchstr(w: WINDOW, y: i32, x: i32, s: &mut Vec<chtype>) -> i32
 {
   /* XXX: This is probably broken. */
   unsafe
@@ -906,7 +915,7 @@ pub fn mvwinnstr(w: WINDOW, y: i32, x: i32, s: &mut String, n: i32) -> i32
 }
 
 
-pub fn mvwinsch(w: WINDOW, y: i32, x: i32, ch: u32) -> i32
+pub fn mvwinsch(w: WINDOW, y: i32, x: i32, ch: chtype) -> i32
 { unsafe { ll::mvwinsch(w, y, x, ch) } }
 
 
@@ -942,7 +951,7 @@ pub fn mvwprintw(w: WINDOW, y: i32, x: i32, s: &str) -> i32
 { unsafe { ll::mvwprintw(w, y, x, s.to_c_str().as_ptr()) } }
 
 
-pub fn mvwvline(w: WINDOW, y: i32, x: i32, ch: u32, n: i32) -> i32
+pub fn mvwvline(w: WINDOW, y: i32, x: i32, ch: chtype, n: i32) -> i32
 { unsafe { ll::mvwvline(w, y, x, ch, n) } }
 
 
@@ -1018,7 +1027,7 @@ pub fn PAIR_NUMBER(attr: i32) -> i32
 { unsafe { ll::PAIR_NUMBER(attr) } }
 
 
-pub fn pechochar(pad: WINDOW, ch: u32) -> i32
+pub fn pechochar(pad: WINDOW, ch: chtype) -> i32
 { unsafe { ll::pechochar(pad, ch) } }
 
 
@@ -1110,31 +1119,31 @@ pub fn set_term(s: SCREEN) -> SCREEN
 { unsafe { ll::set_term(s) } }
 
 
-pub fn slk_attroff(ch: u32) -> i32
+pub fn slk_attroff(ch: chtype) -> i32
 { unsafe { ll::slk_attroff(ch) } }
 
 //
-//pub fn slk_attr_off(ch: i32) -> i32
+//pub fn slk_attr_off(ch: attr_t) -> i32
 //{ unsafe { ll::slk_attr_off(ch, ptr::null()) } }
 
 
-pub fn slk_attron(ch: u32) -> i32
+pub fn slk_attron(ch: chtype) -> i32
 { unsafe { ll::slk_attron(ch) } }
 
 //
-//pub fn slk_attr_on(ch: i32) -> i32
+//pub fn slk_attr_on(ch: attr_t) -> i32
 //{ unsafe { ll::slk_attr_on(ch, ptr::null()) } }
 
 
-pub fn slk_attrset(ch: u32) -> i32
+pub fn slk_attrset(ch: chtype) -> i32
 { unsafe { ll::slk_attrset(ch) } }
 
 
-pub fn slk_attr() -> i32
+pub fn slk_attr() -> attr_t
 { unsafe { ll::slk_attr() } }
 
 
-pub fn slk_attr_set(attrs: i32, pair: i16) -> i32
+pub fn slk_attr_set(attrs: attr_t, pair: i16) -> i32
 { unsafe { ll::slk_attr_set(attrs, pair, ptr::null()) } }
 
 
@@ -1198,7 +1207,7 @@ pub fn syncok(w: WINDOW, bf: bool) -> i32
 { unsafe { ll::syncok(w, bf as libc::c_int) } }
 
 
-pub fn termattrs() -> u32
+pub fn termattrs() -> chtype
 { unsafe { ll::termattrs() } }
 
 
@@ -1254,23 +1263,23 @@ pub fn use_default_colors() -> i32
 { unsafe { ll::use_default_colors() } }
 
 
-pub fn vidattr(attrs: u32) -> i32
+pub fn vidattr(attrs: chtype) -> i32
 { unsafe { ll::vidattr(attrs) } }
 
 
-pub fn vline(ch: u32, n: i32) -> i32
+pub fn vline(ch: chtype, n: i32) -> i32
 { unsafe { ll::vline(ch, n) } }
 
 
-pub fn waddch(w: WINDOW, ch: u32) -> i32
+pub fn waddch(w: WINDOW, ch: chtype) -> i32
 { unsafe { ll::waddch(w, ch) } }
 
 
-pub fn waddchnstr(w: WINDOW, s: &[u32], n: i32) -> i32
+pub fn waddchnstr(w: WINDOW, s: &[chtype], n: i32) -> i32
 { unsafe { ll::waddchnstr(w, s.as_ptr(), n) } }
 
 
-pub fn waddchstr(w: WINDOW, s: &[u32]) -> i32
+pub fn waddchstr(w: WINDOW, s: &[chtype]) -> i32
 { unsafe { ll::waddchstr(w, s.as_ptr()) } }
 
 
@@ -1294,35 +1303,35 @@ pub fn wattrset(w: WINDOW, attr: i32) -> i32
 { unsafe { ll::wattrset(w, attr) } }
 
 
-pub fn wattr_get(w: WINDOW, attrs: &mut i32, pair: &mut i16) -> i32
-{ unsafe { ll::wattr_get(w, &mut*attrs as *mut i32, &mut*pair as *mut i16, ptr::null()) } }
+pub fn wattr_get(w: WINDOW, attrs: &mut attr_t, pair: &mut i16) -> i32
+{ unsafe { ll::wattr_get(w, &mut*attrs as *mut attr_t, &mut*pair as *mut i16, ptr::null()) } }
 
 
-pub fn wattr_on(w: WINDOW, attr: i32) -> i32
+pub fn wattr_on(w: WINDOW, attr: attr_t) -> i32
 { unsafe { ll::wattr_on(w, attr, ptr::null()) } }
 
 
-pub fn wattr_off(w: WINDOW, attr: i32) -> i32
+pub fn wattr_off(w: WINDOW, attr: attr_t) -> i32
 { unsafe { ll::wattr_off(w, attr, ptr::null()) } }
 
 
-pub fn wattr_set(w: WINDOW, attrs: i32, pair: i16) -> i32
+pub fn wattr_set(w: WINDOW, attrs: attr_t, pair: i16) -> i32
 { unsafe { ll::wattr_set(w, attrs, pair, ptr::null()) } }
 
 
-pub fn wbkgd(w: WINDOW, ch: u32) -> i32
+pub fn wbkgd(w: WINDOW, ch: chtype) -> i32
 { unsafe { ll::wbkgd(w, ch) } }
 
 
-pub fn wbkgdset(w: WINDOW, ch: u32)
+pub fn wbkgdset(w: WINDOW, ch: chtype)
 { unsafe { ll::wbkgdset(w, ch) } }
 
 
-pub fn wborder(w: WINDOW, ls: u32, rs: u32, ts: u32, bs: u32, tl: u32, tr: u32, bl: u32, br: u32) -> i32
+pub fn wborder(w: WINDOW, ls: chtype, rs: chtype, ts: chtype, bs: chtype, tl: chtype, tr: chtype, bl: chtype, br: chtype) -> i32
 { unsafe { ll::wborder(w, ls, rs, ts, bs, tl, tr, bl, br) } }
 
 
-pub fn wchgat(w: WINDOW, n: i32, attr: i32, color: i16) -> i32
+pub fn wchgat(w: WINDOW, n: i32, attr: attr_t, color: i16) -> i32
 { unsafe { ll::wchgat(w, n, attr, color, ptr::null()) } }
 
 
@@ -1354,7 +1363,7 @@ pub fn wdeleteln(w: WINDOW) -> i32
 { unsafe { ll::wdeleteln(w) } }
 
 
-pub fn wechochar(w: WINDOW, ch: u32) -> i32
+pub fn wechochar(w: WINDOW, ch: chtype) -> i32
 { unsafe { ll::wechochar(w, ch) } }
 
 
@@ -1399,15 +1408,15 @@ pub fn wgetstr(w: WINDOW, s: &mut String) -> i32
 }
 
 
-pub fn whline(w: WINDOW, ch: u32, n: i32) -> i32
+pub fn whline(w: WINDOW, ch: chtype, n: i32) -> i32
 { unsafe { ll::whline(w, ch, n) } }
 
 
-pub fn winch(w: WINDOW) -> u32
+pub fn winch(w: WINDOW) -> chtype
 { unsafe { ll::winch(w) } }
 
 
-pub fn winchnstr(w: WINDOW, s: &mut Vec<u32>, n: i32) -> i32
+pub fn winchnstr(w: WINDOW, s: &mut Vec<chtype>, n: i32) -> i32
 {
   /* XXX: This is probably broken. */
   s.clear();
@@ -1428,7 +1437,7 @@ pub fn winchnstr(w: WINDOW, s: &mut Vec<u32>, n: i32) -> i32
 }
 
 
-pub fn winchstr(w: WINDOW, s: &mut Vec<u32>) -> i32
+pub fn winchstr(w: WINDOW, s: &mut Vec<chtype>) -> i32
 {
   /* XXX: This is probably broken. */
   unsafe
@@ -1469,7 +1478,7 @@ pub fn winnstr(w: WINDOW, s: &mut String, n: i32) -> i32
 }
 
 
-pub fn winsch(w: WINDOW, ch: u32) -> i32
+pub fn winsch(w: WINDOW, ch: chtype) -> i32
 { unsafe { ll::winsch(w, ch) } }
 
 
@@ -1573,7 +1582,7 @@ pub fn wtouchln(w: WINDOW, y: i32, n: i32, changed: i32) -> i32
 { unsafe { ll::wtouchln(w, y, n, changed) } }
 
 
-pub fn wvline(w: WINDOW, ch: u32, n: i32) -> i32
+pub fn wvline(w: WINDOW, ch: chtype, n: i32) -> i32
 { unsafe { ll::wvline(w, ch, n) } }
 
 
@@ -1588,66 +1597,66 @@ pub fn wgetscrreg(w: WINDOW, top: &mut i32, bot: &mut i32) -> i32
 pub fn NCURSES_BITS(mask: u32, shift: u32) -> u32
 { mask << (shift + NCURSES_ATTR_SHIFT) as usize }
 
-pub fn A_NORMAL() -> i32
-{ (1u32 - 1u32) as i32 }
+pub fn A_NORMAL() -> attr_t
+{ (1u32 - 1u32) as attr_t }
 
-pub fn A_ATTRIBUTES() -> i32
-{ NCURSES_BITS(!(1u32 - 1u32), 0u32) as i32 }
+pub fn A_ATTRIBUTES() -> attr_t
+{ NCURSES_BITS(!(1u32 - 1u32), 0u32) as attr_t }
 
-pub fn A_CHARTEXT() -> i32
-{(NCURSES_BITS(1u32, 0u32) - 1u32) as i32 }
+pub fn A_CHARTEXT() -> attr_t
+{(NCURSES_BITS(1u32, 0u32) - 1u32) as attr_t }
 
-pub fn A_COLOR() -> i32
-{ NCURSES_BITS(((1u32) << 8us) - 1u32, 0u32) as i32 }
+pub fn A_COLOR() -> attr_t
+{ NCURSES_BITS(((1u32) << 8us) - 1u32, 0u32) as attr_t }
 
-pub fn A_STANDOUT() -> i32
-{ NCURSES_BITS(1u32, 8u32) as i32 }
+pub fn A_STANDOUT() -> attr_t
+{ NCURSES_BITS(1u32, 8u32) as attr_t }
 
-pub fn A_UNDERLINE() -> i32
-{ NCURSES_BITS(1u32, 9u32) as i32 }
+pub fn A_UNDERLINE() -> attr_t
+{ NCURSES_BITS(1u32, 9u32) as attr_t }
 
-pub fn A_REVERSE() -> i32
-{ NCURSES_BITS(1u32, 10u32) as i32 }
+pub fn A_REVERSE() -> attr_t
+{ NCURSES_BITS(1u32, 10u32) as attr_t }
 
-pub fn A_BLINK() -> i32
-{ NCURSES_BITS(1u32, 11u32) as i32 }
+pub fn A_BLINK() -> attr_t
+{ NCURSES_BITS(1u32, 11u32) as attr_t }
 
-pub fn A_DIM() -> i32
-{ NCURSES_BITS(1u32, 12u32) as i32 }
+pub fn A_DIM() -> attr_t
+{ NCURSES_BITS(1u32, 12u32) as attr_t }
 
-pub fn A_BOLD() -> i32
-{ NCURSES_BITS(1u32, 13u32) as i32 }
+pub fn A_BOLD() -> attr_t
+{ NCURSES_BITS(1u32, 13u32) as attr_t }
 
-pub fn A_ALTCHARSET() -> i32
-{ NCURSES_BITS(1u32, 14u32) as i32 }
+pub fn A_ALTCHARSET() -> attr_t
+{ NCURSES_BITS(1u32, 14u32) as attr_t }
 
-pub fn A_INVIS() -> i32
-{ NCURSES_BITS(1u32, 15u32) as i32 }
+pub fn A_INVIS() -> attr_t
+{ NCURSES_BITS(1u32, 15u32) as attr_t }
 
-pub fn A_PROTECT() -> i32
-{ NCURSES_BITS(1u32, 16u32) as i32 }
+pub fn A_PROTECT() -> attr_t
+{ NCURSES_BITS(1u32, 16u32) as attr_t }
 
-pub fn A_HORIZONTAL() -> i32
-{ NCURSES_BITS(1u32, 17u32) as i32 }
+pub fn A_HORIZONTAL() -> attr_t
+{ NCURSES_BITS(1u32, 17u32) as attr_t }
 
-pub fn A_LEFT() -> i32
-{ NCURSES_BITS(1u32, 18u32) as i32 }
+pub fn A_LEFT() -> attr_t
+{ NCURSES_BITS(1u32, 18u32) as attr_t }
 
-pub fn A_LOW() -> i32
-{ NCURSES_BITS(1u32, 19u32) as i32 }
+pub fn A_LOW() -> attr_t
+{ NCURSES_BITS(1u32, 19u32) as attr_t }
 
-pub fn A_RIGHT() -> i32
-{ NCURSES_BITS(1u32, 20u32) as i32 }
+pub fn A_RIGHT() -> attr_t
+{ NCURSES_BITS(1u32, 20u32) as attr_t }
 
-pub fn A_TOP() -> i32
-{ NCURSES_BITS(1u32, 21u32) as i32 }
+pub fn A_TOP() -> attr_t
+{ NCURSES_BITS(1u32, 21u32) as attr_t }
 
-pub fn A_VERTICAL() -> i32
-{ NCURSES_BITS(1u32, 22u32) as i32 }
+pub fn A_VERTICAL() -> attr_t
+{ NCURSES_BITS(1u32, 22u32) as attr_t }
 
 /* Colors. */
-pub fn COLOR_PAIR(n: i16) -> i32
-{ NCURSES_BITS(n as u32, 0u32) as i32 }
+pub fn COLOR_PAIR(n: i16) -> attr_t
+{ NCURSES_BITS(n as u32, 0u32) as attr_t }
 
 /*
  * Most of the pseudo functions are macros that either provide compatibility

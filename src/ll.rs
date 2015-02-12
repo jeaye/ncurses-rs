@@ -1,5 +1,5 @@
 #![allow(dead_code)]
-
+#![allow(unused_imports)]
 /*
 Copyright © 2013 Free Software Foundation, Inc
 See licensing in LICENSE file
@@ -11,12 +11,16 @@ Low-level interface to foreign
 ncurses functions.
  */
 
-use libc::{ c_char, c_int, c_short, c_uint, c_void, FILE };
+use libc::{ c_char, c_int, c_short, c_uint, c_ulong, c_void, FILE };
 
 /* Intrinsic types. */
+#[cfg(target_arch = "x86_64")]
+pub type chtype = c_ulong;
+#[cfg(not(target_arch = "x86_64"))]
 pub type chtype = c_uint;
-pub type mmask_t = c_uint;
-pub type attr_t = c_int;
+
+pub type mmask_t = chtype;
+pub type attr_t = chtype;
 pub type NCURSES_ATTR_T = attr_t;
 
 /* Pointer types. */
