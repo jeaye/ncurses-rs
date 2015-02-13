@@ -78,7 +78,7 @@ fn main()
       mv(0, 0);
     }
     else
-    { addch(ch as u32); }
+    { addch(ch as chtype); }
   }
 
   /* Terminate ncurses. */
