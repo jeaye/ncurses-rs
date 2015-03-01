@@ -2,6 +2,14 @@
 name = "ncurses"
 version = "5.71.1"
 authors = [ "contact@jeaye.com" ]
+description = "This is a very thin wrapper around the ncurses TUI lib."
+documentation = "https://github.com/jeaye/ncurses-rs"
+homepage = "https://github.com/jeaye/ncurses-rs"
+repository = "https://github.com/jeaye/ncurses-rs"
+readme = "README.md"
+keywords = ["ncurses","TUI"]
+license = "X11"
+license-file = "LICENSE"
 
 [features]
 default=["wide"]
