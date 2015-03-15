@@ -13,7 +13,6 @@
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
 #![feature(core)]
-#![feature(std_misc)]
 #![feature(libc)]
 
 extern crate core;
@@ -21,7 +20,7 @@ extern crate libc;
 
 use core::mem;
 use std::{ char, ptr };
-use std::ffi::{CString, c_str_to_bytes};
+use std::ffi::{CString, CStr};
 use self::ll::{FILE_p};
 pub use self::constants::*;
 
@@ -44,7 +43,8 @@ trait FromCStr {
 impl FromCStr for String {
     fn from_c_str(s: *const libc::c_char) -> String {
         unsafe {
-            let bytes = c_str_to_bytes(&s);
+            let bytes = CStr::from_ptr(s).to_bytes();
+
             String::from_utf8_unchecked(bytes.to_vec())
         }
     }
@@ -56,7 +56,7 @@ trait ToCStr {
 
 impl <'a>ToCStr for &'a str {
     fn to_c_str(&self) -> CString {
-        CString::from_slice(self.as_bytes())
+        CString::new(*self).unwrap()
     }
 }
 
@@ -86,11 +86,11 @@ pub fn addchstr(s: &[chtype]) -> i32
 
 
 pub fn addnstr(s: &str, n: i32) -> i32
-{ unsafe { ll::addnstr(CString::from_slice(s.as_bytes()).as_ptr(), n) } }
+{ unsafe { ll::addnstr(s.to_c_str().as_ptr(), n) } }
 
 
 pub fn addstr(s: &str) -> i32
-{ unsafe { ll::addstr(CString::from_slice(s.as_bytes()).as_ptr()) } }
+{ unsafe { ll::addstr(s.to_c_str().as_ptr()) } }
 
 
 pub fn assume_default_colors(fg: i32, bg: i32) -> i32
@@ -1607,7 +1607,7 @@ pub fn A_CHARTEXT() -> attr_t
 {(NCURSES_BITS(1u32, 0u32) - 1u32) as attr_t }
 
 pub fn A_COLOR() -> attr_t
-{ NCURSES_BITS(((1u32) << 8us) - 1u32, 0u32) as attr_t }
+{ NCURSES_BITS(((1u32) << 8) - 1u32, 0u32) as attr_t }
 
 pub fn A_STANDOUT() -> attr_t
 { NCURSES_BITS(1u32, 8u32) as attr_t }
