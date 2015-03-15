@@ -44,7 +44,6 @@ impl FromCStr for String {
     fn from_c_str(s: *const libc::c_char) -> String {
         unsafe {
             let bytes = CStr::from_ptr(s).to_bytes();
-
             String::from_utf8_unchecked(bytes.to_vec())
         }
     }
@@ -1110,6 +1109,14 @@ pub fn scr_restore(filename: &str) -> i32
 pub fn scr_set(filename: &str) -> i32
 { unsafe { ll::scr_set(filename.to_c_str().as_ptr()) } }
 
+pub fn setlocale(lc: LcCategory, locale: &str) -> String
+{
+  unsafe {
+    let buf = locale.to_c_str().as_ptr();
+    let ret = ll::setlocale(lc as libc::c_int, buf);
+    String::from_c_str(ret as *const i8)
+  }
+}
 
 pub fn setscrreg(top: i32, bot: i32) -> i32
 { unsafe { ll::setscrreg(top, bot) } }
