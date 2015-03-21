@@ -237,3 +237,23 @@ macro_rules! button_double_click( ($e: expr, $x: expr) => (e & ncurses_mouse_mas
 macro_rules! button_triple_click( ($e: expr, $x: expr) => (e & ncurses_mouse_mask!(x, 0x010)); );
 macro_rules! button_reserved_event( ($e: expr, $x: expr) => (e & ncurses_mouse_mask!(x, 0x020)); );
 
+/* locales */
+pub const LC_ALL: c_int = 0;
+pub const LC_COLLATE: c_int = 1;
+pub const LC_CTYPE: c_int = 2;
+pub const LC_MONETARY: c_int = 3;
+pub const LC_NUMERIC: c_int = 4;
+pub const LC_TIME: c_int = 5;
+pub const LC_MESSAGES: c_int = 6;
+
+#[repr(i32)]
+pub enum LcCategory {
+    all = LC_ALL,
+    collate = LC_COLLATE,
+    ctype = LC_CTYPE,
+    monetary = LC_MONETARY,
+    numeric = LC_NUMERIC,
+    time = LC_TIME,
+    messages = LC_MESSAGES,
+}
+
