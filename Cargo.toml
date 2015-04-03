@@ -11,6 +11,9 @@ keywords = ["ncurses","TUI"]
 license = "X11"
 license-file = "LICENSE"
 
+[dependencies]
+libc = "*"
+
 [features]
 default=["wide"]
 wide = []

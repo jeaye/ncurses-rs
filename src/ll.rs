@@ -36,13 +36,13 @@ pub type va_list = *mut u8;
 
 /* Custom Types. */
 #[repr(C)]
-#[derive(Copy)]
+#[derive(Clone, Copy)]
 pub struct WINDOW_impl;
 #[repr(C)]
-#[derive(Copy)]
+#[derive(Clone, Copy)]
 pub struct SCREEN_impl;
 #[repr(C)]
-#[derive(Copy)]
+#[derive(Clone, Copy)]
 pub struct MEVENT { id: c_short, x: c_int, y: c_int, z: c_int, bstate: mmask_t}
 
 macro_rules! define_sharedffi(
