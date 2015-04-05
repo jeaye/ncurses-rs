@@ -13,7 +13,6 @@
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
 #![feature(core)]
-#![feature(libc)]
 
 extern crate core;
 extern crate libc;
@@ -59,7 +58,7 @@ impl <'a>ToCStr for &'a str {
     }
 }
 
-#[derive(Copy)]
+#[derive(Clone, Copy)]
 pub enum CURSOR_VISIBILITY
 {
   CURSOR_INVISIBLE = 0,
@@ -316,7 +315,7 @@ pub fn getnstr(s: &mut String, n: i32) -> i32
     let ret = ll::getnstr(mem::transmute(buf), n);
 
     let capacity = s.capacity();
-    match s.as_slice().find('\0')
+    match s.find('\0')
     {
       Some(index) => s.as_mut_vec().set_len(index as usize),
       None => s.as_mut_vec().set_len(capacity),
@@ -479,7 +478,7 @@ pub fn innstr(s: &mut String, n: i32) -> i32
     let ret = ll::innstr(mem::transmute(buf), n);
 
     let capacity = s.capacity();
-    match s.as_slice().find('\0')
+    match s.find('\0')
     {
       Some(index) => s.as_mut_vec().set_len(index as usize),
       None => s.as_mut_vec().set_len(capacity),
@@ -531,7 +530,7 @@ pub fn instr(s: &mut String) -> i32
     let ret = ll::instr(mem::transmute(buf));
 
     let capacity = s.capacity();
-    match s.as_slice().find('\0')
+    match s.find('\0')
     {
       Some(index) => s.as_mut_vec().set_len(index as usize),
       None => s.as_mut_vec().set_len(capacity),
@@ -813,7 +812,7 @@ pub fn mvwgetnstr(w: WINDOW, y: i32, x: i32, s: &mut String, n: i32) -> i32
     let ret = ll::mvwgetnstr(w, y, x, mem::transmute(buf), n);
 
     let capacity = s.capacity();
-    match s.as_slice().find('\0')
+    match s.find('\0')
     {
       Some(index) => s.as_mut_vec().set_len(index as usize),
       None => s.as_mut_vec().set_len(capacity),
@@ -903,7 +902,7 @@ pub fn mvwinnstr(w: WINDOW, y: i32, x: i32, s: &mut String, n: i32) -> i32
     let ret = ll::mvwinnstr(w, y, x, mem::transmute(buf), n);
 
     let capacity = s.capacity();
-    match s.as_slice().find('\0')
+    match s.find('\0')
     {
       Some(index) => s.as_mut_vec().set_len(index as usize),
       None => s.as_mut_vec().set_len(capacity),
@@ -935,7 +934,7 @@ pub fn mvwinstr(w: WINDOW, y: i32, x: i32, s: &mut String) -> i32
     let ret = ll::mvwinstr(w, y, x, mem::transmute(buf));
 
     let capacity = s.capacity();
-    match s.as_slice().find('\0')
+    match s.find('\0')
     {
       Some(index) => s.as_mut_vec().set_len(index as usize),
       None => s.as_mut_vec().set_len(capacity),
@@ -1391,7 +1390,7 @@ pub fn wgetnstr(w: WINDOW, s: &mut String, n: i32) -> i32
     let ret = ll::wgetnstr(w, mem::transmute(buf), n);
 
     let capacity = s.capacity();
-    match s.as_slice().find('\0')
+    match s.find('\0')
     {
       Some(index) => s.as_mut_vec().set_len(index as usize),
       None => s.as_mut_vec().set_len(capacity),
@@ -1474,7 +1473,7 @@ pub fn winnstr(w: WINDOW, s: &mut String, n: i32) -> i32
     let ret = ll::winnstr(w, mem::transmute(buf), n);
 
     let capacity = s.capacity();
-    match s.as_slice().find('\0')
+    match s.find('\0')
     {
       Some(index) => s.as_mut_vec().set_len(index as usize),
       None => s.as_mut_vec().set_len(capacity),
@@ -1526,7 +1525,7 @@ pub fn winstr(w: WINDOW, s: &mut String) -> i32
     let ret = ll::winstr(w, mem::transmute(buf));
 
     let capacity = s.capacity();
-    match s.as_slice().find('\0')
+    match s.find('\0')
     {
       Some(index) => s.as_mut_vec().set_len(index as usize),
       None => s.as_mut_vec().set_len(capacity),
