@@ -1,6 +1,6 @@
 [package]
 name = "ncurses"
-version = "5.71.1"
+version = "5.72.0"
 authors = [ "contact@jeaye.com" ]
 description = "This is a very thin wrapper around the ncurses TUI lib."
 documentation = "https://github.com/jeaye/ncurses-rs"
