@@ -8,8 +8,7 @@ homepage = "https://github.com/jeaye/ncurses-rs"
 repository = "https://github.com/jeaye/ncurses-rs"
 readme = "README.md"
 keywords = ["ncurses","TUI"]
-license = "X11"
-license-file = "LICENSE"
+license = "MIT"
 
 [dependencies]
 libc = "*"

@@ -12,12 +12,10 @@
 #![crate_type = "lib"]
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
-#![feature(core)]
 
-extern crate core;
 extern crate libc;
 
-use core::mem;
+use std::mem;
 use std::{ char, ptr };
 use std::ffi::{CString, CStr};
 use self::ll::{FILE_p};
