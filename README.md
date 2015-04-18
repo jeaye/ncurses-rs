@@ -9,6 +9,9 @@ The compiled library will go to the `target` directory.
 cargo build
 ```
 
+Note that you must to have the ncurses library installed and linkable for ncurses-rs to work. On Linux, this should be trivial. On OS X, consider installing ncurses using Homebrew. (Note that you have to force Homebrew to link the library to `/usr/local/lib`: `brew link --force ncurses` and set that path to
+`LIBRARY_PATH` environmental variable.)
+
 ## Examples
 Examples are built automagically. To run them, check the `bin`
 directory. Example numbers increase along with the complexity

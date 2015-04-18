@@ -41,7 +41,7 @@ fn main()
     /* Enable attributes and output message. */
     printw("\nKey pressed: ");
     attron(A_BOLD() | A_BLINK());
-    printw(format!("{}\n", char::from_u32(ch as u32).expect("Invalid char")).as_slice());
+    printw(format!("{}\n", char::from_u32(ch as u32).expect("Invalid char")).as_ref());
     attroff(A_BOLD() | A_BLINK());
   }
 
