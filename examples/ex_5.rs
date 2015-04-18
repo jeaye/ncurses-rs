@@ -296,7 +296,7 @@ fn main()
   pager.initialize();
 
   /* Read the whole file. */
-  loop
+  while pager.file_reader.peek().is_some()
   {
     /* Read a word at a time. */
     let (word, leftover) = pager.read_word();
