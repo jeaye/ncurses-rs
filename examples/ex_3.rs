@@ -15,14 +15,15 @@
 
 extern crate ncurses;
 
-use std::os;
-use std::old_io;
-use std::old_io::File;
+use std::env;
+use std::io::Read;
+use std::fs;
+use std::path::Path;
 use ncurses::*;
 
-fn open_file() -> old_io::File
+fn open_file() -> fs::File
 {
-  let args = os::args();
+  let args : Vec<_> = env::args().collect();
   if args.len() != 2
   {
     println!("Usage:\n\t{} <rust file>", args[0]);
@@ -30,7 +31,7 @@ fn open_file() -> old_io::File
     panic!("Exiting");
   }
 
-  let reader = File::open(&Path::new(args[1].to_string()));
+  let reader = fs::File::open(Path::new(&args[1]));
   reader.ok().expect("Unable to open file")
 }
 
@@ -42,7 +43,7 @@ fn prompt()
 
 fn main()
 {
-  let mut reader = open_file();
+  let reader = open_file().bytes();
 
   /* Start ncurses. */
   initscr();
@@ -55,10 +56,8 @@ fn main()
   getmaxyx(stdscr, &mut max_y, &mut max_x);
 
   /* Read the whole file. */
-  while !reader.eof()
+  for ch in reader
   {
-    /* Read a character at a time. */
-    let ch = reader.read_byte();
     if ch.is_err()
     { break; }
     let ch = ch.unwrap();

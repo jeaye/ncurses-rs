@@ -14,13 +14,12 @@
         ./bin/ex_5 examples/ex_5.rs
 */
 
-#![feature(unsafe_destructor)]
-
 extern crate ncurses;
 
-use std::{ char, os };
-use std::old_io;
-use std::old_io::File;
+use std::{ char, env, fs };
+use std::path::Path;
+use std::io::{Read, Bytes};
+use std::iter::Peekable;
 use ncurses::*;
 
 /* Individual color handles. */
@@ -63,12 +62,12 @@ static WORD_LIMITS: &'static [u8] = &
   '\n' as u8,
   '\r' as u8,
   '\0' as u8,
-  -1 as u8,
+  !0 as u8,
 ];
 
 struct Pager
 {
-  file_reader: old_io::File,
+  file_reader: Peekable<Bytes<fs::File>>,
 
   in_comment: bool,
   in_string: bool,
@@ -86,7 +85,7 @@ impl Pager
   {
     Pager
     {
-      file_reader: open_file(),
+      file_reader: open_file().bytes().peekable(),
 
       in_comment: false,
       in_string: false,
@@ -138,13 +137,13 @@ impl Pager
   pub fn read_word(&mut self) -> (String, char)
   {
     let mut s: Vec<u8> = vec![];
-    let mut ch = self.file_reader.read_byte().ok().expect("Unable to read byte");
+    let mut ch : u8 = self.file_reader.next().unwrap().ok().expect("Unable to read byte");
 
     /* Read until we hit a word delimiter. */
     while !WORD_LIMITS.contains(&ch)
     {
       s.push(ch);
-      ch = self.file_reader.read_byte().ok().expect("Unable to read byte");
+      ch = self.file_reader.next().unwrap().ok().expect("Unable to read byte");
     }
 
     /* Return the word string and the terminating delimiter. */
@@ -210,7 +209,7 @@ impl Pager
     }
 
     /* Trim the word of all delimiters. */
-    let word = word.trim_matches(|&: ch: char|
+    let word = word.trim_matches(|ch: char|
                                  { WORD_LIMITS.contains(&(ch as u8)) });
 
     if word.len() == 0
@@ -280,7 +279,6 @@ impl Pager
 
 }
 
-#[unsafe_destructor]
 impl Drop for Pager
 {
   fn drop(&mut self)
@@ -298,12 +296,12 @@ fn main()
   pager.initialize();
 
   /* Read the whole file. */
-  while !pager.file_reader.eof()
+  loop
   {
     /* Read a word at a time. */
     let (word, leftover) = pager.read_word();
-    let attr = pager.highlight_word(word.as_slice());
-    let leftover_attr = pager.highlight_word(format!("{}", leftover).as_slice());
+    let attr = pager.highlight_word(word.as_ref());
+    let leftover_attr = pager.highlight_word(format!("{}", leftover).as_ref());
 
     /* Get the current position on the screen. */
     getyx(stdscr, &mut pager.curr_y, &mut pager.curr_x);
@@ -320,7 +318,7 @@ fn main()
     else
     {
       attron(attr);
-      printw(word.as_slice());
+      printw(word.as_ref());
       attroff(attr);
 
       attron(leftover_attr);
@@ -339,9 +337,9 @@ fn prompt()
   attroff(A_BOLD());
 }
 
-fn open_file() -> old_io::File
+fn open_file() -> fs::File
 {
-  let args = os::args();
+  let args : Vec<_> = env::args().collect();
   if args.len() != 2
   {
     println!("Usage:\n\t{} <rust file>", args[0]);
@@ -349,6 +347,6 @@ fn open_file() -> old_io::File
     panic!("Exiting");
   }
 
-  let reader = File::open(&Path::new(args[1].to_string()));
+  let reader = fs::File::open(Path::new(&args[1]));
   reader.ok().expect("Unable to open file")
 }
