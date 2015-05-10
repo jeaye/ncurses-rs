@@ -14,7 +14,7 @@ use ncurses::*;
 
 fn main()
 {
-  /* If your locale env. is unicode, you should use ncurses's `setlocale`.
+  /* If your locale env is unicode, you should use `setlocale`.
   // let locale_conf = LcCategory::all;
   // setlocale(locale_conf, "zh_CN.UTF-8"); // if your locale is like mine(zh_CN.UTF-8).
   
