@@ -309,6 +309,7 @@ macro_rules! define_sharedffi(
             pub fn wprintw(_:WINDOW, _:char_p) -> c_int;
             pub fn wredrawln(_:WINDOW,_:c_int,_:c_int) -> c_int;
             pub fn wrefresh(_:WINDOW) -> c_int;
+            pub fn wresize(_:WINDOW, _:c_int, _:c_int) -> c_int;
             //  fn wscanw(_:WINDOW, _:NCURSES_CONST char_p) -> c_int;
             pub fn wscrl(_:WINDOW,_:c_int) -> c_int;
             pub fn wsetscrreg(_:WINDOW,_:c_int,_:c_int) -> c_int;

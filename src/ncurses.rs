@@ -1554,6 +1554,10 @@ pub fn wrefresh(w: WINDOW) -> i32
 { unsafe { ll::wrefresh(w) } }
 
 
+pub fn wresize(w: WINDOW, lines: i32, cols: i32) -> i32
+{ unsafe { ll::wresize(w, lines, cols) } }
+
+
 pub fn wscrl(w: WINDOW, n: i32) -> i32
 { unsafe { ll::wscrl(w, n) } }
 
