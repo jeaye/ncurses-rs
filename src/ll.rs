@@ -31,7 +31,6 @@ pub type char_p = *const c_char;
 pub type chtype_p = *const chtype;
 pub type WINDOW = *mut WINDOW_impl;
 pub type SCREEN = *mut SCREEN_impl;
-pub type PANEL = *mut PANEL_impl;
 pub type FILE_p = *mut FILE;
 pub type va_list = *mut u8;
 
@@ -42,9 +41,6 @@ pub struct WINDOW_impl;
 #[repr(C)]
 #[derive(Clone, Copy)]
 pub struct SCREEN_impl;
-#[repr(C)]
-#[derive(Clone, Copy)]
-pub struct PANEL_impl;
 #[repr(C)]
 #[derive(Clone, Copy)]
 pub struct MEVENT { id: c_short, x: c_int, y: c_int, z: c_int, bstate: mmask_t}
@@ -379,23 +375,6 @@ macro_rules! define_sharedffi(
     });
 
 //end macro rules
-
-#[cfg(feature="panel")] #[link(name="panel")]
-extern {
-      pub fn panel_window(_:PANEL) -> WINDOW;
-      pub fn update_panels() -> c_void;
-      pub fn hide_panel(_:PANEL) -> c_int;
-      pub fn show_panel(_:PANEL) -> c_int;
-      pub fn del_panel(_:PANEL) -> c_int;
-      pub fn top_panel(_:PANEL) -> c_int;
-      pub fn bottom_panel(_:PANEL) -> c_int;
-      pub fn new_panel(_:WINDOW) -> PANEL;
-      pub fn panel_above(_:PANEL) -> PANEL;
-      pub fn panel_below(_:PANEL) -> PANEL;
-      pub fn move_panel(_:PANEL,_:c_int,_:c_int) -> c_int;
-      pub fn replace_panel(_:PANEL,_:WINDOW) -> c_int;
-      pub fn panel_hidden(_:PANEL) -> c_int;
-}
 
 define_sharedffi!(cfg(feature="wide"), link(name="ncursesw"));
 define_sharedffi!(cfg(not(feature="wide")), link(name="ncurses"));
