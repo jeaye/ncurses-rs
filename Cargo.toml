@@ -16,6 +16,7 @@ libc = "*"
 [features]
 default=["wide"]
 wide = []
+panel = []
 
 [lib]
 name = "ncurses"
