@@ -1,4 +1,4 @@
-ncurses-rs ![Build Status](https://travis-ci.org/jeaye/ncurses-rs.png)
+ncurses-rs [![Build Status](https://travis-ci.org/jeaye/ncurses-rs.png)](https://travis-ci.org/jeaye/ncurses-rs)
 ==========
 
 This is a very thin wrapper around the ncurses TUI lib.
