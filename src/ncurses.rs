@@ -13,6 +13,9 @@
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
 
+#![cfg(feature="menu")]
+#![feature(cstr_memory)]
+
 extern crate libc;
 
 use std::mem;
@@ -21,6 +24,8 @@ use std::ffi::{CString, CStr};
 use self::ll::{FILE_p};
 pub use self::constants::*;
 pub use self::panel::wrapper::*;
+pub use self::menu::wrapper::*;
+pub use self::menu::constants::*;
 
 #[cfg(target_arch = "x86_64")]
 pub type chtype = u64;
@@ -34,6 +39,7 @@ pub type NCURSES_ATTR_T = attr_t;
 pub mod ll;
 pub mod constants;
 pub mod panel;
+pub mod menu;
 
 trait FromCStr {
     fn from_c_str(s: *const libc::c_char) -> Self;
