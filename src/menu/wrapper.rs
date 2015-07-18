@@ -7,7 +7,7 @@ use std::slice;
 use std::ffi::{CStr, CString};
 use libc::*;
 use menu::ll;
-use ll::{WINDOW, chtype};
+use ll::{WINDOW, chtype, c_bool};
 use constants::TRUE;
 
 pub type MENU = ll::MENU;
@@ -281,7 +281,7 @@ pub fn set_item_term(menu: MENU, hook: HOOK) -> i32 {
 #[cfg(feature="menu")]
 pub fn set_item_value(item: ITEM, value: bool) -> i32 {
   unsafe {
-    super::ll::set_item_value(item, value as i32)
+    super::ll::set_item_value(item, value as c_bool)
   }
 }
 
