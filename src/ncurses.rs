@@ -13,8 +13,7 @@
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
 
-#![cfg(feature="menu")]
-#![feature(cstr_memory)]
+#![cfg_attr(feature = "menu", feature(cstr_memory))]
 
 extern crate libc;
 
