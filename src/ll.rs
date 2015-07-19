@@ -43,7 +43,7 @@ pub struct WINDOW_impl;
 pub struct SCREEN_impl;
 #[repr(C)]
 #[derive(Clone, Copy)]
-pub struct MEVENT { id: c_short, x: c_int, y: c_int, z: c_int, bstate: mmask_t}
+pub struct MEVENT { pub id: c_short, pub x: c_int, pub y: c_int, pub z: c_int, pub bstate: mmask_t}
 
 macro_rules! define_sharedffi(
     ($cfgopt: meta, $link: meta) => {
