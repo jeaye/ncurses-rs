@@ -1889,8 +1889,8 @@ pub fn KEY_F(n: u8) -> i32
  * Added mouse support
  */
 
-pub fn has_mouse() -> i32
-{ unsafe { ll::has_mouse() } }
+pub fn has_mouse() -> bool
+{ unsafe { ll::has_mouse() == TRUE } }
 
 pub fn getmouse(event: *mut MEVENT) -> i32
 { unsafe { ll::getmouse(event) } }
