@@ -176,7 +176,7 @@ pub fn clear() -> i32
 
 
 pub fn clearok(w: WINDOW, ok: bool) -> i32
-{ unsafe { ll::clearok(w, ok as libc::c_int) } }
+{ unsafe { ll::clearok(w, ok as ll::c_bool) } }
 
 
 pub fn clrtobot() -> i32
@@ -405,15 +405,15 @@ pub fn hline(ch: chtype, n: i32) -> i32
 
 
 pub fn idcok(w: WINDOW, bf: bool)
-{ unsafe { ll::idcok(w, bf as libc::c_int) } }
+{ unsafe { ll::idcok(w, bf as ll::c_bool) } }
 
 
 pub fn idlok(w: WINDOW, bf: bool) -> i32
-{ unsafe { ll::idlok(w, bf as libc::c_int) } }
+{ unsafe { ll::idlok(w, bf as ll::c_bool) } }
 
 
 pub fn immedok(w: WINDOW, bf: bool)
-{ unsafe { ll::immedok(w, bf as libc::c_int) } }
+{ unsafe { ll::immedok(w, bf as ll::c_bool) } }
 
 
 pub fn inch() -> chtype
@@ -547,7 +547,7 @@ pub fn instr(s: &mut String) -> i32
 
 
 pub fn intrflush(w: WINDOW, bf: bool) -> i32
-{ unsafe { ll::intrflush(w, bf as libc::c_int) } }
+{ unsafe { ll::intrflush(w, bf as ll::c_bool) } }
 
 
 pub fn isendwin() -> bool
@@ -607,7 +607,7 @@ pub fn keyname(c: i32) -> String
 
 
 pub fn keypad(w: WINDOW, bf: bool) -> i32
-{ unsafe { ll::keypad(w, bf as libc::c_int) } }
+{ unsafe { ll::keypad(w, bf as ll::c_bool) } }
 
 
 pub fn killchar() -> char
@@ -615,7 +615,7 @@ pub fn killchar() -> char
 
 
 pub fn leaveok(w: WINDOW, bf: bool) -> i32
-{ unsafe { ll::leaveok(w, bf as libc::c_int) } }
+{ unsafe { ll::leaveok(w, bf as ll::c_bool) } }
 
 
 pub fn longname() -> String
@@ -623,7 +623,7 @@ pub fn longname() -> String
 
 
 pub fn meta(w: WINDOW, bf: bool) -> i32
-{ unsafe { ll::meta(w, bf as libc::c_int) } }
+{ unsafe { ll::meta(w, bf as ll::c_bool) } }
 
 
 pub fn mv(y: i32, x: i32) -> i32
@@ -991,7 +991,7 @@ pub fn nocbreak() -> i32
 
 
 pub fn nodelay(w: WINDOW, bf: bool) -> i32
-{ unsafe { ll::nodelay(w, bf as libc::c_int) } }
+{ unsafe { ll::nodelay(w, bf as ll::c_bool) } }
 
 
 pub fn noecho() -> i32
@@ -1011,7 +1011,7 @@ pub fn noraw() -> i32
 
 
 pub fn notimeout(w: WINDOW, bf: bool) -> i32
-{ unsafe { ll::notimeout(w, bf as libc::c_int) } }
+{ unsafe { ll::notimeout(w, bf as ll::c_bool) } }
 
 
 pub fn overlay(src: WINDOW, dst: WINDOW) -> i32
@@ -1103,7 +1103,7 @@ pub fn scroll(w: WINDOW) -> i32
 
 
 pub fn scrollok(w: WINDOW, bf: bool) -> i32
-{ unsafe { ll::scrollok(w, bf as libc::c_int) } }
+{ unsafe { ll::scrollok(w, bf as ll::c_bool) } }
 
 
 pub fn scr_restore(filename: &str) -> i32
@@ -1215,7 +1215,7 @@ pub fn subwin(w: WINDOW, lines: i32, cols: i32, y: i32, x: i32) -> WINDOW
 
 
 pub fn syncok(w: WINDOW, bf: bool) -> i32
-{ unsafe { ll::syncok(w, bf as libc::c_int) } }
+{ unsafe { ll::syncok(w, bf as ll::c_bool) } }
 
 
 pub fn termattrs() -> chtype
@@ -1267,7 +1267,7 @@ pub fn untouchwin(w: WINDOW) -> i32
 
 
 pub fn use_env(f: bool)
-{ unsafe { ll::use_env(f as libc::c_int) } }
+{ unsafe { ll::use_env(f as ll::c_bool) } }
 
 
 pub fn use_default_colors() -> i32
@@ -1907,11 +1907,11 @@ pub fn mousemask(newmask: mmask_t, oldmask: Option<&mut mmask_t>) -> mmask_t
     else { unsafe { ll::mousemask(newmask, oldmask.unwrap()) } }
 }
 
-pub fn wenclose(w: WINDOW, y: i32, x: i32) -> i32
-{ unsafe { ll::wenclose(w, y as libc::c_int, x as libc::c_int) } }
+pub fn wenclose(w: WINDOW, y: i32, x: i32) -> bool
+{ unsafe { ll::wenclose(w, y as libc::c_int, x as libc::c_int) == TRUE } }
 
-pub fn wmouse_trafo(w: *mut WINDOW, y: &mut[i32], x: &mut[i32], to_screen: bool) -> i32
-{ unsafe { ll::wmouse_trafo(w, y.as_mut_ptr(), x.as_mut_ptr(), to_screen as libc::c_int) } }
+pub fn wmouse_trafo(w: *mut WINDOW, y: &mut[i32], x: &mut[i32], to_screen: bool) -> bool
+{ unsafe { ll::wmouse_trafo(w, y.as_mut_ptr(), x.as_mut_ptr(), to_screen as ll::c_bool) == TRUE } }
 
-pub fn mouse_trafo( y: &mut[i32], x: &mut[i32], to_screen: bool  ) -> i32
-{ unsafe { ll::mouse_trafo(y.as_mut_ptr(), x.as_mut_ptr(), to_screen as libc::c_int ) } }
+pub fn mouse_trafo(y: &mut[i32], x: &mut[i32], to_screen: bool) -> bool
+{ unsafe { ll::mouse_trafo(y.as_mut_ptr(), x.as_mut_ptr(), to_screen as ll::c_bool) == TRUE } }

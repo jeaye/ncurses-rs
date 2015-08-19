@@ -2,7 +2,7 @@
 #![allow(unused_imports)]
 
 use libc::{c_int, c_char, c_void};
-use ll::{WINDOW, chtype};
+use ll::{WINDOW, chtype, c_bool};
 
 pub type MENU = *mut MENU_impl;
 pub type ITEM = *mut ITEM_impl;
@@ -60,7 +60,7 @@ extern {
   pub fn set_item_init(_:MENU, _:HOOK) -> c_int;
   pub fn set_item_opts(_:ITEM, _:c_int) -> c_int;
   pub fn set_item_term(_:MENU, _:HOOK) -> c_int;
-  pub fn set_item_value(_:ITEM, _:c_int) -> c_int;
+  pub fn set_item_value(_:ITEM, _:c_bool) -> c_int;
   pub fn set_menu_back(_:MENU, _:chtype) -> c_int;
   pub fn set_menu_fore(_:MENU, _:chtype) -> c_int;
   pub fn set_menu_format(_:MENU, _:c_int, _:c_int) -> c_int;
@@ -81,8 +81,8 @@ extern {
   pub fn set_menu_spacing(_:MENU, _:c_int, _:c_int, _:c_int) -> c_int;
   pub fn menu_spacing(_:MENU, _:*mut c_int, _:*mut c_int, _:*mut c_int) -> c_int;
 
-  pub fn item_value(_:ITEM) -> c_int;
-  pub fn item_visible(_:ITEM) -> c_int;
+  pub fn item_value(_:ITEM) -> c_bool;
+  pub fn item_visible(_:ITEM) -> c_bool;
 
   pub fn menu_format(_:MENU, _:*mut c_int, _:*mut c_int);
 }

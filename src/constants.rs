@@ -33,8 +33,8 @@ extern
 /* Success/Failure. */
 pub const ERR: i32 = -1;
 pub const OK: i32 = 0;
-pub const TRUE: i32 = 1;
-pub const FALSE: i32 = 0;
+pub const TRUE: c_bool = 1;
+pub const FALSE: c_bool = 0;
 
 /* Attributes. */
 pub const NCURSES_ATTR_SHIFT: u32 = 8u32;

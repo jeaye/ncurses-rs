@@ -13,6 +13,8 @@ ncurses functions.
 
 use libc::{ c_char, c_int, c_short, c_uint, c_ulong, c_void, FILE };
 
+pub type c_bool = ::libc::c_uchar;
+
 /* Intrinsic types. */
 #[cfg(target_arch = "x86_64")]
 pub type chtype = c_ulong;
@@ -67,11 +69,11 @@ macro_rules! define_sharedffi(
             pub fn bkgdset(_:chtype);
             pub fn border(_:chtype,_:chtype,_:chtype,_:chtype,_:chtype,_:chtype,_:chtype,_:chtype) -> c_int;
             pub fn box_(_:WINDOW, _:chtype, _:chtype) -> c_int;
-            pub fn can_change_color() -> c_int;
+            pub fn can_change_color() -> c_bool;
             pub fn cbreak() -> c_int;
             pub fn chgat(_:c_int, _:attr_t, _:c_short, _:void_p) -> c_int;
             pub fn clear() -> c_int;
-            pub fn clearok(_:WINDOW,_:c_int) -> c_int;
+            pub fn clearok(_:WINDOW,_:c_bool) -> c_int;
             pub fn clrtobot() -> c_int;
             pub fn clrtoeol() -> c_int;
             pub fn color_content(_:c_short,_:short_p,_:short_p,_:short_p) -> c_int;
@@ -103,13 +105,13 @@ macro_rules! define_sharedffi(
             pub fn getstr(_:char_p) -> c_int;
             pub fn getwin(_:FILE_p) -> WINDOW;
             pub fn halfdelay(_:c_int) -> c_int;
-            pub fn has_colors() -> c_int;
-            pub fn has_ic() -> c_int;
-            pub fn has_il() -> c_int;
+            pub fn has_colors() -> c_bool;
+            pub fn has_ic() -> c_bool;
+            pub fn has_il() -> c_bool;
             pub fn hline(_:chtype, _:c_int) -> c_int;
-            pub fn idcok(_:WINDOW, _:c_int);
-            pub fn idlok(_:WINDOW, _:c_int) -> c_int;
-            pub fn immedok(_:WINDOW, _:c_int);
+            pub fn idcok(_:WINDOW, _:c_bool);
+            pub fn idlok(_:WINDOW, _:c_bool) -> c_int;
+            pub fn immedok(_:WINDOW, _:c_bool);
             pub fn inch() -> chtype;
             pub fn inchnstr(_:chtype_p, _:c_int) -> c_int;
             pub fn inchstr(_:chtype_p) -> c_int;
@@ -123,16 +125,16 @@ macro_rules! define_sharedffi(
             pub fn insnstr(_:char_p, _:c_int) -> c_int;
             pub fn insstr(_:char_p) -> c_int;
             pub fn instr(_:char_p) -> c_int;
-            pub fn intrflush(_:WINDOW,_:c_int) -> c_int;
-            pub fn isendwin() -> c_int;
-            pub fn is_linetouched(_:WINDOW,_:c_int) -> c_int;
-            pub fn is_wintouched(_:WINDOW) -> c_int;
+            pub fn intrflush(_:WINDOW,_:c_bool) -> c_int;
+            pub fn isendwin() -> c_bool;
+            pub fn is_linetouched(_:WINDOW,_:c_int) -> c_bool;
+            pub fn is_wintouched(_:WINDOW) -> c_bool;
             pub fn keyname(_:c_int) -> *const c_char;
-            pub fn keypad(_:WINDOW, _:c_int) -> c_int;
+            pub fn keypad(_:WINDOW, _:c_bool) -> c_int;
             pub fn killchar() -> c_char;
-            pub fn leaveok(_:WINDOW,_:c_int) -> c_int;
+            pub fn leaveok(_:WINDOW,_:c_bool) -> c_int;
             pub fn longname() -> *mut c_char;
-            pub fn meta(_:WINDOW,_:c_int) -> c_int;
+            pub fn meta(_:WINDOW,_:c_bool) -> c_int;
             #[link_name = "move"]
             pub fn mv(_:c_int, _:c_int) -> c_int;
             pub fn mvaddch(_:c_int, _:c_int, _:chtype) -> c_int;
@@ -189,12 +191,12 @@ macro_rules! define_sharedffi(
             pub fn newwin(_:c_int,_:c_int,_:c_int,_:c_int) -> WINDOW;
             pub fn nl() -> c_int;
             pub fn nocbreak() -> c_int;
-            pub fn nodelay(_:WINDOW,_:c_int) -> c_int;
+            pub fn nodelay(_:WINDOW,_:c_bool) -> c_int;
             pub fn noecho() -> c_int;
             pub fn nonl() -> c_int;
             pub fn noqiflush();
             pub fn noraw() -> c_int;
-            pub fn notimeout(_:WINDOW,_:c_int) -> c_int;
+            pub fn notimeout(_:WINDOW,_:c_bool) -> c_int;
             pub fn overlay(_:WINDOW,_:WINDOW) -> c_int;
             pub fn overwrite(_:WINDOW,_:WINDOW) -> c_int;
             pub fn pair_content(_:c_short,_:short_p,_:short_p) -> c_int;
@@ -219,7 +221,7 @@ macro_rules! define_sharedffi(
             pub fn scr_init(_:char_p) -> c_int;
             pub fn scrl(_:c_int) -> c_int;
             pub fn scroll(_:WINDOW) -> c_int;
-            pub fn scrollok(_:WINDOW,_:c_int) -> c_int;
+            pub fn scrollok(_:WINDOW,_:c_bool) -> c_int;
             pub fn scr_restore(_:char_p) -> c_int;
             pub fn scr_set(_:char_p) -> c_int;
             pub fn setlocale(_:c_int, _:char_p) -> char_p;
@@ -246,7 +248,7 @@ macro_rules! define_sharedffi(
             pub fn start_color() -> c_int;
             pub fn subpad(_:WINDOW, _:c_int, _:c_int, _:c_int, _:c_int) -> WINDOW;
             pub fn subwin(_:WINDOW, _:c_int, _:c_int, _:c_int, _:c_int) -> WINDOW;
-            pub fn syncok(_:WINDOW, _:c_int) -> c_int;
+            pub fn syncok(_:WINDOW, _:c_bool) -> c_int;
             pub fn termattrs() -> chtype;
             pub fn termname() -> char_p;
             pub fn timeout(_:c_int);
@@ -255,7 +257,7 @@ macro_rules! define_sharedffi(
             pub fn typeahead(_:c_int) -> c_int;
             pub fn ungetch(_:c_int) -> c_int;
             pub fn untouchwin(_:WINDOW) -> c_int;
-            pub fn use_env(_:c_int);
+            pub fn use_env(_:c_bool);
             pub fn use_default_colors() -> c_int;
             pub fn vidattr(_:chtype) -> c_int;
             //  fn vidputs(_:chtype, extern  fn f(c_int) -> c_int) -> c_int;
@@ -349,16 +351,16 @@ macro_rules! define_sharedffi(
              * when NCURSES_OPAQUE is set:
              */
             pub fn wgetparent(_:WINDOW) -> WINDOW;
-            pub fn is_cleared(_:WINDOW) -> c_int;
-            pub fn is_idcok(_:WINDOW) -> c_int;
-            pub fn is_idlok(_:WINDOW) -> c_int;
-            pub fn is_immedok(_:WINDOW) -> c_int;
-            pub fn is_keypad(_:WINDOW) -> c_int;
-            pub fn is_leaveok(_:WINDOW) -> c_int;
-            pub fn is_nodelay(_:WINDOW) -> c_int;
-            pub fn is_notimeout(_:WINDOW) -> c_int;
-            pub fn is_scrollok(_:WINDOW) -> c_int;
-            pub fn is_syncok(_:WINDOW) -> c_int;
+            pub fn is_cleared(_:WINDOW) -> c_bool;
+            pub fn is_idcok(_:WINDOW) -> c_bool;
+            pub fn is_idlok(_:WINDOW) -> c_bool;
+            pub fn is_immedok(_:WINDOW) -> c_bool;
+            pub fn is_keypad(_:WINDOW) -> c_bool;
+            pub fn is_leaveok(_:WINDOW) -> c_bool;
+            pub fn is_nodelay(_:WINDOW) -> c_bool;
+            pub fn is_notimeout(_:WINDOW) -> c_bool;
+            pub fn is_scrollok(_:WINDOW) -> c_bool;
+            pub fn is_syncok(_:WINDOW) -> c_bool;
             pub fn wgetscrreg(_:WINDOW, _:*mut c_int, _:*mut c_int) -> c_int;
             /*
              * Added mouse support
@@ -367,10 +369,10 @@ macro_rules! define_sharedffi(
             pub fn getmouse(_:*mut MEVENT) -> c_int;
             pub fn ungetmouse(_:*mut MEVENT) -> c_int;
             pub fn mousemask(_:mmask_t,_:*mut mmask_t) -> mmask_t;
-            pub fn wenclose(_:WINDOW,_:c_int,_:c_int) -> c_int;
+            pub fn wenclose(_:WINDOW,_:c_int,_:c_int) -> c_bool;
             pub fn mouseinterval(_:c_int) -> c_int;
-            pub fn wmouse_trafo(_:*mut WINDOW,_:*mut c_int,_:*mut c_int,_:c_int) -> c_int;
-            pub fn mouse_trafo(_:*mut c_int,_:*mut c_int,_:c_int) -> c_int;
+            pub fn wmouse_trafo(_:*mut WINDOW,_:*mut c_int,_:*mut c_int,_:c_bool) -> c_bool;
+            pub fn mouse_trafo(_:*mut c_int,_:*mut c_int,_:c_bool) -> c_bool;
         }
     });
 
