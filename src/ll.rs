@@ -365,7 +365,7 @@ macro_rules! define_sharedffi(
             /*
              * Added mouse support
              */
-            pub fn has_mouse() -> c_int;
+            pub fn has_mouse() -> c_bool;
             pub fn getmouse(_:*mut MEVENT) -> c_int;
             pub fn ungetmouse(_:*mut MEVENT) -> c_int;
             pub fn mousemask(_:mmask_t,_:*mut mmask_t) -> mmask_t;
