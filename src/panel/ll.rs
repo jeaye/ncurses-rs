@@ -4,11 +4,7 @@
 use libc::{ c_int, c_void };
 use ll::WINDOW;
 
-pub type PANEL = *mut PANEL_impl;
-
-#[repr(C)]
-#[derive(Clone, Copy)]
-pub struct PANEL_impl;
+pub type PANEL = *mut i8;
 
 #[cfg(feature="panel")] #[link(name="panel")]
 extern {
