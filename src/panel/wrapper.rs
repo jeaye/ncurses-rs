@@ -57,4 +57,4 @@ pub fn replace_panel(panel: PANEL, window: WINDOW) -> i32
 
 #[cfg(feature="panel")]
 pub fn panel_hidden(panel: PANEL) -> bool
-{ unsafe { ll::panel_hidden(panel) == TRUE } }
+{ unsafe { ll::panel_hidden(panel) != 0 } }

@@ -1,7 +1,9 @@
+#[allow(unused_imports)]
 extern crate ncurses;
 
 use ncurses::*;
 
+#[cfg(feature="menu")]
 fn main() {
   /* Initialize curses */
   initscr();
@@ -77,4 +79,9 @@ fn main() {
   free_menu(my_menu);
 
   endwin();
+}
+
+#[cfg(not(feature="menu"))]
+fn main()
+{
 }

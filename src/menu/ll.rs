@@ -4,16 +4,9 @@
 use libc::{c_int, c_char, c_void};
 use ll::{WINDOW, chtype, c_bool};
 
-pub type MENU = *mut MENU_impl;
-pub type ITEM = *mut ITEM_impl;
+pub type MENU = *mut i8;
+pub type ITEM = *mut i8;
 pub type HOOK = Option<extern "C" fn(MENU)>;
-
-#[repr(C)]
-#[derive(Clone, Copy)]
-pub struct MENU_impl;
-#[repr(C)]
-#[derive(Clone, Copy)]
-pub struct ITEM_impl;
 
 #[cfg(feature="menu")] #[link(name="menu")]
 extern {
@@ -43,7 +36,6 @@ extern {
   pub fn menu_fore(_:MENU) -> chtype;
   pub fn menu_grey(_:MENU) -> chtype;
 
-  pub fn free_item(_:ITEM) -> c_int;
   pub fn free_menu(_:MENU) -> c_int;
   pub fn item_count(_:MENU) -> c_int;
   pub fn item_index(_:ITEM) -> c_int;

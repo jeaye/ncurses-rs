@@ -15,8 +15,8 @@ pub type ITEM = ll::ITEM;
 pub type HOOK = ll::HOOK;
 
 #[cfg(feature="menu")]
-pub fn menu_items(menu: MENU) -> Vec<ITEM> { 
-  unsafe { 
+pub fn menu_items(menu: MENU) -> Vec<ITEM> {
+  unsafe {
     slice::from_raw_parts(super::ll::menu_items(menu), item_count(menu) as usize).to_vec()
   }
 }
@@ -31,13 +31,13 @@ pub fn current_item(menu: MENU) -> ITEM {
 #[cfg(feature="menu")]
 pub fn new_item<T: Into<Vec<u8>>>(name: T, description: T) -> ITEM {
   unsafe {
-    super::ll::new_item(CString::new(name).unwrap().into_ptr(), CString::new(description).unwrap().into_ptr())
+    super::ll::new_item(CString::new(name).unwrap().into_raw(), CString::new(description).unwrap().into_raw())
   }
 }
 
 #[cfg(feature="menu")]
 pub fn new_menu(items: &mut Vec<ITEM>) -> MENU {
-  unsafe { 
+  unsafe {
     items.push(ptr::null_mut());
     let menu = super::ll::new_menu(items.as_mut_ptr());
     items.pop();
@@ -159,10 +159,9 @@ pub fn menu_grey(menu: MENU) -> chtype {
 }
 
 #[cfg(feature="menu")]
-pub fn free_item(item: ITEM) -> i32 {
+pub fn free_item(item: ITEM) {
   unsafe {
-    CString::from_ptr(item as *const i8);
-    super::ll::free_item(item)
+    CString::from_raw(item as *mut i8);
   }
 }
 
@@ -322,7 +321,7 @@ pub fn set_menu_init(menu: MENU, hook: HOOK) -> i32 {
 
 #[cfg(feature="menu")]
 pub fn set_menu_items(menu: MENU, items: &mut Vec<ITEM>) -> i32 {
-  unsafe { 
+  unsafe {
     items.push(ptr::null_mut());
     let ret = super::ll::set_menu_items(menu, items.as_mut_ptr());
     items.pop();
@@ -334,7 +333,7 @@ pub fn set_menu_items(menu: MENU, items: &mut Vec<ITEM>) -> i32 {
 #[cfg(feature="menu")]
 pub fn set_menu_mark<T: Into<Vec<u8>>>(menu: MENU, mark: T) -> i32 {
   unsafe {
-    super::ll::set_menu_mark(menu, CString::new(mark).unwrap().into_ptr())
+    super::ll::set_menu_mark(menu, CString::new(mark).unwrap().into_raw())
   }
 }
 
@@ -355,7 +354,7 @@ pub fn set_menu_pad(menu: MENU, opts: i32) -> i32 {
 #[cfg(feature="menu")]
 pub fn set_menu_pattern<T: Into<Vec<u8>>>(menu: MENU, pattern: T) -> i32 {
   unsafe {
-    super::ll::set_menu_pattern(menu, CString::new(pattern).unwrap().into_ptr())
+    super::ll::set_menu_pattern(menu, CString::new(pattern).unwrap().into_raw())
   }
 }
 

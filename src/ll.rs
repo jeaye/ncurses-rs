@@ -31,18 +31,12 @@ pub type short_p = *mut c_short;
 pub type void_p = *const c_void;
 pub type char_p = *const c_char;
 pub type chtype_p = *const chtype;
-pub type WINDOW = *mut WINDOW_impl;
-pub type SCREEN = *mut SCREEN_impl;
+pub type WINDOW = *mut i8;
+pub type SCREEN = *mut i8;
 pub type FILE_p = *mut FILE;
 pub type va_list = *mut u8;
 
 /* Custom Types. */
-#[repr(C)]
-#[derive(Clone, Copy)]
-pub struct WINDOW_impl;
-#[repr(C)]
-#[derive(Clone, Copy)]
-pub struct SCREEN_impl;
 #[repr(C)]
 #[derive(Clone, Copy)]
 pub struct MEVENT { pub id: c_short, pub x: c_int, pub y: c_int, pub z: c_int, pub bstate: mmask_t}
