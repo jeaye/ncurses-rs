@@ -1116,7 +1116,7 @@ pub fn setlocale(lc: LcCategory, locale: &str) -> String
   unsafe {
     let buf = locale.to_c_str().as_ptr();
     let ret = ll::setlocale(lc as libc::c_int, buf);
-    String::from_c_str(ret as *const i8)
+    String::from_c_str(ret as *const _)
   }
 }
 
