@@ -266,9 +266,9 @@ macro_rules! define_sharedffi(
             pub fn waddchstr(_:WINDOW,_:chtype_p) -> c_int;
             pub fn waddnstr(_:WINDOW,_:char_p,_:c_int) -> c_int;
             pub fn waddstr(_:WINDOW,_:char_p) -> c_int;
-            pub fn wattron(_:WINDOW, _:c_int) -> c_int;
-            pub fn wattroff(_:WINDOW, _:c_int) -> c_int;
-            pub fn wattrset(_:WINDOW, _:c_int) -> c_int;
+            pub fn wattron(_:WINDOW, _:NCURSES_ATTR_T) -> c_int;
+            pub fn wattroff(_:WINDOW, _:NCURSES_ATTR_T) -> c_int;
+            pub fn wattrset(_:WINDOW, _:NCURSES_ATTR_T) -> c_int;
             pub fn wattr_get(_:WINDOW, _:attr_t_p, _:short_p, _:void_p) -> c_int;
             pub fn wattr_on(_:WINDOW, _:attr_t, _:void_p) -> c_int;
             pub fn wattr_off(_:WINDOW, _:attr_t, _:void_p) -> c_int;

@@ -1300,15 +1300,15 @@ pub fn waddstr(w: WINDOW, s: &str) -> i32
 { unsafe { ll::waddstr(w, s.to_c_str().as_ptr()) } }
 
 
-pub fn wattron(w: WINDOW, attr: i32) -> i32
+pub fn wattron(w: WINDOW, attr: NCURSES_ATTR_T) -> i32
 { unsafe { ll::wattron(w, attr) } }
 
 
-pub fn wattroff(w: WINDOW, attr: i32) -> i32
+pub fn wattroff(w: WINDOW, attr: NCURSES_ATTR_T) -> i32
 { unsafe { ll::wattroff(w, attr) } }
 
 
-pub fn wattrset(w: WINDOW, attr: i32) -> i32
+pub fn wattrset(w: WINDOW, attr: NCURSES_ATTR_T) -> i32
 { unsafe { ll::wattrset(w, attr) } }
 
 
