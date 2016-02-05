@@ -1116,7 +1116,13 @@ pub fn setlocale(lc: LcCategory, locale: &str) -> String
   unsafe {
     let buf = locale.to_c_str().as_ptr();
     let ret = ll::setlocale(lc as libc::c_int, buf);
-    String::from_c_str(ret as *const _)
+    if ret == ptr::null() {
+        String::new()
+    } else {
+        // The clone is necessary, as the returned pointer
+        // can change at any time
+        CStr::from_ptr(ret).to_string_lossy().into_owned()
+    }
   }
 }
 
