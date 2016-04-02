@@ -28,6 +28,7 @@ pub use self::menu::constants::*;
 pub type chtype = u64;
 #[cfg(not(target_arch = "x86_64"))]
 pub type chtype = u32;
+pub type winttype = u32;
 
 pub type mmask_t = chtype;
 pub type attr_t = chtype;
@@ -306,6 +307,27 @@ pub fn getbkgd(w: WINDOW) -> chtype
 pub fn getch() -> i32
 { unsafe { ll::getch() } }
 
+pub enum WchResult {
+    KeyCode(chtype),
+    Char(winttype),
+}
+
+pub fn wget_wch(w: WINDOW) -> WchResult {
+    unsafe {
+        let mut x = 0;
+        match ll::wget_wch(w, &mut x) {
+            OK => {
+                WchResult::Char(x)
+            }
+            KEY_CODE_YES => {
+                WchResult::KeyCode(x as chtype)
+            }
+            err => {
+                panic!("wget_wch returned {}", err);
+            }
+        }
+    }
+}
 
 pub fn getnstr(s: &mut String, n: i32) -> i32
 {
