@@ -312,20 +312,77 @@ pub enum WchResult {
     Char(winttype),
 }
 
-pub fn wget_wch(w: WINDOW) -> WchResult {
+pub fn get_wch() -> Option<WchResult> {
     unsafe {
         let mut x = 0;
-        match ll::wget_wch(w, &mut x) {
+        match ll::get_wch(&mut x) {
             OK => {
-                WchResult::Char(x)
+                Some(WchResult::Char(x))
             }
             KEY_CODE_YES => {
-                WchResult::KeyCode(x as chtype)
+                Some(WchResult::KeyCode(x as chtype))
             }
-            err => {
-                panic!("wget_wch returned {}", err);
+            _ => {
+                None
             }
         }
+    }
+}
+
+pub fn mvget_wch(y: i32, x: i32) -> Option<WchResult> {
+    unsafe {
+        let mut result = 0;
+        match ll::mvget_wch(y, x, &mut result) {
+            OK => {
+                Some(WchResult::Char(result))
+            }
+            KEY_CODE_YES => {
+                Some(WchResult::KeyCode(result as chtype))
+            }
+            _ => {
+                None
+            }
+        }
+    }
+}
+
+pub fn wget_wch(w: WINDOW) -> Option<WchResult> {
+    unsafe {
+        let mut result = 0;
+        match ll::wget_wch(w, &mut result) {
+            OK => {
+                Some(WchResult::Char(result))
+            }
+            KEY_CODE_YES => {
+                Some(WchResult::KeyCode(result as chtype))
+            }
+            _ => {
+                None
+            }
+        }
+    }
+}
+
+pub fn mvwget_wch(w: WINDOW, y: i32, x: i32) -> Option<WchResult> {
+    unsafe {
+        let mut result = 0;
+        match ll::mvwget_wch(w, y, x, &mut result) {
+            OK => {
+                Some(WchResult::Char(result))
+            }
+            KEY_CODE_YES => {
+                Some(WchResult::KeyCode(result as chtype))
+            }
+            _ => {
+                None
+            }
+        }
+    }
+}
+
+pub fn unget_wch(ch: u32) -> i32 {
+    unsafe {
+        ll::unget_wch(ch)
     }
 }
 

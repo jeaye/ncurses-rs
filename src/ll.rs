@@ -289,6 +289,10 @@ macro_rules! define_sharedffi(
             pub fn werase(_:WINDOW) -> c_int;
             pub fn wgetch(_:WINDOW) -> c_int;
             pub fn wget_wch(_:WINDOW, _:*mut winttype) -> c_int;
+            pub fn mvwget_wch(_:WINDOW, _:c_int, _:c_int, _:*mut winttype) -> c_int;
+            pub fn mvget_wch(_:c_int, _: c_int, _:*mut winttype) -> c_int;
+            pub fn get_wch(_:*mut winttype) -> c_int;
+            pub fn unget_wch(_:winttype) -> c_int;
             pub fn wgetnstr(_:WINDOW,_:char_p,_:c_int) -> c_int;
             pub fn wgetstr(_:WINDOW, _:char_p) -> c_int;
             pub fn whline(_:WINDOW, _:chtype, _:c_int) -> c_int;
