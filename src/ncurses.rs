@@ -308,7 +308,7 @@ pub fn getch() -> i32
 { unsafe { ll::getch() } }
 
 pub enum WchResult {
-    KeyCode(chtype),
+    KeyCode(i32),
     Char(winttype),
 }
 
@@ -320,7 +320,7 @@ pub fn get_wch() -> Option<WchResult> {
                 Some(WchResult::Char(x))
             }
             KEY_CODE_YES => {
-                Some(WchResult::KeyCode(x as chtype))
+                Some(WchResult::KeyCode(x as i32))
             }
             _ => {
                 None
@@ -337,7 +337,7 @@ pub fn mvget_wch(y: i32, x: i32) -> Option<WchResult> {
                 Some(WchResult::Char(result))
             }
             KEY_CODE_YES => {
-                Some(WchResult::KeyCode(result as chtype))
+                Some(WchResult::KeyCode(result as i32))
             }
             _ => {
                 None
@@ -354,7 +354,7 @@ pub fn wget_wch(w: WINDOW) -> Option<WchResult> {
                 Some(WchResult::Char(result))
             }
             KEY_CODE_YES => {
-                Some(WchResult::KeyCode(result as chtype))
+                Some(WchResult::KeyCode(result as i32))
             }
             _ => {
                 None
@@ -371,7 +371,7 @@ pub fn mvwget_wch(w: WINDOW, y: i32, x: i32) -> Option<WchResult> {
                 Some(WchResult::Char(result))
             }
             KEY_CODE_YES => {
-                Some(WchResult::KeyCode(result as chtype))
+                Some(WchResult::KeyCode(result as i32))
             }
             _ => {
                 None
