@@ -20,6 +20,7 @@ pub type c_bool = ::libc::c_uchar;
 pub type chtype = c_ulong;
 #[cfg(not(target_arch = "x86_64"))]
 pub type chtype = c_uint;
+pub type winttype = c_uint;
 
 pub type mmask_t = chtype;
 pub type attr_t = chtype;
@@ -287,6 +288,11 @@ macro_rules! define_sharedffi(
             pub fn wechochar(_:WINDOW, _:chtype) -> c_int;
             pub fn werase(_:WINDOW) -> c_int;
             pub fn wgetch(_:WINDOW) -> c_int;
+            pub fn wget_wch(_:WINDOW, _:*mut winttype) -> c_int;
+            pub fn mvwget_wch(_:WINDOW, _:c_int, _:c_int, _:*mut winttype) -> c_int;
+            pub fn mvget_wch(_:c_int, _: c_int, _:*mut winttype) -> c_int;
+            pub fn get_wch(_:*mut winttype) -> c_int;
+            pub fn unget_wch(_:winttype) -> c_int;
             pub fn wgetnstr(_:WINDOW,_:char_p,_:c_int) -> c_int;
             pub fn wgetstr(_:WINDOW, _:char_p) -> c_int;
             pub fn whline(_:WINDOW, _:chtype, _:c_int) -> c_int;

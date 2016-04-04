@@ -28,6 +28,7 @@ pub use self::menu::constants::*;
 pub type chtype = u64;
 #[cfg(not(target_arch = "x86_64"))]
 pub type chtype = u32;
+pub type winttype = u32;
 
 pub type mmask_t = chtype;
 pub type attr_t = chtype;
@@ -306,6 +307,84 @@ pub fn getbkgd(w: WINDOW) -> chtype
 pub fn getch() -> i32
 { unsafe { ll::getch() } }
 
+pub enum WchResult {
+    KeyCode(i32),
+    Char(winttype),
+}
+
+pub fn get_wch() -> Option<WchResult> {
+    unsafe {
+        let mut x = 0;
+        match ll::get_wch(&mut x) {
+            OK => {
+                Some(WchResult::Char(x))
+            }
+            KEY_CODE_YES => {
+                Some(WchResult::KeyCode(x as i32))
+            }
+            _ => {
+                None
+            }
+        }
+    }
+}
+
+pub fn mvget_wch(y: i32, x: i32) -> Option<WchResult> {
+    unsafe {
+        let mut result = 0;
+        match ll::mvget_wch(y, x, &mut result) {
+            OK => {
+                Some(WchResult::Char(result))
+            }
+            KEY_CODE_YES => {
+                Some(WchResult::KeyCode(result as i32))
+            }
+            _ => {
+                None
+            }
+        }
+    }
+}
+
+pub fn wget_wch(w: WINDOW) -> Option<WchResult> {
+    unsafe {
+        let mut result = 0;
+        match ll::wget_wch(w, &mut result) {
+            OK => {
+                Some(WchResult::Char(result))
+            }
+            KEY_CODE_YES => {
+                Some(WchResult::KeyCode(result as i32))
+            }
+            _ => {
+                None
+            }
+        }
+    }
+}
+
+pub fn mvwget_wch(w: WINDOW, y: i32, x: i32) -> Option<WchResult> {
+    unsafe {
+        let mut result = 0;
+        match ll::mvwget_wch(w, y, x, &mut result) {
+            OK => {
+                Some(WchResult::Char(result))
+            }
+            KEY_CODE_YES => {
+                Some(WchResult::KeyCode(result as i32))
+            }
+            _ => {
+                None
+            }
+        }
+    }
+}
+
+pub fn unget_wch(ch: u32) -> i32 {
+    unsafe {
+        ll::unget_wch(ch)
+    }
+}
 
 pub fn getnstr(s: &mut String, n: i32) -> i32
 {
