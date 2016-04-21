@@ -24,15 +24,12 @@ pub use self::panel::wrapper::*;
 pub use self::menu::wrapper::*;
 pub use self::menu::constants::*;
 
-#[cfg(target_arch = "x86_64")]
-pub type chtype = u64;
-#[cfg(not(target_arch = "x86_64"))]
-pub type chtype = u32;
-pub type winttype = u32;
+pub type chtype = self::ll::chtype;
+pub type winttype = self::ll::winttype;
 
-pub type mmask_t = chtype;
-pub type attr_t = chtype;
-pub type NCURSES_ATTR_T = attr_t;
+pub type mmask_t = self::ll::mmask_t;
+pub type attr_t = self::ll::attr_t;
+pub type NCURSES_ATTR_T = self::ll::NCURSES_ATTR_T;
 
 pub mod ll;
 pub mod constants;
