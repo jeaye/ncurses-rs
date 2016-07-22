@@ -13,9 +13,8 @@ Note that you must to have the ncurses library installed and linkable for ncurse
 `LIBRARY_PATH` environmental variable.)
 
 ## Examples
-Examples are built automagically. To run them, check the `bin`
-directory. Example numbers increase along with the complexity
-of the example.
+
+Examples are built by `cargo build`. To run them, use `cargo run --example ex_<NUMBER>`. Example numbers increase along with the complexity of the example.
 
 Current examples:  
 **1.** [Hello World](https://github.com/jeaye/ncurses-rs/blob/master/examples/ex_1.rs)  
