@@ -14,7 +14,7 @@ license = "MIT"
 libc = "0.2"
 
 [features]
-default=["wide"]
+default=[]
 wide = []
 panel = []
 menu = []
