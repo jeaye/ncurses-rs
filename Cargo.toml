@@ -11,7 +11,7 @@ keywords = ["ncurses","TUI"]
 license = "MIT"
 
 [dependencies]
-libc = "*"
+libc = "0.2"
 
 [features]
 default=["wide"]
