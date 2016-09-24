@@ -47,13 +47,13 @@ fn main()
 
   /* Start ncurses. */
   initscr();
-  keypad(stdscr, true);
+  keypad(stdscr(), true);
   noecho();
 
   /* Get the screen bounds. */
   let mut max_x = 0;
   let mut max_y = 0;
-  getmaxyx(stdscr, &mut max_y, &mut max_x);
+  getmaxyx(stdscr(), &mut max_y, &mut max_x);
 
   /* Read the whole file. */
   for ch in reader
@@ -65,7 +65,7 @@ fn main()
     /* Get the current position on the screen. */
     let mut cur_x = 0;
     let mut cur_y = 0;
-    getyx(stdscr, &mut cur_y, &mut cur_x);
+    getyx(stdscr(), &mut cur_y, &mut cur_x);
 
     if cur_y == (max_y - 1)
     {

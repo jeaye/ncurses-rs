@@ -20,7 +20,7 @@ fn main()
   raw();
 
   /* Allow for extended keyboard (like F1). */
-  keypad(stdscr, true);
+  keypad(stdscr(), true);
   noecho();
 
   /* Prompt for a character. */

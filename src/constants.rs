@@ -13,22 +13,49 @@
 use libc::{ c_char, c_int };
 use super::ll::*;
 
-extern
-{
-  pub static curscr: WINDOW;
-  pub static newscr: WINDOW;
-  pub static stdscr: WINDOW;
-  pub static ttytype: *mut c_char;
-  pub static COLORS: c_int;
-  pub static COLOR_PAIRS: c_int;
-  pub static COLS: c_int;
-  pub static ESCDELAY: c_int;
-  pub static LINES: c_int;
-  pub static TABSIZE: c_int;
+mod wrapped {
+    use libc::{ c_char, c_int };
+    use ll::chtype;
+    use ll::WINDOW;
 
-  /* Line graphics */
-  pub static acs_map: [chtype; 0];
+    extern
+    {
+        pub static curscr: WINDOW;
+        pub static newscr: WINDOW;
+        pub static stdscr: WINDOW;
+        pub static ttytype: *mut c_char;
+        pub static COLORS: c_int;
+        pub static COLOR_PAIRS: c_int;
+        pub static COLS: c_int;
+        pub static ESCDELAY: c_int;
+        pub static LINES: c_int;
+        pub static TABSIZE: c_int;
+
+        /* Line graphics */
+        pub static acs_map: [chtype; 0];
+    }
 }
+
+macro_rules! wrap_extern {
+    ($name:ident: $t:ty) => {
+        pub fn $name() -> $t {
+            unsafe { wrapped::$name }
+        }
+    }
+}
+
+wrap_extern!(curscr: WINDOW);
+wrap_extern!(newscr: WINDOW);
+wrap_extern!(stdscr: WINDOW);
+wrap_extern!(ttytype: *mut c_char);
+wrap_extern!(COLORS: c_int);
+wrap_extern!(COLOR_PAIRS: c_int);
+wrap_extern!(COLS: c_int);
+wrap_extern!(ESCDELAY: c_int);
+wrap_extern!(LINES: c_int);
+wrap_extern!(TABSIZE: c_int);
+wrap_extern!(acs_map: [chtype; 0]);
+
 
 /* Success/Failure. */
 pub const ERR: i32 = -1;

@@ -102,7 +102,7 @@ impl Pager
   {
     /* Start ncurses. */
     initscr();
-    keypad(stdscr, true);
+    keypad(stdscr(), true);
     noecho();
 
     /* Start colors. */
@@ -130,7 +130,7 @@ impl Pager
     bkgd(' ' as chtype | COLOR_PAIR(COLOR_PAIR_DEFAULT) as chtype);
 
     /* Get the screen bounds. */
-    getmaxyx(stdscr, &mut self.screen_height, &mut self.screen_width);
+    getmaxyx(stdscr(), &mut self.screen_height, &mut self.screen_width);
   }
 
   /* Returns the word and delimiter following it. */
@@ -304,7 +304,7 @@ fn main()
     let leftover_attr = pager.highlight_word(format!("{}", leftover).as_ref());
 
     /* Get the current position on the screen. */
-    getyx(stdscr, &mut pager.curr_y, &mut pager.curr_x);
+    getyx(stdscr(), &mut pager.curr_y, &mut pager.curr_x);
 
     if pager.curr_y == (pager.screen_height - 1)
     {
