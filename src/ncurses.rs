@@ -1782,15 +1782,15 @@ pub fn getsyx(y: &mut i32, x: &mut i32)
 {
   unsafe
   {
-    if newscr != ptr::null_mut()
+    if newscr() != ptr::null_mut()
     {
-      if ll::is_leaveok(newscr) == TRUE
+      if ll::is_leaveok(newscr()) == TRUE
       {
         *x = -1 as i32;
         *y = -1 as i32;
       }
       else
-      { getyx(newscr, (y), (x)); }
+      { getyx(newscr(), (y), (x)); }
     }
   }
 }
@@ -1800,16 +1800,16 @@ pub fn setsyx(y: &mut i32, x: &mut i32)
 {
   unsafe
   {
-    if newscr !=(0 as WINDOW)
+    if newscr() !=(0 as WINDOW)
     {
       if *y == -1 && *x == -1
       {
-        ll::leaveok(newscr, 1);
+        ll::leaveok(newscr(), 1);
       }
       else
       {
-        ll::leaveok(newscr, 0);
-        ll::wmove(newscr, *y, *x);
+        ll::leaveok(newscr(), 0);
+        ll::wmove(newscr(), *y, *x);
       }
     }
   }
@@ -1817,7 +1817,7 @@ pub fn setsyx(y: &mut i32, x: &mut i32)
 
 /* Line graphics */
 pub fn NCURSES_ACS(c: char) -> chtype {
-    unsafe { *acs_map.as_ptr().offset(c as isize) }
+    unsafe { *acs_map().as_ptr().offset(c as isize) }
 }
 
 /* VT100 symbols begin here */

@@ -28,14 +28,14 @@ fn main()
   mousemask(ALL_MOUSE_EVENTS as u64, None);
 
   /* Allow for extended keyboard (like F1). */
-  keypad(stdscr, true);
+  keypad(stdscr(), true);
   noecho();
 
   /* Prompt for a character. */
   printw("Enter a character within 2 seconds: ");
 
   /* Wait for input. */
-  let ch = wget_wch(stdscr);
+  let ch = wget_wch(stdscr());
   match ch {
     Some(WchResult::KeyCode(KEY_MOUSE)) => {
       /* Enable attributes and output message. */

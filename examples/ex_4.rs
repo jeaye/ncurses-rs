@@ -24,7 +24,7 @@ fn main()
   raw();
 
   /* Allow for extended keyboard (like F1). */
-  keypad(stdscr, true);
+  keypad(stdscr(), true);
   noecho();
 
   /* Invisible cursor. */
@@ -32,13 +32,13 @@ fn main()
 
   /* Status/help info. */
   printw("Use the arrow keys to move");
-  mvprintw(LINES - 1, 0, "Press F1 to exit");
+  mvprintw(LINES() - 1, 0, "Press F1 to exit");
   refresh();
 
   /* Get the screen bounds. */
   let mut max_x = 0;
   let mut max_y = 0;
-  getmaxyx(stdscr, &mut max_y, &mut max_x);
+  getmaxyx(stdscr(), &mut max_y, &mut max_x);
 
   /* Start in the center. */
   let mut start_y = (max_y - WINDOW_HEIGHT) / 2;
