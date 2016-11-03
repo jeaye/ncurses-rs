@@ -25,7 +25,7 @@ pub use self::menu::wrapper::*;
 pub use self::menu::constants::*;
 
 #[cfg(target_arch = "x86_64")]
-pub type chtype = u64;
+pub type chtype = u32;
 #[cfg(not(target_arch = "x86_64"))]
 pub type chtype = u32;
 pub type winttype = u32;
