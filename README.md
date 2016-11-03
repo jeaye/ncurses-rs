@@ -24,3 +24,4 @@ Current examples:
 **5.** [Menu Library](https://github.com/jeaye/ncurses-rs/blob/master/examples/ex_5.rs) (requires rust nightly)  
 **6.** [Pager & Syntax Highlighting](https://github.com/jeaye/ncurses-rs/blob/master/examples/ex_6.rs)  
 **7.** [Basic Input & Attributes (Unicode)](https://github.com/jeaye/ncurses-rs/blob/master/examples/ex_7.rs)  
+**8.** [Special ACS Characters](https://github.com/jeaye/ncurses-rs/blob/master/examples/ex_8.rs)  

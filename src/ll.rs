@@ -17,7 +17,7 @@ pub type c_bool = ::libc::c_uchar;
 
 /* Intrinsic types. */
 #[cfg(target_arch = "x86_64")]
-pub type chtype = c_ulong;
+pub type chtype = c_uint;
 #[cfg(not(target_arch = "x86_64"))]
 pub type chtype = c_uint;
 pub type winttype = c_uint;

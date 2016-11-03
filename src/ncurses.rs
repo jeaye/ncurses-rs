@@ -25,7 +25,7 @@ pub use self::menu::wrapper::*;
 pub use self::menu::constants::*;
 
 #[cfg(target_arch = "x86_64")]
-pub type chtype = u64;
+pub type chtype = u32;
 #[cfg(not(target_arch = "x86_64"))]
 pub type chtype = u32;
 pub type winttype = u32;
@@ -1817,7 +1817,7 @@ pub fn setsyx(y: &mut i32, x: &mut i32)
 
 /* Line graphics */
 pub fn NCURSES_ACS(c: char) -> chtype {
-    unsafe { *acs_map().as_ptr().offset(c as isize) }
+    unsafe { *acs_map().offset((c as libc::c_uchar) as isize) as chtype }
 }
 
 /* VT100 symbols begin here */
