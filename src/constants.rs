@@ -18,7 +18,7 @@ mod wrapped {
     use ll::chtype;
     use ll::WINDOW;
 
-    extern
+    extern "C"
     {
         pub static curscr: WINDOW;
         pub static newscr: WINDOW;
@@ -32,7 +32,7 @@ mod wrapped {
         pub static TABSIZE: c_int;
 
         /* Line graphics */
-        pub static acs_map: [chtype; 0];
+        pub static mut acs_map: [chtype; 0];
     }
 }
 
@@ -54,7 +54,11 @@ wrap_extern!(COLS: c_int);
 wrap_extern!(ESCDELAY: c_int);
 wrap_extern!(LINES: c_int);
 wrap_extern!(TABSIZE: c_int);
-wrap_extern!(acs_map: [chtype; 0]);
+pub fn acs_map() -> *const chtype {
+    unsafe {
+        &wrapped::acs_map as *const chtype
+    }
+}
 
 
 /* Success/Failure. */
@@ -283,4 +287,3 @@ pub enum LcCategory {
     time = LC_TIME,
     messages = LC_MESSAGES,
 }
-

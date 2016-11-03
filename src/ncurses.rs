@@ -1817,7 +1817,7 @@ pub fn setsyx(y: &mut i32, x: &mut i32)
 
 /* Line graphics */
 pub fn NCURSES_ACS(c: char) -> chtype {
-    unsafe { *acs_map().as_ptr().offset(c as isize) }
+    unsafe { *acs_map().offset((c as libc::c_uchar) as isize) as chtype }
 }
 
 /* VT100 symbols begin here */
