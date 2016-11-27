@@ -11,7 +11,7 @@ fn main() {
   cbreak();
   noecho();
   curs_set(CURSOR_VISIBILITY::CURSOR_INVISIBLE);
-  keypad(stdscr, true);
+  keypad(stdscr(), true);
   init_pair(1, COLOR_RED, COLOR_BLACK);
 
   /* Create items */
@@ -38,8 +38,8 @@ fn main() {
 
   /* Print a border around the main window */
   box_(my_menu_win, 0, 0);
-  mvprintw(LINES - 3, 0, "Press <ENTER> to see the option selected");
-  mvprintw(LINES - 2, 0, "F1 to exit");
+  mvprintw(LINES() - 3, 0, "Press <ENTER> to see the option selected");
+  mvprintw(LINES() - 2, 0, "F1 to exit");
   refresh();
 
   /* Post the menu */
