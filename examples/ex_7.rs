@@ -25,7 +25,7 @@ fn main()
   /* Require input within 2 seconds. */
   halfdelay(20);
   /* Enable mouse events. */
-  mousemask(ALL_MOUSE_EVENTS as u64, None);
+  mousemask(ALL_MOUSE_EVENTS as mmask_t, None);
 
   /* Allow for extended keyboard (like F1). */
   keypad(stdscr(), true);
