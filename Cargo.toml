@@ -9,6 +9,10 @@ repository = "https://github.com/jeaye/ncurses-rs"
 readme = "README.md"
 keywords = ["ncurses","TUI"]
 license = "MIT"
+build = "build.rs"
+
+[build-dependencies]
+gcc = "0.3"
 
 [dependencies]
 libc = "0.2"
@@ -18,6 +22,9 @@ default=[]
 wide = []
 panel = []
 menu = []
+# Uses a 64-bit type for `chtype` (otherwise a 32-bit type is used).
+# This should be set automagically (when needed) by build.rs
+wide_chtype = []
 
 [lib]
 name = "ncurses"
