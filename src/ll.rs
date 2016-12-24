@@ -16,10 +16,10 @@ use libc::{ c_char, c_int, c_short, c_uint, c_ulong, c_void, FILE };
 pub type c_bool = ::libc::c_uchar;
 
 /* Intrinsic types. */
-#[cfg(target_arch = "x86_64")]
-pub type chtype = c_uint;
-#[cfg(not(target_arch = "x86_64"))]
-pub type chtype = c_uint;
+#[cfg(feature="wide_chtype")]
+pub type chtype = u64;
+#[cfg(not(feature="wide_chtype"))]
+pub type chtype = u32;
 pub type winttype = c_uint;
 
 pub type mmask_t = chtype;
