@@ -378,5 +378,6 @@ macro_rules! define_sharedffi(
 
 //end macro rules
 
-define_sharedffi!(cfg(feature="wide"), link(name="ncursesw"));
-define_sharedffi!(cfg(not(feature="wide")), link(name="ncurses"));
+// Don't link ncursesw on macos
+define_sharedffi!(cfg(all(feature="wide", not(target_os="macos"))), link(name="ncursesw"));
+define_sharedffi!(cfg(any(not(feature="wide"), target_os="macos")), link(name="ncurses"));
