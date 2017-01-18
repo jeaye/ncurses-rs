@@ -1,4 +1,5 @@
 extern crate gcc;
+extern crate pkg_config;
 
 use std::env;
 use std::fs::File;
@@ -43,6 +44,13 @@ int main(void)
     let features = Command::new(&bin).output()
                    .expect(&format!("{} failed", bin));
     print!("{}", String::from_utf8_lossy(&features.stdout));
+
+    let ncurses_names = ["ncurses5", "ncurses"];
+    for ncurses_name in &ncurses_names {
+        if pkg_config::probe_library(ncurses_name).is_ok() {
+            break;
+        }
+    }
 
     std::fs::remove_file(&src).expect(&format!("cannot delete {}", src));
     std::fs::remove_file(&bin).expect(&format!("cannot delete {}", bin));
