@@ -76,8 +76,8 @@ fn main()
       clear();
       mv(0, 0);
     }
-    else
-    { addch(ch as chtype); }
+    
+    addch(ch as chtype);
   }
 
   /* Terminate ncurses. */
