@@ -21,6 +21,7 @@ use std::ffi::{CString, CStr};
 use self::ll::{FILE_p};
 pub use self::constants::*;
 pub use self::panel::wrapper::*;
+pub use self::form::wrapper::*;
 pub use self::menu::wrapper::*;
 pub use self::menu::constants::*;
 
@@ -35,6 +36,7 @@ pub mod ll;
 pub mod constants;
 pub mod panel;
 pub mod menu;
+pub mod form;
 
 trait FromCStr {
     fn from_c_str(s: *const libc::c_char) -> Self;
