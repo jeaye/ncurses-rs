@@ -383,26 +383,9 @@ pub fn unget_wch(ch: u32) -> i32 {
     }
 }
 
+
 pub fn getnstr(s: &mut String, n: i32) -> i32
-{
-  /* XXX: This is probably broken. */
-  unsafe
-  {
-    s.as_mut_vec().clear();
-    s.reserve(n as usize);
-    let buf = s.as_bytes().as_ptr();
-    let ret = ll::getnstr(mem::transmute(buf), n);
-
-    let capacity = s.capacity();
-    match s.find('\0')
-    {
-      Some(index) => s.as_mut_vec().set_len(index as usize),
-      None => s.as_mut_vec().set_len(capacity),
-    }
-
-    ret
-  }
-}
+{ wgetnstr(stdscr(), s, n) }
 
 
 pub fn getstr(s: &mut String) -> i32
@@ -762,9 +745,11 @@ pub fn mvgetch(y: i32, x: i32) -> i32
 
 pub fn mvgetnstr(y: i32, x: i32, s: &mut String, n: i32) -> i32
 {
-  if mv(y, x) == ERR
-  { return ERR; }
-  getnstr(s, n)
+  match mv(y, x)
+  {
+    OK => getnstr(s, n),
+    _ => ERR,
+  }
 }
 
 
@@ -882,22 +867,10 @@ pub fn mvwgetch(w: WINDOW, y: i32, x: i32) -> i32
 
 pub fn mvwgetnstr(w: WINDOW, y: i32, x: i32, s: &mut String, n: i32) -> i32
 {
-  /* XXX: This is probably broken. */
-  unsafe
-  {
-    s.as_mut_vec().clear();
-    s.reserve(n as usize);
-    let buf = s.as_bytes().as_ptr();
-    let ret = ll::mvwgetnstr(w, y, x, mem::transmute(buf), n);
-
-    let capacity = s.capacity();
-    match s.find('\0')
-    {
-      Some(index) => s.as_mut_vec().set_len(index as usize),
-      None => s.as_mut_vec().set_len(capacity),
-    }
-
-    ret
+  match wmove(w, y, x)
+  { 
+    OK => wgetnstr(w, s, n), 
+    _ => ERR,
   }
 }
 
@@ -1468,20 +1441,21 @@ pub fn wgetch(w: WINDOW) -> i32
 
 pub fn wgetnstr(w: WINDOW, s: &mut String, n: i32) -> i32
 {
-  /* XXX: This is probably broken. */
-  unsafe
+  let mut buff: Vec<u8> = Vec::with_capacity(n as usize);
+  unsafe { buff.set_len(n as usize); }
+  
+  match unsafe { ll::wgetnstr(w, buff.as_ptr(), n) }
   {
-    let buf = s.as_bytes().as_ptr();
-    let ret = ll::wgetnstr(w, mem::transmute(buf), n);
+    OK => {
+      *s = buff.iter()
+        .take_while(|ch| **ch != '\0' as u8 )
+        .map(|ch| *ch as char )
+        .collect();
 
-    let capacity = s.capacity();
-    match s.find('\0')
-    {
-      Some(index) => s.as_mut_vec().set_len(index as usize),
-      None => s.as_mut_vec().set_len(capacity),
-    }
+      OK
+    },
 
-    ret
+    _ => ERR,
   }
 }
 
