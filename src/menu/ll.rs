@@ -14,6 +14,7 @@ macro_rules! define_sharedffi(
             pub fn menu_items(_:MENU) -> *mut ITEM;
             pub fn current_item(_:MENU) -> ITEM;
             pub fn new_item(_:*const c_char, _:*const c_char) -> ITEM;
+            pub fn free_item(_:ITEM);
             pub fn new_menu(_:*mut ITEM) -> MENU;
             pub fn item_opts(_:ITEM) -> c_int;
             pub fn menu_opts(_:MENU) -> c_int;
