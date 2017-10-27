@@ -160,8 +160,16 @@ pub fn menu_grey(menu: MENU) -> chtype {
 
 #[cfg(feature="menu")]
 pub fn free_item(item: ITEM) {
-  unsafe {
-    CString::from_raw(item as *mut i8);
+    unsafe {
+        let name = super::ll::item_name(item) as *mut i8;
+        if name.is_null() == false {
+            let _ = CString::from_raw(name);
+        }
+        let desc = super::ll::item_description(item) as *mut i8;
+        if desc.is_null() == false {
+            let _ = CString::from_raw(desc);
+        }
+        super::ll::free_item(item);
   }
 }
 
