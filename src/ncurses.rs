@@ -49,6 +49,19 @@ impl FromCStr for String {
     }
 }
 
+impl FromCStr for Option<String> {
+    fn from_c_str(s: *const libc::c_char) -> Option<String> {
+        if s.is_null() {
+            None
+        } else {
+            unsafe {
+                let bytes = CStr::from_ptr(s).to_bytes();
+                Some(String::from_utf8_unchecked(bytes.to_vec()))
+            }
+        }
+    }
+}
+
 trait ToCStr {
     fn to_c_str(&self) -> CString;
 }
@@ -659,7 +672,7 @@ pub fn is_syncok(w: WINDOW) -> bool
 { unsafe { ll::is_syncok(w) == TRUE }}
 
 
-pub fn keyname(c: i32) -> String
+pub fn keyname(c: i32) -> Option<String>
 { unsafe { FromCStr::from_c_str(ll::keyname(c)) } }
 
 
