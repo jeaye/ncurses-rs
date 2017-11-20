@@ -37,14 +37,22 @@ pub mod panel;
 pub mod menu;
 
 trait FromCStr {
-    fn from_c_str(s: *const libc::c_char) -> Self;
+    unsafe fn from_c_str(s: *const libc::c_char) -> Self;
 }
 
 impl FromCStr for String {
-    fn from_c_str(s: *const libc::c_char) -> String {
-        unsafe {
-            let bytes = CStr::from_ptr(s).to_bytes();
-            String::from_utf8_unchecked(bytes.to_vec())
+    unsafe fn from_c_str(s: *const libc::c_char) -> String {
+        let bytes = CStr::from_ptr(s).to_bytes();
+        String::from_utf8_unchecked(bytes.to_vec())
+    }
+}
+
+impl FromCStr for Option<String> {
+    unsafe fn from_c_str(s: *const libc::c_char) -> Option<String> {
+        if s.is_null() {
+            None
+        } else {
+            Some(FromCStr::from_c_str(s))
         }
     }
 }
@@ -659,7 +667,7 @@ pub fn is_syncok(w: WINDOW) -> bool
 { unsafe { ll::is_syncok(w) == TRUE }}
 
 
-pub fn keyname(c: i32) -> String
+pub fn keyname(c: i32) -> Option<String>
 { unsafe { FromCStr::from_c_str(ll::keyname(c)) } }
 
 
