@@ -123,6 +123,7 @@ macro_rules! define_sharedffi(
             pub fn intrflush(_:WINDOW,_:c_bool) -> c_int;
             pub fn isendwin() -> c_bool;
             pub fn is_linetouched(_:WINDOW,_:c_int) -> c_bool;
+            pub fn is_term_resized(_:c_int, _:c_int) -> c_bool;
             pub fn is_wintouched(_:WINDOW) -> c_bool;
             pub fn keyname(_:c_int) -> *const c_char;
             pub fn keypad(_:WINDOW, _:c_bool) -> c_int;
@@ -206,6 +207,8 @@ macro_rules! define_sharedffi(
             pub fn raw() -> c_int;
             pub fn redrawwin(_:WINDOW) -> c_int;
             pub fn refresh() -> c_int;
+            pub fn resizeterm(_:c_int, _:c_int) -> c_int;
+            pub fn resize_term(_:c_int, _:c_int) -> c_int;
             pub fn resetty() -> c_int;
             pub fn reset_prog_mode() -> c_int;
             pub fn reset_shell_mode() -> c_int;

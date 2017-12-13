@@ -627,6 +627,10 @@ pub fn is_wintouched(w: WINDOW) -> bool
 { unsafe { ll::is_wintouched(w) == TRUE } }
 
 
+pub fn is_term_resized(lines: i32, cols: i32) -> bool
+{ unsafe { ll::is_term_resized(lines, cols) == TRUE } }
+
+
 pub fn is_cleared(w: WINDOW) -> bool
 { unsafe { ll::is_cleared(w) == TRUE } }
 
@@ -1135,6 +1139,14 @@ pub fn reset_prog_mode() -> i32
 
 pub fn reset_shell_mode() -> i32
 { unsafe { ll::reset_shell_mode() } }
+
+
+pub fn resizeterm(lines: i32, cols: i32) -> i32
+{ unsafe { ll::resizeterm(lines, cols) } }
+
+
+pub fn resize_term(lines: i32, cols: i32) -> i32
+{ unsafe { ll::resize_term(lines, cols) } }
 
 
 pub fn savetty() -> i32
