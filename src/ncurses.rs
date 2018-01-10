@@ -1743,6 +1743,9 @@ pub fn A_TOP() -> attr_t
 pub fn A_VERTICAL() -> attr_t
 { NCURSES_BITS(1u32, 22u32) as attr_t }
 
+pub fn A_ITALIC() -> attr_t
+{ NCURSES_BITS(1u32, 23u32) as attr_t }
+
 /* Colors. */
 pub fn COLOR_PAIR(n: i16) -> attr_t
 { NCURSES_BITS(n as u32, 0u32) as attr_t }
