@@ -225,6 +225,8 @@ macro_rules! define_sharedffi(
             pub fn setlocale(_:c_int, _:char_p) -> char_p;
             pub fn setscrreg(_:c_int,_:c_int) -> c_int;
             pub fn set_term(_:SCREEN) -> SCREEN;
+            pub fn set_escdelay(_:c_int) -> c_int;
+            pub fn set_tabsize(_:c_int) -> c_int;
             pub fn slk_attroff(_:chtype) -> c_int;
             pub fn slk_attr_off(_:attr_t, _:void_p) -> c_int;
             pub fn slk_attron(_:chtype) -> c_int;

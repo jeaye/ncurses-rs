@@ -1202,6 +1202,11 @@ pub fn setscrreg(top: i32, bot: i32) -> i32
 pub fn set_term(s: SCREEN) -> SCREEN
 { unsafe { ll::set_term(s) } }
 
+pub fn set_escdelay(size: i32) -> i32
+{ unsafe { ll::set_escdelay(size) } }
+
+pub fn set_tabsize(size: i32) -> i32
+{ unsafe { ll::set_tabsize(size) } }
 
 pub fn slk_attroff(ch: chtype) -> i32
 { unsafe { ll::slk_attroff(ch) } }
