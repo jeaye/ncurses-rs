@@ -25,7 +25,7 @@ fn main()
   printw("Hello, world!");
 
   /* Print some unicode(Chinese) string. */
-  // printw("Great Firewall dislike VPN protocol.\nGFW 不喜欢 VPN 协议。";
+  // printw("Great Firewall dislike VPN protocol.\nGFW 不喜欢 VPN 协议。");
 
   /* Update the screen. */
   refresh();
