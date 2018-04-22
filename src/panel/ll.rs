@@ -6,7 +6,7 @@ use ll::WINDOW;
 
 pub type PANEL = *mut i8;
 
-#[cfg(feature="panel")] #[link(name="panel")]
+#[cfg(feature="panel")]
 extern {
       pub fn panel_window(_:PANEL) -> WINDOW;
       pub fn update_panels() -> c_void;
