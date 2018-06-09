@@ -1,17 +1,52 @@
 extern crate gcc;
 extern crate pkg_config;
 
+use pkg_config::Library;
 use std::env;
 use std::fs::File;
 use std::io::Write;
 use std::path::Path;
 use std::process::Command;
 
-fn main() {
-    check_chtype_size();
+fn find_library(names: &[&str]) -> Option<Library> {
+    for name in names {
+        if let Ok(lib) = pkg_config::probe_library(name) {
+            return Some(lib);
+        }
+    }
+    println!("cargo:rustc-link-lib={}", names.last().unwrap());
+    None
 }
 
-fn check_chtype_size() {
+fn main() {
+    let wide = cfg!(all(feature = "wide", not(target_os = "macos")));
+
+    let ncurses_lib = if wide {
+        find_library(&["ncursesw5", "ncursesw"])
+    } else {
+        find_library(&["ncurses5", "ncurses"])
+    };
+
+    if cfg!(feature = "menu") {
+        if wide {
+            find_library(&["menuw5", "menuw"]);
+        } else {
+            find_library(&["menu5", "menu"]);
+        }
+    }
+
+    if cfg!(feature = "panel") {
+        if wide {
+            find_library(&["panelw5", "panelw"]);
+        } else {
+            find_library(&["panel5", "panel"]);
+        }
+    }
+
+    check_chtype_size(&ncurses_lib);
+}
+
+fn check_chtype_size(ncurses_lib: &Option<Library>) {
     let out_dir = env::var("OUT_DIR").expect("cannot get OUT_DIR");
     let src = format!("{}", Path::new(&out_dir).join("chtype_size.c").display());
     let bin = format!("{}", Path::new(&out_dir).join("chtype_size").display());
@@ -36,21 +71,19 @@ int main(void)
 }
     ").expect(&format!("cannot write into {}", src));
 
-    let cfg = gcc::Config::new();
-    let compiler = cfg.get_compiler();
+    let compiler = gcc::Build::new().get_compiler();
 
-    Command::new(compiler.path()).arg(&src).arg("-o").arg(&bin)
-                                 .status().expect("compilation failed");
+    let mut compile_cmd = Command::new(compiler.path());
+    compile_cmd.arg(&src).arg("-o").arg(&bin);
+    if let Some(lib) = ncurses_lib {
+        for path in lib.include_paths.iter() {
+            compile_cmd.arg("-I").arg(path);
+        }
+    }
+    compile_cmd.status().expect("compilation failed");
     let features = Command::new(&bin).output()
                    .expect(&format!("{} failed", bin));
     print!("{}", String::from_utf8_lossy(&features.stdout));
-
-    let ncurses_names = ["ncurses5", "ncurses"];
-    for ncurses_name in &ncurses_names {
-        if pkg_config::probe_library(ncurses_name).is_ok() {
-            break;
-        }
-    }
 
     std::fs::remove_file(&src).expect(&format!("cannot delete {}", src));
     std::fs::remove_file(&bin).expect(&format!("cannot delete {}", bin));
