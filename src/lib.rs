@@ -1997,3 +1997,23 @@ pub fn wmouse_trafo(w: *mut WINDOW, y: &mut[i32], x: &mut[i32], to_screen: bool)
 
 pub fn mouse_trafo(y: &mut[i32], x: &mut[i32], to_screen: bool) -> bool
 { unsafe { ll::mouse_trafo(y.as_mut_ptr(), x.as_mut_ptr(), to_screen as ll::c_bool) == TRUE } }
+
+#[cfg(feature = "extended_colors")]
+pub fn init_extended_color(color: i32, r: i32, g: i32, b: i32) -> i32 {
+    unsafe { ll::init_extended_color(color, r, g, b) }
+}
+
+#[cfg(feature = "extended_colors")]
+pub fn init_extended_pair(color: i32, f: i32, b: i32) -> i32 {
+    unsafe { ll::init_extended_pair(color, f, b) }
+}
+
+#[cfg(feature = "extended_colors")]
+pub fn extended_color_content(color: i32, r: &mut i32, g: &mut i32, b: &mut i32) -> i32 {
+    unsafe { ll::extended_color_content(color, r, g, b) }
+}
+
+#[cfg(feature = "extended_colors")]
+pub fn extended_pair_content(pair: i32, f: &mut i32, b: &mut i32) -> i32 {
+    unsafe { ll::extended_pair_content(pair, f, b) }
+}

@@ -26,6 +26,7 @@ menu = []
 # Uses a 64-bit type for `chtype` (otherwise a 32-bit type is used).
 # This should be set automagically (when needed) by build.rs
 wide_chtype = []
+extended_colors = ["wide"]
 
 [lib]
 name = "ncurses"

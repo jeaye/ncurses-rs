@@ -29,6 +29,7 @@ pub type NCURSES_ATTR_T = attr_t;
 /* Pointer types. */
 pub type attr_t_p = *mut attr_t;
 pub type short_p = *mut c_short;
+pub type int_p = *mut c_int;
 pub type void_p = *const c_void;
 pub type char_p = *const c_char;
 pub type chtype_p = *const chtype;
@@ -376,4 +377,13 @@ extern {
     pub fn mouseinterval(_:c_int) -> c_int;
     pub fn wmouse_trafo(_:*mut WINDOW,_:*mut c_int,_:*mut c_int,_:c_bool) -> c_bool;
     pub fn mouse_trafo(_:*mut c_int,_:*mut c_int,_:c_bool) -> c_bool;
+}
+
+/// Extended color support. Requires ncurses6.
+#[cfg(feature = "extended_colors")]
+extern {
+    pub fn init_extended_color(_: c_int, _: c_int, _: c_int, _: c_int) -> c_int;
+    pub fn init_extended_pair(_: c_int, _: c_int, _: c_int) -> c_int;
+    pub fn extended_color_content(_: c_int, _: int_p, _: int_p, _: int_p) -> c_int;
+    pub fn extended_pair_content(_: c_int, _: int_p, _: int_p) -> c_int;
 }
