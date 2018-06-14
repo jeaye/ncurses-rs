@@ -277,6 +277,7 @@ pub const LC_NUMERIC: c_int = 4;
 pub const LC_TIME: c_int = 5;
 pub const LC_MESSAGES: c_int = 6;
 
+#[derive(Debug)]
 #[repr(i32)]
 pub enum LcCategory {
     all = LC_ALL,

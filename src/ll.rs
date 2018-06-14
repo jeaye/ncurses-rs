@@ -39,7 +39,7 @@ pub type va_list = *mut u8;
 
 /* Custom Types. */
 #[repr(C)]
-#[derive(Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
 pub struct MEVENT { pub id: c_short, pub x: c_int, pub y: c_int, pub z: c_int, pub bstate: mmask_t}
 
 extern {
