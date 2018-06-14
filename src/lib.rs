@@ -1789,7 +1789,7 @@ pub fn getsyx(y: &mut i32, x: &mut i32)
         *y = -1 as i32;
       }
       else
-      { getyx(newscr(), (y), (x)); }
+      { getyx(newscr(), y, x); }
     }
   }
 }
