@@ -8,8 +8,6 @@
       Safe wrappers for ncurses functions.
 */
 
-#![crate_name = "ncurses"]
-#![crate_type = "lib"]
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
 
