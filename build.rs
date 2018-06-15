@@ -19,6 +19,8 @@ fn find_library(names: &[&str]) -> Option<Library> {
 }
 
 fn main() {
+    println!("cargo:rerun-if-env-changed=PKG_CONFIG_PATH");
+
     let wide = cfg!(all(feature = "wide", not(target_os = "macos")));
 
     let ncurses_lib = if wide {
