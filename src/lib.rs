@@ -8,10 +8,9 @@
       Safe wrappers for ncurses functions.
 */
 
-#![crate_name = "ncurses"]
-#![crate_type = "lib"]
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
+#![warn(missing_debug_implementations)]
 
 extern crate libc;
 
@@ -67,7 +66,7 @@ impl <'a>ToCStr for &'a str {
     }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
 pub enum CURSOR_VISIBILITY
 {
   CURSOR_INVISIBLE = 0,
@@ -312,6 +311,7 @@ pub fn getbkgd(w: WINDOW) -> chtype
 pub fn getch() -> i32
 { unsafe { ll::getch() } }
 
+#[derive(Debug)]
 pub enum WchResult {
     KeyCode(i32),
     Char(winttype),
@@ -1789,7 +1789,7 @@ pub fn getsyx(y: &mut i32, x: &mut i32)
         *y = -1 as i32;
       }
       else
-      { getyx(newscr(), (y), (x)); }
+      { getyx(newscr(), y, x); }
     }
   }
 }
