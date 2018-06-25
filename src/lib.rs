@@ -351,6 +351,7 @@ pub fn mvget_wch(y: i32, x: i32) -> Option<WchResult> {
     }
 }
 
+#[cfg(feature = "wide")]
 pub fn wget_wch(w: WINDOW) -> Option<WchResult> {
     unsafe {
         let mut result = 0;
@@ -368,6 +369,7 @@ pub fn wget_wch(w: WINDOW) -> Option<WchResult> {
     }
 }
 
+#[cfg(feature = "wide")]
 pub fn mvwget_wch(w: WINDOW, y: i32, x: i32) -> Option<WchResult> {
     unsafe {
         let mut result = 0;
