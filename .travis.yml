@@ -1,6 +1,13 @@
-install:
-  - wget http://static.rust-lang.org/dist/rust-nightly-x86_64-unknown-linux-gnu.tar.gz
-  - tar xf rust-nightly-x86_64-unknown-linux-gnu.tar.gz
-  - sudo rust-nightly-x86_64-unknown-linux-gnu/install.sh
+language: rust
+rust:
+  - stable
+  - beta
+  - nightly
+matrix:
+  allow_failures:
+    - rust: nightly
+  fast_finish: true
 script:
-  - cargo build
+  - cargo build --verbose
+  - cargo test --verbose
+  - cargo test --verbose --features wide

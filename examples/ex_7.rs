@@ -13,6 +13,7 @@ extern crate ncurses;
 use std::char;
 use ncurses::*;
 
+#[cfg(feature = "wide")]
 fn main()
 {
   let locale_conf = LcCategory::all;
@@ -71,6 +72,14 @@ fn main()
 
   /* Wait for one more character before exiting. Disable the input timeout. */
   nocbreak();
+  getch();
+  endwin();
+}
+
+#[cfg(not(feature = "wide"))]
+fn main() {
+  initscr();
+  printw("This example requires wide character support.");
   getch();
   endwin();
 }
