@@ -1,4 +1,4 @@
-extern crate gcc;
+extern crate cc;
 extern crate pkg_config;
 
 use pkg_config::Library;
@@ -73,7 +73,7 @@ int main(void)
 }
     ").expect(&format!("cannot write into {}", src));
 
-    let compiler = gcc::Build::new().get_compiler();
+    let compiler = cc::Build::new().get_compiler();
 
     let mut compile_cmd = Command::new(compiler.path());
     compile_cmd.arg(&src).arg("-o").arg(&bin);
