@@ -214,7 +214,12 @@ pub const KEY_EVENT: i32=	0x19b;		/* We were interrupted by an event */
 pub const KEY_MAX: i32=	0x1ff;		/* Maximum key value is 0633 */
 
 /* Mouse Support */
+#[cfg(feature="mouse_v1")]
+macro_rules! ncurses_mouse_mask( ($b:expr, $m:expr) => ($m << (($b - 1) * 6)); );
+
+#[cfg(not(feature="mouse_v1"))]
 macro_rules! ncurses_mouse_mask( ($b:expr, $m:expr) => ($m << (($b - 1) * 5)); );
+
 pub const NCURSES_BUTTON_RELEASED: i32=	0x001;
 pub const NCURSES_BUTTON_PRESSED: i32=		0x002;
 pub const NCURSES_BUTTON_CLICKED: i32=		0x004;
@@ -247,16 +252,45 @@ pub const BUTTON4_CLICKED: i32=        ncurses_mouse_mask!(4, NCURSES_BUTTON_CLI
 pub const BUTTON4_DOUBLE_CLICKED: i32= ncurses_mouse_mask!(4, NCURSES_DOUBLE_CLICKED);
 pub const BUTTON4_TRIPLE_CLICKED: i32= ncurses_mouse_mask!(4, NCURSES_TRIPLE_CLICKED);
 
+// These values depend on NCURSES_MOUSE_VERSION
+
+#[cfg(not(feature = "mouse_v1"))]
 pub const BUTTON5_RELEASED: i32=       ncurses_mouse_mask!(5, NCURSES_BUTTON_RELEASED);
+#[cfg(not(feature = "mouse_v1"))]
 pub const BUTTON5_PRESSED: i32=        ncurses_mouse_mask!(5, NCURSES_BUTTON_PRESSED);
+#[cfg(not(feature = "mouse_v1"))]
 pub const BUTTON5_CLICKED: i32=        ncurses_mouse_mask!(5, NCURSES_BUTTON_CLICKED);
+#[cfg(not(feature = "mouse_v1"))]
 pub const BUTTON5_DOUBLE_CLICKED: i32= ncurses_mouse_mask!(5, NCURSES_DOUBLE_CLICKED);
+#[cfg(not(feature = "mouse_v1"))]
 pub const BUTTON5_TRIPLE_CLICKED: i32= ncurses_mouse_mask!(5, NCURSES_TRIPLE_CLICKED);
 
+#[cfg(not(feature = "mouse_v1"))]
 pub const BUTTON_CTRL: i32=		ncurses_mouse_mask!(6, 0x001);
+#[cfg(not(feature = "mouse_v1"))]
 pub const BUTTON_SHIFT: i32=		ncurses_mouse_mask!(6, 0x002);
+#[cfg(not(feature = "mouse_v1"))]
 pub const BUTTON_ALT: i32=		ncurses_mouse_mask!(6, 0x004);
+#[cfg(not(feature = "mouse_v1"))]
 pub const REPORT_MOUSE_POSITION: i32=	ncurses_mouse_mask!(6, 0x008);
+
+#[cfg(feature = "mouse_v1")]
+pub const BUTTON1_RESERVED_EVENT: i32 = ncurses_mouse_mask!(1, NCURSES_RESERVED_EVENT);
+#[cfg(feature = "mouse_v1")]
+pub const BUTTON2_RESERVED_EVENT: i32 = ncurses_mouse_mask!(2, NCURSES_RESERVED_EVENT);
+#[cfg(feature = "mouse_v1")]
+pub const BUTTON3_RESERVED_EVENT: i32 = ncurses_mouse_mask!(3, NCURSES_RESERVED_EVENT);
+#[cfg(feature = "mouse_v1")]
+pub const BUTTON4_RESERVED_EVENT: i32 = ncurses_mouse_mask!(4, NCURSES_RESERVED_EVENT);
+#[cfg(feature = "mouse_v1")]
+pub const BUTTON_CTRL: i32=		ncurses_mouse_mask!(5, 0x001);
+#[cfg(feature = "mouse_v1")]
+pub const BUTTON_SHIFT: i32=		ncurses_mouse_mask!(5, 0x002);
+#[cfg(feature = "mouse_v1")]
+pub const BUTTON_ALT: i32=		ncurses_mouse_mask!(5, 0x004);
+#[cfg(feature = "mouse_v1")]
+pub const REPORT_MOUSE_POSITION: i32=	ncurses_mouse_mask!(5, 0x008);
+
 
 pub const ALL_MOUSE_EVENTS: i32=	REPORT_MOUSE_POSITION - 1;
 

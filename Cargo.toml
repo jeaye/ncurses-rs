@@ -26,6 +26,8 @@ menu = []
 # Uses a 64-bit type for `chtype` (otherwise a 32-bit type is used).
 # This should be set automagically (when needed) by build.rs
 wide_chtype = []
+# Uses legacy values for mouse-related constants.
+mouse_v1 = []
 extended_colors = ["wide"]
 
 [lib]

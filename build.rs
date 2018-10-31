@@ -69,6 +69,10 @@ int main(void)
         /* We only support 32-bit and 64-bit chtype. */
         assert(sizeof(chtype)*CHAR_BIT == 32 && \"unsupported size for chtype\");
     }
+
+    if (NCURSES_MOUSE_VERSION == 1) {
+        puts(\"cargo:rustc-cfg=feature=\\\"mouse_v1\\\"\");
+    }
     return 0;
 }
     ").expect(&format!("cannot write into {}", src));
