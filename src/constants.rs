@@ -213,6 +213,12 @@ pub const KEY_RESIZE: i32=	0x19a;		/* Terminal resize event */
 pub const KEY_EVENT: i32=	0x19b;		/* We were interrupted by an event */
 pub const KEY_MAX: i32=	0x1ff;		/* Maximum key value is 0633 */
 
+#[cfg(feature="mouse_v1")]
+pub const NCURSES_MOUSE_VERSION = 1;
+
+#[cfg(not(feature="mouse_v1"))]
+pub const NCURSES_MOUSE_VERSION = 2;
+
 /* Mouse Support */
 #[cfg(feature="mouse_v1")]
 macro_rules! ncurses_mouse_mask( ($b:expr, $m:expr) => ($m << (($b - 1) * 6)); );
