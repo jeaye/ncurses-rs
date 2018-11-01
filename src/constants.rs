@@ -214,10 +214,10 @@ pub const KEY_EVENT: i32=	0x19b;		/* We were interrupted by an event */
 pub const KEY_MAX: i32=	0x1ff;		/* Maximum key value is 0633 */
 
 #[cfg(feature="mouse_v1")]
-pub const NCURSES_MOUSE_VERSION = 1;
+pub const NCURSES_MOUSE_VERSION: i32= 1;
 
 #[cfg(not(feature="mouse_v1"))]
-pub const NCURSES_MOUSE_VERSION = 2;
+pub const NCURSES_MOUSE_VERSION: i32= 2;
 
 /* Mouse Support */
 #[cfg(feature="mouse_v1")]
