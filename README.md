@@ -4,7 +4,9 @@ ncurses-rs [![Build Status](https://travis-ci.org/jeaye/ncurses-rs.png)](https:/
 This is a very thin wrapper around the ncurses TUI lib.
 
 ## Building
+
 The compiled library will go to the `target` directory.
+
 ```
 cargo build
 ```
@@ -25,3 +27,13 @@ Current examples:
 **6.** [Pager & Syntax Highlighting](https://github.com/jeaye/ncurses-rs/blob/master/examples/ex_6.rs)  
 **7.** [Basic Input & Attributes (Unicode)](https://github.com/jeaye/ncurses-rs/blob/master/examples/ex_7.rs)  
 **8.** [Special ACS Characters](https://github.com/jeaye/ncurses-rs/blob/master/examples/ex_8.rs)  
+
+## Environment variables
+
+Some environment variables are read by `build.rs`:
+
+If set, `NCURSES_RS_RUSTC_LINK_LIB` will be used for `NCURSES_RS_RUSTC_LINK_LIB`.
+
+If set, `NCURSES_RS_RUSTC_FLAGS` will be used for `cargo:rustc-flags`.
+
+If set, `NCURSES_RS_CFLAGS` will be used for the compilation of the test program `chtype_size.c`.
