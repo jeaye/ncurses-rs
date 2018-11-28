@@ -14,7 +14,6 @@ fn find_library(names: &[&str]) -> Option<Library> {
             return Some(lib);
         }
     }
-    println!("cargo:rustc-link-lib={}", names.last().unwrap());
     None
 }
 
@@ -23,11 +22,12 @@ fn main() {
 
     let wide = cfg!(all(feature = "wide", not(target_os = "macos")));
 
-    let ncurses_lib = if wide {
-        find_library(&["ncursesw5", "ncursesw"])
+    let ncurses_lib_names = if wide {
+        &["ncursesw5", "ncursesw"]
     } else {
-        find_library(&["ncurses5", "ncurses"])
+        &["ncurses5", "ncurses"]
     };
+    let ncurses_lib = find_library(ncurses_lib_names);
 
     if cfg!(feature = "menu") {
         if wide {
@@ -43,6 +43,17 @@ fn main() {
         } else {
             find_library(&["panel5", "panel"]);
         }
+    }
+
+    match std::env::var("NCURSES_RS_RUSTC_LINK_LIB") {
+        Ok(x) => println!("cargo:rustc-link-lib={}", x),
+        _ => if ncurses_lib.is_none() {
+            println!("cargo:rustc-link-lib={}", ncurses_lib_names.last().unwrap())
+        }
+    }
+
+    if let Ok(x) = std::env::var("NCURSES_RS_RUSTC_FLAGS") {
+        println!("cargo:rustc-flags={}", x);
     }
 
     check_chtype_size(&ncurses_lib);
@@ -77,16 +88,21 @@ int main(void)
 }
     ").expect(&format!("cannot write into {}", src));
 
-    let compiler = cc::Build::new().get_compiler();
-
-    let mut compile_cmd = Command::new(compiler.path());
-    compile_cmd.arg(&src).arg("-o").arg(&bin);
+    let mut build = cc::Build::new();
     if let Some(lib) = ncurses_lib {
         for path in lib.include_paths.iter() {
-            compile_cmd.arg("-I").arg(path);
+            build.include(path);
         }
     }
-    compile_cmd.status().expect("compilation failed");
+    let compiler = build.try_get_compiler().expect("Failed Build::try_get_compiler");
+    let mut command = compiler.to_command();
+
+    if let Ok(x) = std::env::var("NCURSES_RS_CFLAGS") {
+      command.args(x.split(" "));
+    }
+
+    command.arg("-o").arg(&bin).arg(&src);
+    assert!(command.status().expect("compilation failed").success());
     let features = Command::new(&bin).output()
                    .expect(&format!("{} failed", bin));
     print!("{}", String::from_utf8_lossy(&features.stdout));
