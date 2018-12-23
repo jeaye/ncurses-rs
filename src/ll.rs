@@ -375,7 +375,7 @@ extern {
     pub fn mousemask(_:mmask_t,_:*mut mmask_t) -> mmask_t;
     pub fn wenclose(_:WINDOW,_:c_int,_:c_int) -> c_bool;
     pub fn mouseinterval(_:c_int) -> c_int;
-    pub fn wmouse_trafo(_:*mut WINDOW,_:*mut c_int,_:*mut c_int,_:c_bool) -> c_bool;
+    pub fn wmouse_trafo(_:WINDOW,_:*mut c_int,_:*mut c_int,_:c_bool) -> c_bool;
     pub fn mouse_trafo(_:*mut c_int,_:*mut c_int,_:c_bool) -> c_bool;
 }
 
