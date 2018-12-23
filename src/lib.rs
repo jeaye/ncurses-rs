@@ -1994,7 +1994,7 @@ pub fn mousemask(newmask: mmask_t, oldmask: Option<&mut mmask_t>) -> mmask_t
 pub fn wenclose(w: WINDOW, y: i32, x: i32) -> bool
 { unsafe { ll::wenclose(w, y as libc::c_int, x as libc::c_int) == TRUE } }
 
-pub fn wmouse_trafo(w: *mut WINDOW, y: &mut[i32], x: &mut[i32], to_screen: bool) -> bool
+pub fn wmouse_trafo(w: WINDOW, y: &mut[i32], x: &mut[i32], to_screen: bool) -> bool
 { unsafe { ll::wmouse_trafo(w, y.as_mut_ptr(), x.as_mut_ptr(), to_screen as ll::c_bool) == TRUE } }
 
 pub fn mouse_trafo(y: &mut[i32], x: &mut[i32], to_screen: bool) -> bool
