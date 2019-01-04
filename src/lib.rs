@@ -1105,7 +1105,7 @@ pub fn prefresh(pad: WINDOW, pmin_row: i32, pmin_col: i32, smin_row: i32, smin_c
 
 #[deprecated(since = "5.98.0", note = "printw can segfault when printing string that contains % sign. Use addstr instead")]
 pub fn printw(s: &str) -> i32
-{ ll::printw(s.to_c_str().as_ptr()) }
+{ unsafe { ll::printw(s.to_c_str().as_ptr()) } }
 
 
 pub fn putp(s: &str) -> i32
