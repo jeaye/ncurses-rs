@@ -277,14 +277,6 @@ pub const REPORT_MOUSE_POSITION: i32 = ncurses_mouse_mask!(MODIFIER_SHIFT, 0x008
 
 pub const ALL_MOUSE_EVENTS: i32=       REPORT_MOUSE_POSITION - 1;
 
-/* macros to extract single event-bits from masks */
-macro_rules! button_release( ($e: expr, $x: expr) => (e & ncurses_mouse_mask!(x, 0x001)); );
-macro_rules! button_press( ($e: expr, $x: expr) => (e & ncurses_mouse_mask!(x, 0x002)); );
-macro_rules! button_click( ($e: expr, $x: expr) => (e & ncurses_mouse_mask!(x, 0x004)); );
-macro_rules! button_double_click( ($e: expr, $x: expr) => (e & ncurses_mouse_mask!(x, 0x008)); );
-macro_rules! button_triple_click( ($e: expr, $x: expr) => (e & ncurses_mouse_mask!(x, 0x010)); );
-macro_rules! button_reserved_event( ($e: expr, $x: expr) => (e & ncurses_mouse_mask!(x, 0x020)); );
-
 /* locales */
 pub const LC_ALL: c_int = 0;
 pub const LC_COLLATE: c_int = 1;
