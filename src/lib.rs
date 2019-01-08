@@ -1691,67 +1691,67 @@ pub fn wgetscrreg(w: WINDOW, top: &mut i32, bot: &mut i32) -> i32
 { unsafe { ll::wgetscrreg(w, &mut*top as *mut i32, &mut*bot as *mut i32) } }
 
 /* Attributes */
-pub fn NCURSES_BITS(mask: u32, shift: u32) -> u32
+pub const fn NCURSES_BITS(mask: u32, shift: u32) -> u32
 { mask << (shift + NCURSES_ATTR_SHIFT) as usize }
 
-pub fn A_NORMAL() -> attr_t
+pub const fn A_NORMAL() -> attr_t
 { (1u32 - 1u32) as attr_t }
 
-pub fn A_ATTRIBUTES() -> attr_t
+pub const fn A_ATTRIBUTES() -> attr_t
 { NCURSES_BITS(!(1u32 - 1u32), 0u32) as attr_t }
 
-pub fn A_CHARTEXT() -> attr_t
+pub const fn A_CHARTEXT() -> attr_t
 {(NCURSES_BITS(1u32, 0u32) - 1u32) as attr_t }
 
-pub fn A_COLOR() -> attr_t
+pub const fn A_COLOR() -> attr_t
 { NCURSES_BITS(((1u32) << 8) - 1u32, 0u32) as attr_t }
 
-pub fn A_STANDOUT() -> attr_t
+pub const fn A_STANDOUT() -> attr_t
 { NCURSES_BITS(1u32, 8u32) as attr_t }
 
-pub fn A_UNDERLINE() -> attr_t
+pub const fn A_UNDERLINE() -> attr_t
 { NCURSES_BITS(1u32, 9u32) as attr_t }
 
-pub fn A_REVERSE() -> attr_t
+pub const fn A_REVERSE() -> attr_t
 { NCURSES_BITS(1u32, 10u32) as attr_t }
 
-pub fn A_BLINK() -> attr_t
+pub const fn A_BLINK() -> attr_t
 { NCURSES_BITS(1u32, 11u32) as attr_t }
 
-pub fn A_DIM() -> attr_t
+pub const fn A_DIM() -> attr_t
 { NCURSES_BITS(1u32, 12u32) as attr_t }
 
-pub fn A_BOLD() -> attr_t
+pub const fn A_BOLD() -> attr_t
 { NCURSES_BITS(1u32, 13u32) as attr_t }
 
-pub fn A_ALTCHARSET() -> attr_t
+pub const fn A_ALTCHARSET() -> attr_t
 { NCURSES_BITS(1u32, 14u32) as attr_t }
 
-pub fn A_INVIS() -> attr_t
+pub const fn A_INVIS() -> attr_t
 { NCURSES_BITS(1u32, 15u32) as attr_t }
 
-pub fn A_PROTECT() -> attr_t
+pub const fn A_PROTECT() -> attr_t
 { NCURSES_BITS(1u32, 16u32) as attr_t }
 
-pub fn A_HORIZONTAL() -> attr_t
+pub const fn A_HORIZONTAL() -> attr_t
 { NCURSES_BITS(1u32, 17u32) as attr_t }
 
-pub fn A_LEFT() -> attr_t
+pub const fn A_LEFT() -> attr_t
 { NCURSES_BITS(1u32, 18u32) as attr_t }
 
-pub fn A_LOW() -> attr_t
+pub const fn A_LOW() -> attr_t
 { NCURSES_BITS(1u32, 19u32) as attr_t }
 
-pub fn A_RIGHT() -> attr_t
+pub const fn A_RIGHT() -> attr_t
 { NCURSES_BITS(1u32, 20u32) as attr_t }
 
-pub fn A_TOP() -> attr_t
+pub const fn A_TOP() -> attr_t
 { NCURSES_BITS(1u32, 21u32) as attr_t }
 
-pub fn A_VERTICAL() -> attr_t
+pub const fn A_VERTICAL() -> attr_t
 { NCURSES_BITS(1u32, 22u32) as attr_t }
 
-pub fn A_ITALIC() -> attr_t
+pub const fn A_ITALIC() -> attr_t
 { NCURSES_BITS(1u32, 23u32) as attr_t }
 
 /* Colors. */
