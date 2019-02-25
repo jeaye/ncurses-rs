@@ -1186,7 +1186,8 @@ pub fn scr_set(filename: &str) -> i32
 pub fn setlocale(lc: LcCategory, locale: &str) -> String
 {
   unsafe {
-    let buf = locale.to_c_str().as_ptr();
+    let c_str = locale.to_c_str();
+    let buf = c_str.as_ptr();
     let ret = ll::setlocale(lc as libc::c_int, buf);
     if ret == ptr::null() {
         String::new()
