@@ -839,7 +839,7 @@ pub fn mvprintw(y: i32, x: i32, s: &str) -> i32
 {
   if mv(y, x) == ERR
   { return ERR; }
-  printw(s)
+  addstr(s)
 }
 
 
