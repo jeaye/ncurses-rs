@@ -1,7 +1,12 @@
 ncurses-rs [![Build Status](https://travis-ci.org/jeaye/ncurses-rs.png)](https://travis-ci.org/jeaye/ncurses-rs)
 ==========
 
-This is a very thin wrapper around the ncurses TUI lib.
+This is a *very thin* wrapper around the ncurses TUI lib.
+
+**NOTE:** The ncurses lib is terribly unsafe and ncurses-rs is only the lightest
+wrapper it can be. If you want a safe and idiomatic TUI library for Rust, look
+elsewhere. If you want a 1:1 port of C to Rust or you want to crank a TUI out
+C-style in Rust, this will probably do the trick.
 
 ## Building
 
