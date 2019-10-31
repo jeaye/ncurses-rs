@@ -260,8 +260,8 @@ pub fn deleteln() -> i32
 { unsafe { ll::deleteln() } }
 
 
-pub fn derwin(w: WINDOW, lines: i32, cols: i32, x: i32, y: i32) -> WINDOW
-{ unsafe { ll::derwin(w, lines, cols, x, y) } }
+pub fn derwin(w: WINDOW, lines: i32, cols: i32, y: i32, x: i32) -> WINDOW
+{ unsafe { ll::derwin(w, lines, cols, y, x) } }
 
 
 pub fn doupdate() -> i32
