@@ -31,7 +31,7 @@ fn main()
   curs_set(CURSOR_VISIBILITY::CURSOR_INVISIBLE);
 
   /* Status/help info. */
-  printw("Use the arrow keys to move");
+  addstr("Use the arrow keys to move");
   mvprintw(LINES() - 1, 0, "Press F1 to exit");
   refresh();
 

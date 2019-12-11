@@ -33,7 +33,7 @@ fn main()
   noecho();
 
   /* Prompt for a character. */
-  printw("Enter a character within 2 seconds: ");
+  addstr("Enter a character within 2 seconds: ");
 
   /* Wait for input. */
   let ch = wget_wch(stdscr());
@@ -41,29 +41,29 @@ fn main()
     Some(WchResult::KeyCode(KEY_MOUSE)) => {
       /* Enable attributes and output message. */
       attron(A_BOLD() | A_BLINK());
-      printw("\nMouse");
+      addstr("\nMouse");
       attroff(A_BOLD() | A_BLINK());
-      printw(" pressed");
+      addstr(" pressed");
     }
 
     Some(WchResult::KeyCode(_)) => {
       /* Enable attributes and output message. */
       attron(A_BOLD() | A_BLINK());
-      printw("\nKeycode");
+      addstr("\nKeycode");
       attroff(A_BOLD() | A_BLINK());
-      printw(" pressed");
+      addstr(" pressed");
     }
 
     Some(WchResult::Char(c)) => {
       /* Enable attributes and output message. */
-      printw("\nKey pressed: ");
+      addstr("\nKey pressed: ");
       attron(A_BOLD() | A_BLINK());
-      printw(format!("{}\n", char::from_u32(c as u32).expect("Invalid char")).as_ref());
+      addstr(format!("{}\n", char::from_u32(c as u32).expect("Invalid char")).as_ref());
       attroff(A_BOLD() | A_BLINK());
     }
 
     None => {
-      printw("\nYou didn't enter a character in time!");
+      addstr("\nYou didn't enter a character in time!");
     }
   }
 
@@ -79,7 +79,7 @@ fn main()
 #[cfg(not(feature = "wide"))]
 fn main() {
   initscr();
-  printw("This example requires wide character support.");
+  addstr("This example requires wide character support.");
   getch();
   endwin();
 }
