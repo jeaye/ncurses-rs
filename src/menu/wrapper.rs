@@ -9,6 +9,7 @@ use libc::*;
 use menu::ll;
 use ll::{WINDOW, chtype, c_bool};
 use constants::TRUE;
+use std::os::raw::c_char;
 
 pub type MENU = ll::MENU;
 pub type ITEM = ll::ITEM;
@@ -161,11 +162,11 @@ pub fn menu_grey(menu: MENU) -> chtype {
 #[cfg(feature="menu")]
 pub fn free_item(item: ITEM) {
     unsafe {
-        let name = super::ll::item_name(item) as *mut i8;
+        let name = super::ll::item_name(item) as *mut c_char;
         if name.is_null() == false {
             let _ = CString::from_raw(name);
         }
-        let desc = super::ll::item_description(item) as *mut i8;
+        let desc = super::ll::item_description(item) as *mut c_char;
         if desc.is_null() == false {
             let _ = CString::from_raw(desc);
         }
