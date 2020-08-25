@@ -11,6 +11,8 @@
 */
 
 use libc::{ c_char, c_int };
+pub use libc::{LC_ALL, LC_COLLATE, LC_CTYPE, LC_MONETARY, LC_NUMERIC, LC_TIME, LC_MESSAGES};
+
 use super::ll::*;
 
 mod wrapped {
@@ -276,15 +278,6 @@ pub const BUTTON_ALT: i32 =            ncurses_mouse_mask!(MODIFIER_SHIFT, 0x004
 pub const REPORT_MOUSE_POSITION: i32 = ncurses_mouse_mask!(MODIFIER_SHIFT, 0x008);
 
 pub const ALL_MOUSE_EVENTS: i32=       REPORT_MOUSE_POSITION - 1;
-
-/* locales */
-pub const LC_ALL: c_int = 0;
-pub const LC_COLLATE: c_int = 1;
-pub const LC_CTYPE: c_int = 2;
-pub const LC_MONETARY: c_int = 3;
-pub const LC_NUMERIC: c_int = 4;
-pub const LC_TIME: c_int = 5;
-pub const LC_MESSAGES: c_int = 6;
 
 #[derive(Debug)]
 #[repr(i32)]

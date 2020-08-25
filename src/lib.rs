@@ -1188,8 +1188,8 @@ pub fn setlocale(lc: LcCategory, locale: &str) -> String
   unsafe {
     let c_str = locale.to_c_str();
     let buf = c_str.as_ptr();
-    let ret = ll::setlocale(lc as libc::c_int, buf);
-    if ret == ptr::null() {
+    let ret = libc::setlocale(lc as libc::c_int, buf);
+    if ret == ptr::null_mut() {
         String::new()
     } else {
         // The clone is necessary, as the returned pointer
@@ -1333,11 +1333,11 @@ pub fn tigetnum(capname: &str) -> i32
 
 
 pub fn tigetstr(capname: &str) -> String
-{ unsafe { { FromCStr::from_c_str(ll::tigetstr(capname.to_c_str().as_ptr())) } } }
+{ unsafe { FromCStr::from_c_str(ll::tigetstr(capname.to_c_str().as_ptr())) } }
 
 
 pub fn tparm(s: &str) -> String
-{ unsafe { { FromCStr::from_c_str(ll::tparm(s.to_c_str().as_ptr())) } } }
+{ unsafe { FromCStr::from_c_str(ll::tparm(s.to_c_str().as_ptr())) } }
 
 
 pub fn ungetch(ch: i32) -> i32
