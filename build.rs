@@ -62,7 +62,7 @@ fn main() {
 fn check_chtype_size(ncurses_lib: &Option<Library>) {
     let out_dir = env::var("OUT_DIR").expect("cannot get OUT_DIR");
     let src = format!("{}", Path::new(&out_dir).join("chtype_size.c").display());
-    let bin = format!("{}", Path::new(&out_dir).join("chtype_size").display());
+    let bin = format!("{}", Path::new(&out_dir).join(if cfg!(windows) { "chtype_size.exe" } else { "chtype_size" }).display());
 
     let mut fp = File::create(&src).expect(&format!("cannot create {}", src));
     fp.write_all(b"
@@ -98,13 +98,13 @@ int main(void)
     let mut command = compiler.to_command();
 
     if let Ok(x) = std::env::var("NCURSES_RS_CFLAGS") {
-      command.args(x.split(" "));
+        command.args(x.split(" "));
     }
 
     command.arg("-o").arg(&bin).arg(&src);
     assert!(command.status().expect("compilation failed").success());
     let features = Command::new(&bin).output()
-                   .expect(&format!("{} failed", bin));
+        .expect(&format!("{} failed", bin));
     print!("{}", String::from_utf8_lossy(&features.stdout));
 
     std::fs::remove_file(&src).expect(&format!("cannot delete {}", src));
