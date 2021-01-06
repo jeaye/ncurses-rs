@@ -1333,11 +1333,11 @@ pub fn tigetnum(capname: &str) -> i32
 
 
 pub fn tigetstr(capname: &str) -> String
-{ unsafe { { FromCStr::from_c_str(ll::tigetstr(capname.to_c_str().as_ptr())) } } }
+{ unsafe { FromCStr::from_c_str(ll::tigetstr(capname.to_c_str().as_ptr())) } }
 
 
 pub fn tparm(s: &str) -> String
-{ unsafe { { FromCStr::from_c_str(ll::tparm(s.to_c_str().as_ptr())) } } }
+{ unsafe { FromCStr::from_c_str(ll::tparm(s.to_c_str().as_ptr())) } }
 
 
 pub fn ungetch(ch: i32) -> i32
