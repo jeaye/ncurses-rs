@@ -221,7 +221,6 @@ extern {
     pub fn scrollok(_:WINDOW,_:c_bool) -> c_int;
     pub fn scr_restore(_:char_p) -> c_int;
     pub fn scr_set(_:char_p) -> c_int;
-    pub fn setlocale(_:c_int, _:char_p) -> char_p;
     pub fn setscrreg(_:c_int,_:c_int) -> c_int;
     pub fn set_term(_:SCREEN) -> SCREEN;
     pub fn set_escdelay(_:c_int) -> c_int;
