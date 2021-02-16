@@ -81,9 +81,9 @@ int main(void)
         assert(sizeof(chtype)*CHAR_BIT == 32 && \"unsupported size for chtype\");
     }
 
-    if (NCURSES_MOUSE_VERSION == 1) {
-        puts(\"cargo:rustc-cfg=feature=\\\"mouse_v1\\\"\");
-    }
+#if defined(NCURSES_MOUSE_VERSION) && NCURSES_MOUSE_VERSION == 1
+	puts(\"cargo:rustc-cfg=feature=\\\"mouse_v1\\\"\");
+#endif
     return 0;
 }
     ").expect(&format!("cannot write into {}", src));
