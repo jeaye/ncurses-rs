@@ -1691,73 +1691,12 @@ pub fn wgetparent(w: WINDOW) -> WINDOW
 pub fn wgetscrreg(w: WINDOW, top: &mut i32, bot: &mut i32) -> i32
 { unsafe { ll::wgetscrreg(w, &mut*top as *mut i32, &mut*bot as *mut i32) } }
 
-/* Attributes */
-pub const fn NCURSES_BITS(mask: u32, shift: u32) -> u32
-{ mask << (shift + NCURSES_ATTR_SHIFT) as usize }
 
-pub const fn A_NORMAL() -> attr_t
-{ (1u32 - 1u32) as attr_t }
-
-pub const fn A_ATTRIBUTES() -> attr_t
-{ NCURSES_BITS(!(1u32 - 1u32), 0u32) as attr_t }
-
-pub const fn A_CHARTEXT() -> attr_t
-{(NCURSES_BITS(1u32, 0u32) - 1u32) as attr_t }
-
-pub const fn A_COLOR() -> attr_t
-{ NCURSES_BITS(((1u32) << 8) - 1u32, 0u32) as attr_t }
-
-pub const fn A_STANDOUT() -> attr_t
-{ NCURSES_BITS(1u32, 8u32) as attr_t }
-
-pub const fn A_UNDERLINE() -> attr_t
-{ NCURSES_BITS(1u32, 9u32) as attr_t }
-
-pub const fn A_REVERSE() -> attr_t
-{ NCURSES_BITS(1u32, 10u32) as attr_t }
-
-pub const fn A_BLINK() -> attr_t
-{ NCURSES_BITS(1u32, 11u32) as attr_t }
-
-pub const fn A_DIM() -> attr_t
-{ NCURSES_BITS(1u32, 12u32) as attr_t }
-
-pub const fn A_BOLD() -> attr_t
-{ NCURSES_BITS(1u32, 13u32) as attr_t }
-
-pub const fn A_ALTCHARSET() -> attr_t
-{ NCURSES_BITS(1u32, 14u32) as attr_t }
-
-pub const fn A_INVIS() -> attr_t
-{ NCURSES_BITS(1u32, 15u32) as attr_t }
-
-pub const fn A_PROTECT() -> attr_t
-{ NCURSES_BITS(1u32, 16u32) as attr_t }
-
-pub const fn A_HORIZONTAL() -> attr_t
-{ NCURSES_BITS(1u32, 17u32) as attr_t }
-
-pub const fn A_LEFT() -> attr_t
-{ NCURSES_BITS(1u32, 18u32) as attr_t }
-
-pub const fn A_LOW() -> attr_t
-{ NCURSES_BITS(1u32, 19u32) as attr_t }
-
-pub const fn A_RIGHT() -> attr_t
-{ NCURSES_BITS(1u32, 20u32) as attr_t }
-
-pub const fn A_TOP() -> attr_t
-{ NCURSES_BITS(1u32, 21u32) as attr_t }
-
-pub const fn A_VERTICAL() -> attr_t
-{ NCURSES_BITS(1u32, 22u32) as attr_t }
-
-pub const fn A_ITALIC() -> attr_t
-{ NCURSES_BITS(1u32, 23u32) as attr_t }
-
-/* Colors. */
-pub fn COLOR_PAIR(n: i16) -> attr_t
-{ NCURSES_BITS(n as u32, 0u32) as attr_t }
+pub fn COLOR_PAIR(n: i16) -> attr_t {
+    unsafe {
+        ll::COLOR_PAIR(n as i32) as attr_t
+    }
+}
 
 /*
  * Most of the pseudo functions are macros that either provide compatibility
@@ -1818,153 +1757,6 @@ pub fn setsyx(y: &mut i32, x: &mut i32)
   }
 }
 
-/* Line graphics */
-pub fn NCURSES_ACS(c: char) -> chtype {
-    unsafe { *acs_map().offset((c as libc::c_uchar) as isize) as chtype }
-}
-
-/* VT100 symbols begin here */
-pub fn ACS_ULCORNER() -> chtype
-{ NCURSES_ACS('l') } /* upper left corner */
-
-pub fn ACS_LLCORNER() -> chtype
-{ NCURSES_ACS('m') } /* lower left corner */
-
-pub fn ACS_URCORNER() -> chtype
-{ NCURSES_ACS('k') } /* upper right corner */
-
-pub fn ACS_LRCORNER() -> chtype
-{ NCURSES_ACS('j') } /* lower right corner */
-
-pub fn ACS_LTEE() -> chtype
-{ NCURSES_ACS('t') } /* tee pointing right */
-
-pub fn ACS_RTEE() -> chtype
-{ NCURSES_ACS('u') } /* tee pointing left */
-
-pub fn ACS_BTEE() -> chtype
-{ NCURSES_ACS('v') } /* tee pointing up */
-
-pub fn ACS_TTEE() -> chtype
-{ NCURSES_ACS('w') } /* tee pointing down */
-
-pub fn ACS_HLINE() -> chtype
-{ NCURSES_ACS('q') } /* horizontal line */
-
-pub fn ACS_VLINE() -> chtype
-{ NCURSES_ACS('x') } /* vertical line */
-
-pub fn ACS_PLUS() -> chtype
-{ NCURSES_ACS('n') } /* large plus or crossover */
-
-pub fn ACS_S1() -> chtype
-{ NCURSES_ACS('o') } /* scan line 1 */
-
-pub fn ACS_S9() -> chtype
-{ NCURSES_ACS('s') } /* scan line 9 */
-
-pub fn ACS_DIAMOND() -> chtype
-{ NCURSES_ACS('`') } /* diamond */
-
-pub fn ACS_CKBOARD() -> chtype
-{ NCURSES_ACS('a') } /* checker board(stipple) */
-
-pub fn ACS_DEGREE() -> chtype
-{ NCURSES_ACS('f') } /* degree symbol */
-
-pub fn ACS_PLMINUS() -> chtype
-{ NCURSES_ACS('g') } /* plus/minus */
-
-pub fn ACS_BULLET() -> chtype
-{ NCURSES_ACS('~') } /* bullet */
-
-/* Teletype 5410v1 symbols begin here */
-pub fn ACS_LARROW() -> chtype
-{ NCURSES_ACS(',') } /* arrow pointing left */
-
-pub fn ACS_RARROW() -> chtype
-{ NCURSES_ACS('+') } /* arrow pointing right */
-
-pub fn ACS_DARROW() -> chtype
-{ NCURSES_ACS('.') } /* arrow pointing down */
-
-pub fn ACS_UARROW() -> chtype
-{ NCURSES_ACS('-') } /* arrow pointing up */
-
-pub fn ACS_BOARD() -> chtype
-{ NCURSES_ACS('h') } /* board of squares */
-
-pub fn ACS_LANTERN() -> chtype
-{ NCURSES_ACS('i') } /* lantern symbol */
-
-pub fn ACS_BLOCK() -> chtype
-{ NCURSES_ACS('0') } /* solid square block */
-
-/*
- * These aren't documented, but a lot of System Vs have them anyway
- * (you can spot pprryyzz{{||}} in a lot of AT&T terminfo strings).
- * The ACS_names may not match AT&T's, our source didn't know them.
- */
-pub fn ACS_S3() -> chtype
-{ NCURSES_ACS('p') } /* scan line 3 */
-
-pub fn ACS_S7() -> chtype
-{ NCURSES_ACS('r') } /* scan line 7 */
-
-pub fn ACS_LEQUAL() -> chtype
-{ NCURSES_ACS('y') } /* less/equal */
-
-pub fn ACS_GEQUAL() -> chtype
-{ NCURSES_ACS('z') } /* greater/equal */
-
-pub fn ACS_PI() -> chtype
-{ NCURSES_ACS('{') } /* Pi */
-
-pub fn ACS_NEQUAL() -> chtype
-{ NCURSES_ACS('|') } /* not equal */
-
-pub fn ACS_STERLING() -> chtype
-{ NCURSES_ACS('}') } /* UK pound sign */
-
-/*
- * Line drawing ACS names are of the form ACS_trbl, where t is the top, r
- * is the right, b is the bottom, and l is the left. t, r, b, and l might
- * be B(blank), S(single), D(double), or T(thick). The subset defined
- * here only uses B and S.
- */
-pub fn ACS_BSSB() -> chtype
-{ ACS_ULCORNER() }
-
-pub fn ACS_SSBB() -> chtype
-{ ACS_LLCORNER() }
-
-pub fn ACS_BBSS() -> chtype
-{ ACS_URCORNER() }
-
-pub fn ACS_SBBS() -> chtype
-{ ACS_LRCORNER() }
-
-pub fn ACS_SBSS() -> chtype
-{ ACS_RTEE() }
-
-pub fn ACS_SSSB() -> chtype
-{ ACS_LTEE() }
-
-pub fn ACS_SSBS() -> chtype
-{ ACS_BTEE() }
-
-pub fn ACS_BSSS() -> chtype
-{ ACS_TTEE() }
-
-pub fn ACS_BSBS() -> chtype
-{ ACS_HLINE() }
-
-pub fn ACS_SBSB() -> chtype
-{ ACS_VLINE() }
-
-pub fn ACS_SSSS() -> chtype
-{ ACS_PLUS() }
-
 pub fn KEY_F(n: u8) -> i32
 {
   assert!(n < 16);
@@ -2020,4 +1812,135 @@ pub fn extended_color_content(color: i32, r: &mut i32, g: &mut i32, b: &mut i32)
 #[cfg(feature = "extended_colors")]
 pub fn extended_pair_content(pair: i32, f: &mut i32, b: &mut i32) -> i32 {
     unsafe { ll::extended_pair_content(pair, f, b) }
+}
+
+
+pub fn ACS_ULCORNER() -> crate::ll::chtype {
+    unsafe { crate::ll::impl_ACS_ULCORNER() }
+}
+pub fn ACS_LLCORNER() -> crate::ll::chtype {
+    unsafe { crate::ll::impl_ACS_LLCORNER() }
+}
+pub fn ACS_URCORNER() -> crate::ll::chtype {
+    unsafe { crate::ll::impl_ACS_URCORNER() }
+}
+pub fn ACS_LRCORNER() -> crate::ll::chtype {
+    unsafe { crate::ll::impl_ACS_LRCORNER() }
+}
+pub fn ACS_LTEE() -> crate::ll::chtype {
+    unsafe { crate::ll::impl_ACS_LTEE() }
+}
+pub fn ACS_RTEE() -> crate::ll::chtype {
+    unsafe { crate::ll::impl_ACS_RTEE() }
+}
+pub fn ACS_BTEE() -> crate::ll::chtype {
+    unsafe { crate::ll::impl_ACS_BTEE() }
+}
+pub fn ACS_TTEE() -> crate::ll::chtype {
+    unsafe { crate::ll::impl_ACS_TTEE() }
+}
+pub fn ACS_HLINE() -> crate::ll::chtype {
+    unsafe { crate::ll::impl_ACS_HLINE() }
+}
+pub fn ACS_VLINE() -> crate::ll::chtype {
+    unsafe { crate::ll::impl_ACS_VLINE() }
+}
+pub fn ACS_PLUS() -> crate::ll::chtype {
+    unsafe { crate::ll::impl_ACS_PLUS() }
+}
+pub fn ACS_S1() -> crate::ll::chtype {
+    unsafe { crate::ll::impl_ACS_S1() }
+}
+pub fn ACS_S9() -> crate::ll::chtype {
+    unsafe { crate::ll::impl_ACS_S9() }
+}
+pub fn ACS_DIAMOND() -> crate::ll::chtype {
+    unsafe { crate::ll::impl_ACS_DIAMOND() }
+}
+pub fn ACS_CKBOARD() -> crate::ll::chtype {
+    unsafe { crate::ll::impl_ACS_CKBOARD() }
+}
+pub fn ACS_DEGREE() -> crate::ll::chtype {
+    unsafe { crate::ll::impl_ACS_DEGREE() }
+}
+pub fn ACS_PLMINUS() -> crate::ll::chtype {
+    unsafe { crate::ll::impl_ACS_PLMINUS() }
+}
+pub fn ACS_BULLET() -> crate::ll::chtype {
+    unsafe { crate::ll::impl_ACS_BULLET() }
+}
+pub fn ACS_LARROW() -> crate::ll::chtype {
+    unsafe { crate::ll::impl_ACS_LARROW() }
+}
+pub fn ACS_RARROW() -> crate::ll::chtype {
+    unsafe { crate::ll::impl_ACS_RARROW() }
+}
+pub fn ACS_DARROW() -> crate::ll::chtype {
+    unsafe { crate::ll::impl_ACS_DARROW() }
+}
+pub fn ACS_UARROW() -> crate::ll::chtype {
+    unsafe { crate::ll::impl_ACS_UARROW() }
+}
+pub fn ACS_BOARD() -> crate::ll::chtype {
+    unsafe { crate::ll::impl_ACS_BOARD() }
+}
+pub fn ACS_LANTERN() -> crate::ll::chtype {
+    unsafe { crate::ll::impl_ACS_LANTERN() }
+}
+pub fn ACS_BLOCK() -> crate::ll::chtype {
+    unsafe { crate::ll::impl_ACS_BLOCK() }
+}
+pub fn ACS_S3() -> crate::ll::chtype {
+    unsafe { crate::ll::impl_ACS_S3() }
+}
+pub fn ACS_S7() -> crate::ll::chtype {
+    unsafe { crate::ll::impl_ACS_S7() }
+}
+pub fn ACS_LEQUAL() -> crate::ll::chtype {
+    unsafe { crate::ll::impl_ACS_LEQUAL() }
+}
+pub fn ACS_GEQUAL() -> crate::ll::chtype {
+    unsafe { crate::ll::impl_ACS_GEQUAL() }
+}
+pub fn ACS_PI() -> crate::ll::chtype {
+    unsafe { crate::ll::impl_ACS_PI() }
+}
+pub fn ACS_NEQUAL() -> crate::ll::chtype {
+    unsafe { crate::ll::impl_ACS_NEQUAL() }
+}
+pub fn ACS_STERLING() -> crate::ll::chtype {
+    unsafe { crate::ll::impl_ACS_STERLING() }
+}
+pub fn ACS_BSSB() -> crate::ll::chtype {
+    unsafe { crate::ll::impl_ACS_BSSB() }
+}
+pub fn ACS_SSBB() -> crate::ll::chtype {
+    unsafe { crate::ll::impl_ACS_SSBB() }
+}
+pub fn ACS_BBSS() -> crate::ll::chtype {
+    unsafe { crate::ll::impl_ACS_BBSS() }
+}
+pub fn ACS_SBBS() -> crate::ll::chtype {
+    unsafe { crate::ll::impl_ACS_SBBS() }
+}
+pub fn ACS_SBSS() -> crate::ll::chtype {
+    unsafe { crate::ll::impl_ACS_SBSS() }
+}
+pub fn ACS_SSSB() -> crate::ll::chtype {
+    unsafe { crate::ll::impl_ACS_SSSB() }
+}
+pub fn ACS_SSBS() -> crate::ll::chtype {
+    unsafe { crate::ll::impl_ACS_SSBS() }
+}
+pub fn ACS_BSSS() -> crate::ll::chtype {
+    unsafe { crate::ll::impl_ACS_BSSS() }
+}
+pub fn ACS_BSBS() -> crate::ll::chtype {
+    unsafe { crate::ll::impl_ACS_BSBS() }
+}
+pub fn ACS_SBSB() -> crate::ll::chtype {
+    unsafe { crate::ll::impl_ACS_SBSB() }
+}
+pub fn ACS_SSSS() -> crate::ll::chtype {
+    unsafe { crate::ll::impl_ACS_SSSS() }
 }

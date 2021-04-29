@@ -376,6 +376,51 @@ extern {
     pub fn mouseinterval(_:c_int) -> c_int;
     pub fn wmouse_trafo(_:WINDOW,_:*mut c_int,_:*mut c_int,_:c_bool) -> c_bool;
     pub fn mouse_trafo(_:*mut c_int,_:*mut c_int,_:c_bool) -> c_bool;
+
+    pub fn impl_ACS_ULCORNER() -> chtype;
+    pub fn impl_ACS_LLCORNER() -> chtype;
+    pub fn impl_ACS_URCORNER() -> chtype;
+    pub fn impl_ACS_LRCORNER() -> chtype;
+    pub fn impl_ACS_LTEE() -> chtype;
+    pub fn impl_ACS_RTEE() -> chtype;
+    pub fn impl_ACS_BTEE() -> chtype;
+    pub fn impl_ACS_TTEE() -> chtype;
+    pub fn impl_ACS_HLINE() -> chtype;
+    pub fn impl_ACS_VLINE() -> chtype;
+    pub fn impl_ACS_PLUS() -> chtype;
+    pub fn impl_ACS_S1() -> chtype;
+    pub fn impl_ACS_S9() -> chtype;
+    pub fn impl_ACS_DIAMOND() -> chtype;
+    pub fn impl_ACS_CKBOARD() -> chtype;
+    pub fn impl_ACS_DEGREE() -> chtype;
+    pub fn impl_ACS_PLMINUS() -> chtype;
+    pub fn impl_ACS_BULLET() -> chtype;
+    pub fn impl_ACS_LARROW() -> chtype;
+    pub fn impl_ACS_RARROW() -> chtype;
+    pub fn impl_ACS_DARROW() -> chtype;
+    pub fn impl_ACS_UARROW() -> chtype;
+    pub fn impl_ACS_BOARD() -> chtype;
+    pub fn impl_ACS_LANTERN() -> chtype;
+    pub fn impl_ACS_BLOCK() -> chtype;
+    pub fn impl_ACS_S3() -> chtype;
+    pub fn impl_ACS_S7() -> chtype;
+    pub fn impl_ACS_LEQUAL() -> chtype;
+    pub fn impl_ACS_GEQUAL() -> chtype;
+    pub fn impl_ACS_PI() -> chtype;
+    pub fn impl_ACS_NEQUAL() -> chtype;
+    pub fn impl_ACS_STERLING() -> chtype;
+    pub fn impl_ACS_BSSB() -> chtype;
+    pub fn impl_ACS_SSBB() -> chtype;
+    pub fn impl_ACS_BBSS() -> chtype;
+    pub fn impl_ACS_SBBS() -> chtype;
+    pub fn impl_ACS_SBSS() -> chtype;
+    pub fn impl_ACS_SSSB() -> chtype;
+    pub fn impl_ACS_SSBS() -> chtype;
+    pub fn impl_ACS_BSSS() -> chtype;
+    pub fn impl_ACS_BSBS() -> chtype;
+    pub fn impl_ACS_SBSB() -> chtype;
+    pub fn impl_ACS_SSSS() -> chtype;
+    
 }
 
 /// Extended color support. Requires ncurses6.
