@@ -330,11 +330,11 @@ fn main()
 
 fn prompt()
 {
-  attron(A_BOLD());
+  attron(A_BOLD);
   addstr("<-Press Space->");
   while getch() != ' ' as i32
   { }
-  attroff(A_BOLD());
+  attroff(A_BOLD);
 }
 
 fn open_file() -> fs::File

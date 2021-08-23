@@ -40,26 +40,26 @@ fn main()
   match ch {
     Some(WchResult::KeyCode(KEY_MOUSE)) => {
       /* Enable attributes and output message. */
-      attron(A_BOLD() | A_BLINK());
+      attron(A_BOLD | A_BLINK);
       addstr("\nMouse");
-      attroff(A_BOLD() | A_BLINK());
+      attroff(A_BOLD | A_BLINK);
       addstr(" pressed");
     }
 
     Some(WchResult::KeyCode(_)) => {
       /* Enable attributes and output message. */
-      attron(A_BOLD() | A_BLINK());
+      attron(A_BOLD | A_BLINK);
       addstr("\nKeycode");
-      attroff(A_BOLD() | A_BLINK());
+      attroff(A_BOLD | A_BLINK);
       addstr(" pressed");
     }
 
     Some(WchResult::Char(c)) => {
       /* Enable attributes and output message. */
       addstr("\nKey pressed: ");
-      attron(A_BOLD() | A_BLINK());
+      attron(A_BOLD | A_BLINK);
       addstr(format!("{}\n", char::from_u32(c as u32).expect("Invalid char")).as_ref());
-      attroff(A_BOLD() | A_BLINK());
+      attroff(A_BOLD | A_BLINK);
     }
 
     None => {
