@@ -377,50 +377,92 @@ extern {
     pub fn wmouse_trafo(_:WINDOW,_:*mut c_int,_:*mut c_int,_:c_bool) -> c_bool;
     pub fn mouse_trafo(_:*mut c_int,_:*mut c_int,_:c_bool) -> c_bool;
 
-    pub fn impl_ACS_ULCORNER() -> chtype;
-    pub fn impl_ACS_LLCORNER() -> chtype;
-    pub fn impl_ACS_URCORNER() -> chtype;
-    pub fn impl_ACS_LRCORNER() -> chtype;
-    pub fn impl_ACS_LTEE() -> chtype;
-    pub fn impl_ACS_RTEE() -> chtype;
-    pub fn impl_ACS_BTEE() -> chtype;
-    pub fn impl_ACS_TTEE() -> chtype;
-    pub fn impl_ACS_HLINE() -> chtype;
-    pub fn impl_ACS_VLINE() -> chtype;
-    pub fn impl_ACS_PLUS() -> chtype;
-    pub fn impl_ACS_S1() -> chtype;
-    pub fn impl_ACS_S9() -> chtype;
-    pub fn impl_ACS_DIAMOND() -> chtype;
-    pub fn impl_ACS_CKBOARD() -> chtype;
-    pub fn impl_ACS_DEGREE() -> chtype;
-    pub fn impl_ACS_PLMINUS() -> chtype;
-    pub fn impl_ACS_BULLET() -> chtype;
-    pub fn impl_ACS_LARROW() -> chtype;
-    pub fn impl_ACS_RARROW() -> chtype;
-    pub fn impl_ACS_DARROW() -> chtype;
-    pub fn impl_ACS_UARROW() -> chtype;
-    pub fn impl_ACS_BOARD() -> chtype;
-    pub fn impl_ACS_LANTERN() -> chtype;
-    pub fn impl_ACS_BLOCK() -> chtype;
-    pub fn impl_ACS_S3() -> chtype;
-    pub fn impl_ACS_S7() -> chtype;
-    pub fn impl_ACS_LEQUAL() -> chtype;
-    pub fn impl_ACS_GEQUAL() -> chtype;
-    pub fn impl_ACS_PI() -> chtype;
-    pub fn impl_ACS_NEQUAL() -> chtype;
-    pub fn impl_ACS_STERLING() -> chtype;
-    pub fn impl_ACS_BSSB() -> chtype;
-    pub fn impl_ACS_SSBB() -> chtype;
-    pub fn impl_ACS_BBSS() -> chtype;
-    pub fn impl_ACS_SBBS() -> chtype;
-    pub fn impl_ACS_SBSS() -> chtype;
-    pub fn impl_ACS_SSSB() -> chtype;
-    pub fn impl_ACS_SSBS() -> chtype;
-    pub fn impl_ACS_BSSS() -> chtype;
-    pub fn impl_ACS_BSBS() -> chtype;
-    pub fn impl_ACS_SBSB() -> chtype;
-    pub fn impl_ACS_SSSS() -> chtype;
-    
+    #[link_name = "impl_ACS_ULCORNER"]
+    pub fn ACS_ULCORNER() -> chtype;
+    #[link_name = "impl_ACS_LLCORNER"]
+    pub fn ACS_LLCORNER() -> chtype;
+    #[link_name = "impl_ACS_URCORNER"]
+    pub fn ACS_URCORNER() -> chtype;
+    #[link_name = "impl_ACS_LRCORNER"]
+    pub fn ACS_LRCORNER() -> chtype;
+    #[link_name = "impl_ACS_LTEE"]
+    pub fn ACS_LTEE() -> chtype;
+    #[link_name = "impl_ACS_RTEE"]
+    pub fn ACS_RTEE() -> chtype;
+    #[link_name = "impl_ACS_BTEE"]
+    pub fn ACS_BTEE() -> chtype;
+    #[link_name = "impl_ACS_TTEE"]
+    pub fn ACS_TTEE() -> chtype;
+    #[link_name = "impl_ACS_HLINE"]
+    pub fn ACS_HLINE() -> chtype;
+    #[link_name = "impl_ACS_VLINE"]
+    pub fn ACS_VLINE() -> chtype;
+    #[link_name = "impl_ACS_PLUS"]
+    pub fn ACS_PLUS() -> chtype;
+    #[link_name = "impl_ACS_S1"]
+    pub fn ACS_S1() -> chtype;
+    #[link_name = "impl_ACS_S9"]
+    pub fn ACS_S9() -> chtype;
+    #[link_name = "impl_ACS_DIAMOND"]
+    pub fn ACS_DIAMOND() -> chtype;
+    #[link_name = "impl_ACS_CKBOARD"]
+    pub fn ACS_CKBOARD() -> chtype;
+    #[link_name = "impl_ACS_DEGREE"]
+    pub fn ACS_DEGREE() -> chtype;
+    #[link_name = "impl_ACS_PLMINUS"]
+    pub fn ACS_PLMINUS() -> chtype;
+    #[link_name = "impl_ACS_BULLET"]
+    pub fn ACS_BULLET() -> chtype;
+    #[link_name = "impl_ACS_LARROW"]
+    pub fn ACS_LARROW() -> chtype;
+    #[link_name = "impl_ACS_RARROW"]
+    pub fn ACS_RARROW() -> chtype;
+    #[link_name = "impl_ACS_DARROW"]
+    pub fn ACS_DARROW() -> chtype;
+    #[link_name = "impl_ACS_UARROW"]
+    pub fn ACS_UARROW() -> chtype;
+    #[link_name = "impl_ACS_BOARD"]
+    pub fn ACS_BOARD() -> chtype;
+    #[link_name = "impl_ACS_LANTERN"]
+    pub fn ACS_LANTERN() -> chtype;
+    #[link_name = "impl_ACS_BLOCK"]
+    pub fn ACS_BLOCK() -> chtype;
+    #[link_name = "impl_ACS_S3"]
+    pub fn ACS_S3() -> chtype;
+    #[link_name = "impl_ACS_S7"]
+    pub fn ACS_S7() -> chtype;
+    #[link_name = "impl_ACS_LEQUAL"]
+    pub fn ACS_LEQUAL() -> chtype;
+    #[link_name = "impl_ACS_GEQUAL"]
+    pub fn ACS_GEQUAL() -> chtype;
+    #[link_name = "impl_ACS_PI"]
+    pub fn ACS_PI() -> chtype;
+    #[link_name = "impl_ACS_NEQUAL"]
+    pub fn ACS_NEQUAL() -> chtype;
+    #[link_name = "impl_ACS_STERLING"]
+    pub fn ACS_STERLING() -> chtype;
+    #[link_name = "impl_ACS_BSSB"]
+    pub fn ACS_BSSB() -> chtype;
+    #[link_name = "impl_ACS_SSBB"]
+    pub fn ACS_SSBB() -> chtype;
+    #[link_name = "impl_ACS_BBSS"]
+    pub fn ACS_BBSS() -> chtype;
+    #[link_name = "impl_ACS_SBBS"]
+    pub fn ACS_SBBS() -> chtype;
+    #[link_name = "impl_ACS_SBSS"]
+    pub fn ACS_SBSS() -> chtype;
+    #[link_name = "impl_ACS_SSSB"]
+    pub fn ACS_SSSB() -> chtype;
+    #[link_name = "impl_ACS_SSBS"]
+    pub fn ACS_SSBS() -> chtype;
+    #[link_name = "impl_ACS_BSSS"]
+    pub fn ACS_BSSS() -> chtype;
+    #[link_name = "impl_ACS_BSBS"]
+    pub fn ACS_BSBS() -> chtype;
+    #[link_name = "impl_ACS_SBSB"]
+    pub fn ACS_SBSB() -> chtype;
+    #[link_name = "impl_ACS_SSSS"]
+    pub fn ACS_SSSS() -> chtype;
 }
 
 /// Extended color support. Requires ncurses6.

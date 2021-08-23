@@ -4,12 +4,6 @@
 #define PCONSTU(ty, NAME) printf("pub const " #NAME ": " #ty " = %llu;\n", (unsigned long long) (NAME))
 
 int main() {
-        /* some values aren't set until after this is run */
-        printf("//");
-	initscr();
-	endwin();
-        printf("\n");
-
 	/* Success/Failure. */
 	PCONST(i32, ERR);
 	PCONST(i32, OK);
