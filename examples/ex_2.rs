@@ -28,21 +28,21 @@ fn main()
 
   /* Wait for input. */
   let ch = getch();
-  if ch == KEY_F1
+  if ch == KEY_F(1)
   {
     /* Enable attributes and output message. */
-    attron(A_BOLD() | A_BLINK());
+    attron(A_BOLD | A_BLINK);
     addstr("\nF1");
-    attroff(A_BOLD() | A_BLINK());
+    attroff(A_BOLD | A_BLINK);
     addstr(" pressed");
   }
   else
   {
     /* Enable attributes and output message. */
     addstr("\nKey pressed: ");
-    attron(A_BOLD() | A_BLINK());
+    attron(A_BOLD | A_BLINK);
     addstr(format!("{}\n", char::from_u32(ch as u32).expect("Invalid char")).as_ref());
-    attroff(A_BOLD() | A_BLINK());
+    attroff(A_BOLD | A_BLINK);
   }
 
   /* Refresh, showing the previous message. */
