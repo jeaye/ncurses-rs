@@ -19,6 +19,7 @@ use std::{ char, ptr };
 use std::ffi::{CString, CStr};
 use self::ll::{FILE_p};
 pub use self::constants::*;
+#[cfg(feature="panel")]
 pub use self::panel::wrapper::*;
 pub use self::menu::wrapper::*;
 pub use self::menu::constants::*;
@@ -158,7 +159,7 @@ pub fn border(ls: chtype, rs: chtype, ts: chtype, bs: chtype, tl: chtype, tr: ch
 { unsafe { ll::border(ls, rs, ts, bs, tl, tr, bl, br) } }
 
 
-#[link_name="box"] pub fn box_(w: WINDOW, v: chtype, h: chtype) -> i32
+pub fn box_(w: WINDOW, v: chtype, h: chtype) -> i32
 { wborder(w, v, v, h, h, 0, 0, 0, 0) }
 
 
@@ -1816,131 +1817,131 @@ pub fn extended_pair_content(pair: i32, f: &mut i32, b: &mut i32) -> i32 {
 
 
 pub fn ACS_ULCORNER() -> crate::ll::chtype {
-    unsafe { crate::ll::impl_ACS_ULCORNER() }
+    unsafe { crate::ll::ACS_ULCORNER() }
 }
 pub fn ACS_LLCORNER() -> crate::ll::chtype {
-    unsafe { crate::ll::impl_ACS_LLCORNER() }
+    unsafe { crate::ll::ACS_LLCORNER() }
 }
 pub fn ACS_URCORNER() -> crate::ll::chtype {
-    unsafe { crate::ll::impl_ACS_URCORNER() }
+    unsafe { crate::ll::ACS_URCORNER() }
 }
 pub fn ACS_LRCORNER() -> crate::ll::chtype {
-    unsafe { crate::ll::impl_ACS_LRCORNER() }
+    unsafe { crate::ll::ACS_LRCORNER() }
 }
 pub fn ACS_LTEE() -> crate::ll::chtype {
-    unsafe { crate::ll::impl_ACS_LTEE() }
+    unsafe { crate::ll::ACS_LTEE() }
 }
 pub fn ACS_RTEE() -> crate::ll::chtype {
-    unsafe { crate::ll::impl_ACS_RTEE() }
+    unsafe { crate::ll::ACS_RTEE() }
 }
 pub fn ACS_BTEE() -> crate::ll::chtype {
-    unsafe { crate::ll::impl_ACS_BTEE() }
+    unsafe { crate::ll::ACS_BTEE() }
 }
 pub fn ACS_TTEE() -> crate::ll::chtype {
-    unsafe { crate::ll::impl_ACS_TTEE() }
+    unsafe { crate::ll::ACS_TTEE() }
 }
 pub fn ACS_HLINE() -> crate::ll::chtype {
-    unsafe { crate::ll::impl_ACS_HLINE() }
+    unsafe { crate::ll::ACS_HLINE() }
 }
 pub fn ACS_VLINE() -> crate::ll::chtype {
-    unsafe { crate::ll::impl_ACS_VLINE() }
+    unsafe { crate::ll::ACS_VLINE() }
 }
 pub fn ACS_PLUS() -> crate::ll::chtype {
-    unsafe { crate::ll::impl_ACS_PLUS() }
+    unsafe { crate::ll::ACS_PLUS() }
 }
 pub fn ACS_S1() -> crate::ll::chtype {
-    unsafe { crate::ll::impl_ACS_S1() }
+    unsafe { crate::ll::ACS_S1() }
 }
 pub fn ACS_S9() -> crate::ll::chtype {
-    unsafe { crate::ll::impl_ACS_S9() }
+    unsafe { crate::ll::ACS_S9() }
 }
 pub fn ACS_DIAMOND() -> crate::ll::chtype {
-    unsafe { crate::ll::impl_ACS_DIAMOND() }
+    unsafe { crate::ll::ACS_DIAMOND() }
 }
 pub fn ACS_CKBOARD() -> crate::ll::chtype {
-    unsafe { crate::ll::impl_ACS_CKBOARD() }
+    unsafe { crate::ll::ACS_CKBOARD() }
 }
 pub fn ACS_DEGREE() -> crate::ll::chtype {
-    unsafe { crate::ll::impl_ACS_DEGREE() }
+    unsafe { crate::ll::ACS_DEGREE() }
 }
 pub fn ACS_PLMINUS() -> crate::ll::chtype {
-    unsafe { crate::ll::impl_ACS_PLMINUS() }
+    unsafe { crate::ll::ACS_PLMINUS() }
 }
 pub fn ACS_BULLET() -> crate::ll::chtype {
-    unsafe { crate::ll::impl_ACS_BULLET() }
+    unsafe { crate::ll::ACS_BULLET() }
 }
 pub fn ACS_LARROW() -> crate::ll::chtype {
-    unsafe { crate::ll::impl_ACS_LARROW() }
+    unsafe { crate::ll::ACS_LARROW() }
 }
 pub fn ACS_RARROW() -> crate::ll::chtype {
-    unsafe { crate::ll::impl_ACS_RARROW() }
+    unsafe { crate::ll::ACS_RARROW() }
 }
 pub fn ACS_DARROW() -> crate::ll::chtype {
-    unsafe { crate::ll::impl_ACS_DARROW() }
+    unsafe { crate::ll::ACS_DARROW() }
 }
 pub fn ACS_UARROW() -> crate::ll::chtype {
-    unsafe { crate::ll::impl_ACS_UARROW() }
+    unsafe { crate::ll::ACS_UARROW() }
 }
 pub fn ACS_BOARD() -> crate::ll::chtype {
-    unsafe { crate::ll::impl_ACS_BOARD() }
+    unsafe { crate::ll::ACS_BOARD() }
 }
 pub fn ACS_LANTERN() -> crate::ll::chtype {
-    unsafe { crate::ll::impl_ACS_LANTERN() }
+    unsafe { crate::ll::ACS_LANTERN() }
 }
 pub fn ACS_BLOCK() -> crate::ll::chtype {
-    unsafe { crate::ll::impl_ACS_BLOCK() }
+    unsafe { crate::ll::ACS_BLOCK() }
 }
 pub fn ACS_S3() -> crate::ll::chtype {
-    unsafe { crate::ll::impl_ACS_S3() }
+    unsafe { crate::ll::ACS_S3() }
 }
 pub fn ACS_S7() -> crate::ll::chtype {
-    unsafe { crate::ll::impl_ACS_S7() }
+    unsafe { crate::ll::ACS_S7() }
 }
 pub fn ACS_LEQUAL() -> crate::ll::chtype {
-    unsafe { crate::ll::impl_ACS_LEQUAL() }
+    unsafe { crate::ll::ACS_LEQUAL() }
 }
 pub fn ACS_GEQUAL() -> crate::ll::chtype {
-    unsafe { crate::ll::impl_ACS_GEQUAL() }
+    unsafe { crate::ll::ACS_GEQUAL() }
 }
 pub fn ACS_PI() -> crate::ll::chtype {
-    unsafe { crate::ll::impl_ACS_PI() }
+    unsafe { crate::ll::ACS_PI() }
 }
 pub fn ACS_NEQUAL() -> crate::ll::chtype {
-    unsafe { crate::ll::impl_ACS_NEQUAL() }
+    unsafe { crate::ll::ACS_NEQUAL() }
 }
 pub fn ACS_STERLING() -> crate::ll::chtype {
-    unsafe { crate::ll::impl_ACS_STERLING() }
+    unsafe { crate::ll::ACS_STERLING() }
 }
 pub fn ACS_BSSB() -> crate::ll::chtype {
-    unsafe { crate::ll::impl_ACS_BSSB() }
+    unsafe { crate::ll::ACS_BSSB() }
 }
 pub fn ACS_SSBB() -> crate::ll::chtype {
-    unsafe { crate::ll::impl_ACS_SSBB() }
+    unsafe { crate::ll::ACS_SSBB() }
 }
 pub fn ACS_BBSS() -> crate::ll::chtype {
-    unsafe { crate::ll::impl_ACS_BBSS() }
+    unsafe { crate::ll::ACS_BBSS() }
 }
 pub fn ACS_SBBS() -> crate::ll::chtype {
-    unsafe { crate::ll::impl_ACS_SBBS() }
+    unsafe { crate::ll::ACS_SBBS() }
 }
 pub fn ACS_SBSS() -> crate::ll::chtype {
-    unsafe { crate::ll::impl_ACS_SBSS() }
+    unsafe { crate::ll::ACS_SBSS() }
 }
 pub fn ACS_SSSB() -> crate::ll::chtype {
-    unsafe { crate::ll::impl_ACS_SSSB() }
+    unsafe { crate::ll::ACS_SSSB() }
 }
 pub fn ACS_SSBS() -> crate::ll::chtype {
-    unsafe { crate::ll::impl_ACS_SSBS() }
+    unsafe { crate::ll::ACS_SSBS() }
 }
 pub fn ACS_BSSS() -> crate::ll::chtype {
-    unsafe { crate::ll::impl_ACS_BSSS() }
+    unsafe { crate::ll::ACS_BSSS() }
 }
 pub fn ACS_BSBS() -> crate::ll::chtype {
-    unsafe { crate::ll::impl_ACS_BSBS() }
+    unsafe { crate::ll::ACS_BSBS() }
 }
 pub fn ACS_SBSB() -> crate::ll::chtype {
-    unsafe { crate::ll::impl_ACS_SBSB() }
+    unsafe { crate::ll::ACS_SBSB() }
 }
 pub fn ACS_SSSS() -> crate::ll::chtype {
-    unsafe { crate::ll::impl_ACS_SSSS() }
+    unsafe { crate::ll::ACS_SSSS() }
 }
