@@ -31,8 +31,8 @@ fn main()
   curs_set(CURSOR_VISIBILITY::CURSOR_INVISIBLE);
 
   /* Status/help info. */
-  addstr("Use the arrow keys to move");
-  mvprintw(LINES() - 1, 0, "Press F1 to exit");
+  addstr("Use the arrow keys to move").unwrap();
+  mvprintw(LINES() - 1, 0, "Press F1 to exit").unwrap();
   refresh();
 
   /* Get the screen bounds. */

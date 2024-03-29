@@ -92,7 +92,7 @@ fn gen_constants() {
 
     let mut file = File::create(&src).unwrap();
     
-    file.write_all(&consts.stdout);
+    file.write_all(&consts.stdout).unwrap();
 }
 
 fn gen_menu_constants() {
@@ -117,7 +117,7 @@ fn gen_menu_constants() {
 
     let mut file = File::create(&src).unwrap();
     
-    file.write_all(&consts.stdout);
+    file.write_all(&consts.stdout).unwrap();
 }
 
 fn check_chtype_size(ncurses_lib: &Option<Library>) {

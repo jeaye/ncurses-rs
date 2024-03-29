@@ -318,7 +318,7 @@ fn main()
     else
     {
       attron(attr);
-      addstr(word.as_ref());
+      addstr(word.as_ref()).unwrap();
       attroff(attr);
 
       attron(leftover_attr);
@@ -331,7 +331,7 @@ fn main()
 fn prompt()
 {
   attron(A_BOLD);
-  addstr("<-Press Space->");
+  addstr("<-Press Space->").unwrap();
   while getch() != ' ' as i32
   { }
   attroff(A_BOLD);

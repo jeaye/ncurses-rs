@@ -22,7 +22,7 @@ fn main()
   initscr();
 
   /* Print to the back buffer. */
-  addstr("Hello, world!");
+  addstr("Hello, world!").unwrap();
 
   /* Print some unicode(Chinese) string. */
   // addstr("Great Firewall dislike VPN protocol.\nGFW 不喜欢 VPN 协议。");
