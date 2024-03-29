@@ -288,8 +288,8 @@ pub fn endwin() -> i32
 { unsafe { ll::endwin() } }
 
 
-pub fn erasechar() -> char
-{ unsafe { char::from_u32(ll::erasechar() as u32).expect("Invalid char") } }
+pub fn erasechar() -> Option<char>
+{ unsafe { char::from_u32(ll::erasechar() as u32) } }
 
 
 pub fn filter()
@@ -681,8 +681,8 @@ pub fn keypad(w: WINDOW, bf: bool) -> i32
 { unsafe { ll::keypad(w, bf as ll::c_bool) } }
 
 
-pub fn killchar() -> char
-{ unsafe { char::from_u32(ll::killchar() as u32).expect("Invalid char") } }
+pub fn killchar() -> Option<char>
+{ unsafe { char::from_u32(ll::killchar() as u32) } }
 
 
 pub fn leaveok(w: WINDOW, bf: bool) -> i32
