@@ -24,7 +24,7 @@ fn main()
   noecho();
 
   /* Prompt for a character. */
-  addstr("Enter a character: ");
+  addstr("Enter a character: ").unwrap();
 
   /* Wait for input. */
   let ch = getch();
@@ -32,16 +32,16 @@ fn main()
   {
     /* Enable attributes and output message. */
     attron(A_BOLD | A_BLINK);
-    addstr("\nF1");
+    addstr("\nF1").unwrap();
     attroff(A_BOLD | A_BLINK);
-    addstr(" pressed");
+    addstr(" pressed").unwrap();
   }
   else
   {
     /* Enable attributes and output message. */
-    addstr("\nKey pressed: ");
+    addstr("\nKey pressed: ").unwrap();
     attron(A_BOLD | A_BLINK);
-    addstr(format!("{}\n", char::from_u32(ch as u32).expect("Invalid char")).as_ref());
+    addstr(format!("{}\n", char::from_u32(ch as u32).expect("Invalid char")).as_ref()).unwrap();
     attroff(A_BOLD | A_BLINK);
   }
 

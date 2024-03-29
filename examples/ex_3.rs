@@ -37,7 +37,7 @@ fn open_file() -> fs::File
 
 fn prompt()
 {
-  addstr("<-Press Any Key->");
+  addstr("<-Press Any Key->").unwrap();
   getch();
 }
 

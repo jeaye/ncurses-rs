@@ -57,12 +57,12 @@ impl FromCStr for Option<String> {
 }
 
 trait ToCStr {
-    fn to_c_str(&self) -> CString;
+    fn to_c_str(&self) -> Result<CString, std::ffi::NulError>;
 }
 
 impl <'a>ToCStr for &'a str {
-    fn to_c_str(&self) -> CString {
-        CString::new(*self).unwrap()
+    fn to_c_str(&self) -> Result<CString, std::ffi::NulError> {
+        CString::new(*self)
     }
 }
 
@@ -91,12 +91,12 @@ pub fn addchstr(s: &[chtype]) -> i32
 { unsafe { ll::addchstr(s.as_ptr()) } }
 
 
-pub fn addnstr(s: &str, n: i32) -> i32
-{ unsafe { ll::addnstr(s.to_c_str().as_ptr(), n) } }
+pub fn addnstr(s: &str, n: i32) -> Result<i32, std::ffi::NulError>
+{ unsafe { Ok(ll::addnstr(s.to_c_str()?.as_ptr(), n) )} }
 
 
-pub fn addstr(s: &str) -> i32
-{ unsafe { ll::addstr(s.to_c_str().as_ptr()) } }
+pub fn addstr(s: &str) -> Result<i32, std::ffi::NulError>
+{ unsafe { Ok(ll::addstr(s.to_c_str()?.as_ptr())) } }
 
 
 pub fn assume_default_colors(fg: i32, bg: i32) -> i32
@@ -288,8 +288,8 @@ pub fn endwin() -> i32
 { unsafe { ll::endwin() } }
 
 
-pub fn erasechar() -> char
-{ unsafe { char::from_u32(ll::erasechar() as u32).expect("Invalid char") } }
+pub fn erasechar() -> Option<char>
+{ unsafe { char::from_u32(ll::erasechar() as u32) } }
 
 
 pub fn filter()
@@ -681,8 +681,8 @@ pub fn keypad(w: WINDOW, bf: bool) -> i32
 { unsafe { ll::keypad(w, bf as ll::c_bool) } }
 
 
-pub fn killchar() -> char
-{ unsafe { char::from_u32(ll::killchar() as u32).expect("Invalid char") } }
+pub fn killchar() -> Option<char>
+{ unsafe { char::from_u32(ll::killchar() as u32) } }
 
 
 pub fn leaveok(w: WINDOW, bf: bool) -> i32
@@ -721,18 +721,18 @@ pub fn mvaddchstr(y: i32, x: i32, s: &[chtype]) -> i32
 }
 
 
-pub fn mvaddnstr(y: i32, x: i32, s: &str, n: i32) -> i32
+pub fn mvaddnstr(y: i32, x: i32, s: &str, n: i32) -> Result<i32, std::ffi::NulError>
 {
   if mv(y, x) == ERR
-  { return ERR; }
+  { return Ok(ERR); }
   addnstr(s, n)
 }
 
 
-pub fn mvaddstr(y: i32, x: i32, s: &str) -> i32
+pub fn mvaddstr(y: i32, x: i32, s: &str) -> Result<i32, std::ffi::NulError>
 {
   if mv(y, x) == ERR
-  { return ERR; }
+  { return Ok(ERR); }
   addstr(s)
 }
 
@@ -835,10 +835,10 @@ pub fn mvinstr(y: i32, x: i32, s: &mut String) -> i32
 }
 
 
-pub fn mvprintw(y: i32, x: i32, s: &str) -> i32
+pub fn mvprintw(y: i32, x: i32, s: &str) -> Result<i32, std::ffi::NulError>
 {
   if mv(y, x) == ERR
-  { return ERR; }
+  { return Ok(ERR); }
   printw(s)
 }
 
@@ -859,12 +859,12 @@ pub fn mvwaddchstr(w: WINDOW, y: i32, x: i32, s: &[chtype]) -> i32
 { unsafe { ll::mvwaddchstr(w, y, x, s.as_ptr()) } }
 
 
-pub fn mvwaddnstr(w: WINDOW, y: i32, x: i32, s: &str, n: i32) -> i32
-{ unsafe { ll::mvwaddnstr(w, y, x, s.to_c_str().as_ptr(), n) } }
+pub fn mvwaddnstr(w: WINDOW, y: i32, x: i32, s: &str, n: i32) -> Result<i32, std::ffi::NulError>
+{ unsafe { Ok(ll::mvwaddnstr(w, y, x, s.to_c_str()?.as_ptr(), n)) } }
 
 
-pub fn mvwaddstr(w: WINDOW, y: i32, x: i32, s: &str) -> i32
-{ unsafe { ll::mvwaddstr(w, y, x, s.to_c_str().as_ptr()) } }
+pub fn mvwaddstr(w: WINDOW, y: i32, x: i32, s: &str) -> Result<i32, std::ffi::NulError>
+{ unsafe { Ok(ll::mvwaddstr(w, y, x, s.to_c_str()?.as_ptr())) } }
 
 
 pub fn mvwchgat(w: WINDOW, y: i32, x: i32, n: i32, attr: attr_t, color: i16) -> i32
@@ -983,12 +983,12 @@ pub fn mvwinsch(w: WINDOW, y: i32, x: i32, ch: chtype) -> i32
 { unsafe { ll::mvwinsch(w, y, x, ch) } }
 
 
-pub fn mvwinsnstr(w: WINDOW, y: i32, x: i32, s: &str, n: i32) -> i32
-{ unsafe { ll::mvwinsnstr(w, y, x, s.to_c_str().as_ptr(), n) } }
+pub fn mvwinsnstr(w: WINDOW, y: i32, x: i32, s: &str, n: i32) -> Result<i32, std::ffi::NulError>
+{ unsafe { Ok(ll::mvwinsnstr(w, y, x, s.to_c_str()?.as_ptr(), n)) } }
 
 
-pub fn mvwinsstr(w: WINDOW, y: i32, x: i32, s: &str) -> i32
-{ unsafe { ll::mvwinsstr(w, y, x, s.to_c_str().as_ptr()) } }
+pub fn mvwinsstr(w: WINDOW, y: i32, x: i32, s: &str) -> Result<i32, std::ffi::NulError>
+{ unsafe { Ok(ll::mvwinsstr(w, y, x, s.to_c_str()?.as_ptr())) } }
 
 
 pub fn mvwinstr(w: WINDOW, y: i32, x: i32, s: &mut String) -> i32
@@ -1011,8 +1011,8 @@ pub fn mvwinstr(w: WINDOW, y: i32, x: i32, s: &mut String) -> i32
 }
 
 
-pub fn mvwprintw(w: WINDOW, y: i32, x: i32, s: &str) -> i32
-{ unsafe { ll::mvwprintw(w, y, x, s.to_c_str().as_ptr()) } }
+pub fn mvwprintw(w: WINDOW, y: i32, x: i32, s: &str) -> Result<i32, std::ffi::NulError>
+{ unsafe { Ok(ll::mvwprintw(w, y, x, s.to_c_str()?.as_ptr())) } }
 
 
 pub fn mvwvline(w: WINDOW, y: i32, x: i32, ch: chtype, n: i32) -> i32
@@ -1027,14 +1027,14 @@ pub fn newpad(lines: i32, cols: i32) -> WINDOW
 { unsafe { ll::newpad(lines, cols) } }
 
 
-pub fn newterm(ty: Option<&str>, out_fd: FILE_p, in_fd: FILE_p) -> SCREEN
+pub fn newterm(ty: Option<&str>, out_fd: FILE_p, in_fd: FILE_p) -> Result<SCREEN, std::ffi::NulError>
 {
   unsafe
   {
-    match ty {
-      Some(s) => ll::newterm(s.to_c_str().as_ptr(), out_fd, in_fd),
+    Ok(match ty {
+      Some(s) => ll::newterm(s.to_c_str()?.as_ptr(), out_fd, in_fd),
       None    => ll::newterm(std::ptr::null(), out_fd, in_fd),
-    }
+    })
   }
 }
 
@@ -1104,12 +1104,12 @@ pub fn prefresh(pad: WINDOW, pmin_row: i32, pmin_col: i32, smin_row: i32, smin_c
 
 
 #[deprecated(since = "5.98.0", note = "printw can segfault when printing string that contains % sign. Use addstr instead")]
-pub fn printw(s: &str) -> i32
-{ unsafe { ll::printw(s.to_c_str().as_ptr()) } }
+pub fn printw(s: &str) -> Result<i32, std::ffi::NulError>
+{ unsafe { Ok(ll::printw(s.to_c_str()?.as_ptr())) } }
 
 
-pub fn putp(s: &str) -> i32
-{ unsafe { ll::putp(s.to_c_str().as_ptr()) } }
+pub fn putp(s: &str) -> Result<i32, std::ffi::NulError>
+{ unsafe { Ok(ll::putp(s.to_c_str()?.as_ptr())) } }
 
 
 pub fn putwin(w: WINDOW, f: FILE_p) -> i32
@@ -1156,12 +1156,12 @@ pub fn savetty() -> i32
 { unsafe { ll::savetty() } }
 
 
-pub fn scr_dump(filename: &str) -> i32
-{ unsafe { ll::scr_dump(filename.to_c_str().as_ptr()) } }
+pub fn scr_dump(filename: &str) -> Result<i32, std::ffi::NulError>
+{ unsafe { Ok(ll::scr_dump(filename.to_c_str()?.as_ptr())) } }
 
 
-pub fn scr_init(filename: &str) -> i32
-{ unsafe { ll::scr_init(filename.to_c_str().as_ptr()) } }
+pub fn scr_init(filename: &str) -> Result<i32, std::ffi::NulError>
+{ unsafe { Ok(ll::scr_init(filename.to_c_str()?.as_ptr())) } }
 
 
 pub fn scrl(n: i32) -> i32
@@ -1176,25 +1176,25 @@ pub fn scrollok(w: WINDOW, bf: bool) -> i32
 { unsafe { ll::scrollok(w, bf as ll::c_bool) } }
 
 
-pub fn scr_restore(filename: &str) -> i32
-{ unsafe { ll::scr_restore(filename.to_c_str().as_ptr()) } }
+pub fn scr_restore(filename: &str) -> Result<i32, std::ffi::NulError>
+{ unsafe { Ok(ll::scr_restore(filename.to_c_str()?.as_ptr())) } }
 
 
-pub fn scr_set(filename: &str) -> i32
-{ unsafe { ll::scr_set(filename.to_c_str().as_ptr()) } }
+pub fn scr_set(filename: &str) -> Result<i32, std::ffi::NulError>
+{ unsafe { Ok(ll::scr_set(filename.to_c_str()?.as_ptr())) } }
 
-pub fn setlocale(lc: LcCategory, locale: &str) -> String
+pub fn setlocale(lc: LcCategory, locale: &str) -> Result<String, std::ffi::NulError>
 {
   unsafe {
-    let c_str = locale.to_c_str();
+    let c_str = locale.to_c_str()?;
     let buf = c_str.as_ptr();
     let ret = libc::setlocale(lc as libc::c_int, buf);
     if ret == ptr::null_mut() {
-        String::new()
+        Ok(String::new())
     } else {
         // The clone is necessary, as the returned pointer
         // can change at any time
-        CStr::from_ptr(ret).to_string_lossy().into_owned()
+        Ok(CStr::from_ptr(ret).to_string_lossy().into_owned())
     }
   }
 }
@@ -1268,8 +1268,8 @@ pub fn slk_restore() -> i32
 { unsafe { ll::slk_restore() } }
 
 
-pub fn slk_set(n: i32, s: &str, fmt: i32) -> i32
-{ unsafe { ll::slk_set(n, s.to_c_str().as_ptr(), fmt) } }
+pub fn slk_set(n: i32, s: &str, fmt: i32) -> Result<i32, std::ffi::NulError>
+{ unsafe { Ok(ll::slk_set(n, s.to_c_str()?.as_ptr(), fmt)) } }
 
 
 pub fn slk_touch() -> i32
@@ -1324,20 +1324,20 @@ pub fn typeahead(fd: i32) -> i32
 { unsafe { ll::typeahead(fd) } }
 
 
-pub fn tigetflag(capname: &str) -> i32
-{ unsafe { ll::tigetflag(capname.to_c_str().as_ptr()) } }
+pub fn tigetflag(capname: &str) -> Result<i32, std::ffi::NulError>
+{ unsafe { Ok(ll::tigetflag(capname.to_c_str()?.as_ptr())) } }
 
 
-pub fn tigetnum(capname: &str) -> i32
-{ unsafe { ll::tigetnum(capname.to_c_str().as_ptr()) } }
+pub fn tigetnum(capname: &str) -> Result<i32, std::ffi::NulError>
+{ unsafe { Ok(ll::tigetnum(capname.to_c_str()?.as_ptr())) } }
 
 
-pub fn tigetstr(capname: &str) -> String
-{ unsafe { FromCStr::from_c_str(ll::tigetstr(capname.to_c_str().as_ptr())) } }
+pub fn tigetstr(capname: &str) -> Result<String, std::ffi::NulError>
+{ unsafe { Ok(FromCStr::from_c_str(ll::tigetstr(capname.to_c_str()?.as_ptr()))) } }
 
 
-pub fn tparm(s: &str) -> String
-{ unsafe { FromCStr::from_c_str(ll::tparm(s.to_c_str().as_ptr())) } }
+pub fn tparm(s: &str) -> Result<String, std::ffi::NulError>
+{ unsafe { Ok(FromCStr::from_c_str(ll::tparm(s.to_c_str()?.as_ptr()))) } }
 
 
 pub fn ungetch(ch: i32) -> i32
@@ -1376,12 +1376,12 @@ pub fn waddchstr(w: WINDOW, s: &[chtype]) -> i32
 { unsafe { ll::waddchstr(w, s.as_ptr()) } }
 
 
-pub fn waddnstr(w: WINDOW, s: &str, n: i32) -> i32
-{ unsafe { ll::waddnstr(w, s.to_c_str().as_ptr(), n) } }
+pub fn waddnstr(w: WINDOW, s: &str, n: i32) -> Result<i32, std::ffi::NulError>
+{ unsafe { Ok(ll::waddnstr(w, s.to_c_str()?.as_ptr(), n)) } }
 
 
-pub fn waddstr(w: WINDOW, s: &str) -> i32
-{ unsafe { ll::waddstr(w, s.to_c_str().as_ptr()) } }
+pub fn waddstr(w: WINDOW, s: &str) -> Result<i32, std::ffi::NulError>
+{ unsafe { Ok(ll::waddstr(w, s.to_c_str()?.as_ptr())) } }
 
 
 pub fn wattron(w: WINDOW, attr: NCURSES_ATTR_T) -> i32
@@ -1632,8 +1632,8 @@ pub fn wnoutrefresh(w: WINDOW) -> i32
 { unsafe { ll::wnoutrefresh(w) } }
 
 
-pub fn wprintw(w: WINDOW, s: &str) -> i32
-{ unsafe { ll::wprintw(w, s.to_c_str().as_ptr()) } }
+pub fn wprintw(w: WINDOW, s: &str) -> Result<i32, std::ffi::NulError>
+{ unsafe { Ok(ll::wprintw(w, s.to_c_str()?.as_ptr())) } }
 
 
 pub fn wredrawln(w: WINDOW, start: i32, n: i32) -> i32
@@ -1781,8 +1781,10 @@ pub fn mouseinterval(n: i32) -> i32
 
 pub fn mousemask(newmask: mmask_t, oldmask: Option<&mut mmask_t>) -> mmask_t
 {
-    if oldmask.is_none() { unsafe { ll::mousemask(newmask, ptr::null_mut()) } }
-    else { unsafe { ll::mousemask(newmask, oldmask.unwrap()) } }
+    match oldmask {
+	None => { unsafe { ll::mousemask(newmask, ptr::null_mut()) } },
+	Some(old) => { unsafe { ll::mousemask(newmask, old) } },
+    }
 }
 
 pub fn wenclose(w: WINDOW, y: i32, x: i32) -> bool
