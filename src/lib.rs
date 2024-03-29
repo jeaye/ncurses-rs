@@ -1781,8 +1781,10 @@ pub fn mouseinterval(n: i32) -> i32
 
 pub fn mousemask(newmask: mmask_t, oldmask: Option<&mut mmask_t>) -> mmask_t
 {
-    if oldmask.is_none() { unsafe { ll::mousemask(newmask, ptr::null_mut()) } }
-    else { unsafe { ll::mousemask(newmask, oldmask.unwrap()) } }
+    match oldmask {
+	None => { unsafe { ll::mousemask(newmask, ptr::null_mut()) } },
+	Some(old) => { unsafe { ll::mousemask(newmask, old) } },
+    }
 }
 
 pub fn wenclose(w: WINDOW, y: i32, x: i32) -> bool
