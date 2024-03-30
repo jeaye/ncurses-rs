@@ -400,14 +400,22 @@ pub fn getnstr(s: &mut String, n: i32) -> i32
 
 pub fn getstr(s: &mut String) -> i32
 {
-  /* XXX: This is probably broken. */
   let mut ch = getch();
+  let mut v = Vec::new();
   while ch != '\n' as i32 && ch != '\r' as i32
   {
-    unsafe { s.as_mut_vec().push(ch as u8); }
+    v.push(ch as u8);
     ch = getch();
   }
-  OK
+  match std::str::from_utf8(&v) {
+    Ok(parsed) => {
+      *s = parsed.to_string();
+      OK
+    },
+    Err(_) => {
+      ERR
+    },
+  }
 }
 
 
@@ -863,17 +871,25 @@ pub fn mvwgetnstr(w: WINDOW, y: i32, x: i32, s: &mut String, n: i32) -> i32
 
 pub fn mvwgetstr(w: WINDOW, y: i32, x: i32, s: &mut String) -> i32
 {
-  if mv(y, x) == ERR
-  { return ERR; }
+    if mv(y, x) == ERR
+    { return ERR; }
 
-  /* XXX: This is probably broken. */
-  let mut ch = wgetch(w);
-  while ch != '\n' as i32 && ch != '\r' as i32
-  {
-    unsafe { s.as_mut_vec().push(ch as u8); }
-    ch = wgetch(w);
-  }
-  OK
+    let mut ch = wgetch(w);
+    let mut v = Vec::new();
+    while ch != '\n' as i32 && ch != '\r' as i32
+    {
+	v.push(ch as u8);
+	ch = wgetch(w);
+    }
+    match std::str::from_utf8(&v) {
+	Ok(parsed) => {
+	    *s = parsed.to_string();
+	    OK
+	},
+	Err(_) => {
+	    ERR
+	},
+    }
 }
 
 
@@ -1474,14 +1490,22 @@ pub fn wgetnstr(w: WINDOW, s: &mut String, n: i32) -> i32
 
 pub fn wgetstr(w: WINDOW, s: &mut String) -> i32
 {
-  /* XXX: This is probably broken. */
-  let mut ch = wgetch(w);
-  while ch != '\n' as i32 && ch != '\r' as i32
-  {
-    unsafe { s.as_mut_vec().push(ch as u8); }
-    ch = wgetch(w);
-  }
-  OK
+    let mut ch = wgetch(w);
+    let mut v = Vec::new();
+    while ch != '\n' as i32 && ch != '\r' as i32
+    {
+	v.push(ch as u8);
+	ch = wgetch(w);
+    }
+    match std::str::from_utf8(&v) {
+	Ok(parsed) => {
+	    *s = parsed.to_string();
+	    OK
+	},
+	Err(_) => {
+	    ERR
+	},
+    }
 }
 
 
