@@ -593,26 +593,6 @@ pub fn insstr(s: &str) -> i32
 }
 
 
-pub fn instr(s: &mut String) -> i32
-{
-  /* XXX: This is probably broken. */
-  unsafe
-  {
-    let buf = s.as_bytes().as_ptr();
-    let ret = ll::instr(mem::transmute(buf));
-
-    let capacity = s.capacity();
-    match s.find('\0')
-    {
-      Some(index) => s.as_mut_vec().set_len(index as usize),
-      None => s.as_mut_vec().set_len(capacity),
-    }
-
-    ret
-  }
-}
-
-
 pub fn intrflush(w: WINDOW, bf: bool) -> i32
 { unsafe { ll::intrflush(w, bf as ll::c_bool) } }
 
@@ -824,14 +804,6 @@ pub fn mvinsstr(y: i32, x: i32, s: &str) -> i32
   if mv(y, x) == ERR
   { return ERR; }
   insstr(s)
-}
-
-
-pub fn mvinstr(y: i32, x: i32, s: &mut String) -> i32
-{
-  if mv(y, x) == ERR
-  { return ERR; }
-  instr(s)
 }
 
 
