@@ -76,7 +76,7 @@ fn gen_constants() {
     let bin = format!("{}", Path::new(&out_dir).join(if cfg!(windows) { "genconstants.exe" } else { "genconstants" }).display());
     let src = format!("{}", Path::new(&out_dir).join("raw_constants.rs").display());
 
-    let mut build = cc::Build::new();
+    let build = cc::Build::new();
     let compiler = build.try_get_compiler().expect("Failed Build::try_get_compiler");
     let mut command = compiler.to_command();
 
@@ -101,7 +101,7 @@ fn gen_menu_constants() {
     let bin = format!("{}", Path::new(&out_dir).join(if cfg!(windows) { "genmenuconstants.exe" } else { "genmenuconstants" }).display());
     let src = format!("{}", Path::new(&out_dir).join("menu_constants.rs").display());
 
-    let mut build = cc::Build::new();
+    let build = cc::Build::new();
     let compiler = build.try_get_compiler().expect("Failed Build::try_get_compiler");
     let mut command = compiler.to_command();
 
