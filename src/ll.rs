@@ -153,7 +153,7 @@ extern {
     pub fn mvinsnstr(_:c_int, _:c_int, _:char_p, _:c_int) -> c_int;
     pub fn mvinsstr(_:c_int, _:c_int, _:char_p) -> c_int;
     pub fn mvinstr(_:c_int, _:c_int, _:char_p) -> c_int;
-    pub fn mvprintw(_:c_int, _:c_int, _:char_p) -> c_int;
+    pub fn mvprintw(_:c_int, _:c_int, fmt: char_p, _:char_p) -> c_int;
     //  fn mvscanw(_:c_int,_:c_int, _:char_p) -> c_int;
     pub fn mvvline(_:c_int, _:c_int, _:chtype, _:c_int) -> c_int;
     pub fn mvwaddch(_:WINDOW, _:c_int, _:c_int, _:chtype) -> c_int;
@@ -176,7 +176,7 @@ extern {
     pub fn mvwinsnstr(_:WINDOW, _:c_int, _:c_int, _:char_p, _:c_int) -> c_int;
     pub fn mvwinsstr(_:WINDOW, _:c_int, _:c_int, _:char_p) -> c_int;
     pub fn mvwinstr(_:WINDOW, _:c_int, _:c_int, _:char_p) -> c_int;
-    pub fn mvwprintw(_:WINDOW, _:c_int, _:c_int, _:char_p) -> c_int;
+    pub fn mvwprintw(_:WINDOW, _:c_int, _:c_int, fmt: char_p, _:char_p) -> c_int;
 
     //  fn mvwscanw(_:WINDOW, _:c_int, _:c_int, _:char_p) -> c_int;
     pub fn mvwvline(_:WINDOW, _:c_int, _:c_int, _:chtype, _:c_int) -> c_int;
@@ -200,7 +200,7 @@ extern {
     pub fn pnoutrefresh(_:WINDOW,_:c_int,_:c_int,_:c_int,_:c_int,_:c_int,_:c_int) -> c_int;
     pub fn prefresh(_:WINDOW,_:c_int,_:c_int,_:c_int,_:c_int,_:c_int,_:c_int) -> c_int;
 
-    pub fn printw(_:char_p) -> c_int;
+    pub fn printw(fmt: char_p, _:char_p) -> c_int;
     pub fn putwin(_:WINDOW, _:FILE_p) -> c_int;
     pub fn qiflush();
     pub fn raw() -> c_int;
@@ -311,7 +311,7 @@ extern {
     pub fn winstr(_:WINDOW, _:char_p) -> c_int;
     pub fn wmove(_:WINDOW,_:c_int,_:c_int) -> c_int;
     pub fn wnoutrefresh(_:WINDOW) -> c_int;
-    pub fn wprintw(_:WINDOW, _:char_p) -> c_int;
+    pub fn wprintw(_:WINDOW, fmt: char_p, _:char_p) -> c_int;
     pub fn wredrawln(_:WINDOW,_:c_int,_:c_int) -> c_int;
     pub fn wrefresh(_:WINDOW) -> c_int;
     pub fn wresize(_:WINDOW, _:c_int, _:c_int) -> c_int;
