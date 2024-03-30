@@ -593,26 +593,6 @@ pub fn insstr(s: &str) -> i32
 }
 
 
-pub fn instr(s: &mut String) -> i32
-{
-  /* XXX: This is probably broken. */
-  unsafe
-  {
-    let buf = s.as_bytes().as_ptr();
-    let ret = ll::instr(mem::transmute(buf));
-
-    let capacity = s.capacity();
-    match s.find('\0')
-    {
-      Some(index) => s.as_mut_vec().set_len(index as usize),
-      None => s.as_mut_vec().set_len(capacity),
-    }
-
-    ret
-  }
-}
-
-
 pub fn intrflush(w: WINDOW, bf: bool) -> i32
 { unsafe { ll::intrflush(w, bf as ll::c_bool) } }
 
@@ -827,14 +807,6 @@ pub fn mvinsstr(y: i32, x: i32, s: &str) -> i32
 }
 
 
-pub fn mvinstr(y: i32, x: i32, s: &mut String) -> i32
-{
-  if mv(y, x) == ERR
-  { return ERR; }
-  instr(s)
-}
-
-
 pub fn mvprintw(y: i32, x: i32, s: &str) -> Result<i32, std::ffi::NulError>
 {
   if mv(y, x) == ERR
@@ -1011,8 +983,13 @@ pub fn mvwinstr(w: WINDOW, y: i32, x: i32, s: &mut String) -> i32
 }
 
 
-pub fn mvwprintw(w: WINDOW, y: i32, x: i32, s: &str) -> Result<i32, std::ffi::NulError>
-{ unsafe { Ok(ll::mvwprintw(w, y, x, s.to_c_str()?.as_ptr())) } }
+pub fn mvwprintw(w: WINDOW, y: i32, x: i32, s: &str) -> Result<i32, std::ffi::NulError> {
+    // We don't actually need this function to support format strings,
+    // as they are more safely done in Rust.
+    unsafe {
+	Ok(ll::mvwprintw(w, y, x, "%s".to_c_str()?.as_ptr(), s.to_c_str()?.as_ptr()))
+    }
+}
 
 
 pub fn mvwvline(w: WINDOW, y: i32, x: i32, ch: chtype, n: i32) -> i32
@@ -1103,9 +1080,15 @@ pub fn prefresh(pad: WINDOW, pmin_row: i32, pmin_col: i32, smin_row: i32, smin_c
 { unsafe { ll::prefresh(pad, pmin_row, pmin_col, smin_row, smin_col, smax_row, smax_col) } }
 
 
-#[deprecated(since = "5.98.0", note = "printw can segfault when printing string that contains % sign. Use addstr instead")]
+#[deprecated(since = "5.98.0", note = "printw format support is disabled. Use addstr instead")]
 pub fn printw(s: &str) -> Result<i32, std::ffi::NulError>
-{ unsafe { Ok(ll::printw(s.to_c_str()?.as_ptr())) } }
+{
+    // We don't actually need this function to support format strings,
+    // as they are more safely done in Rust.
+    unsafe {
+	Ok(ll::printw("%s".to_c_str()?.as_ptr(), s.to_c_str()?.as_ptr()))
+    }
+}
 
 
 pub fn putp(s: &str) -> Result<i32, std::ffi::NulError>
@@ -1632,8 +1615,13 @@ pub fn wnoutrefresh(w: WINDOW) -> i32
 { unsafe { ll::wnoutrefresh(w) } }
 
 
-pub fn wprintw(w: WINDOW, s: &str) -> Result<i32, std::ffi::NulError>
-{ unsafe { Ok(ll::wprintw(w, s.to_c_str()?.as_ptr())) } }
+pub fn wprintw(w: WINDOW, s: &str) -> Result<i32, std::ffi::NulError> {
+    // We don't actually need this function to support format strings,
+    // as they are more safely done in Rust.
+    unsafe {
+	Ok(ll::wprintw(w, "%s".to_c_str()?.as_ptr(), s.to_c_str()?.as_ptr()))
+    }
+}
 
 
 pub fn wredrawln(w: WINDOW, start: i32, n: i32) -> i32
