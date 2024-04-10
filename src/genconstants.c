@@ -278,6 +278,9 @@ int main() {
 	PCONSTU(crate::ll::chtype, A_NORMAL);
 	PCONSTU(crate::ll::chtype, A_STANDOUT);
 	PCONSTU(crate::ll::chtype, A_UNDERLINE);
+#ifdef A_ITALIC
+	PCONSTU(crate::ll::chtype, A_ITALIC);
+#endif
 	PCONSTU(crate::ll::chtype, A_REVERSE);
 	PCONSTU(crate::ll::chtype, A_BLINK);
 	PCONSTU(crate::ll::chtype, A_DIM);
