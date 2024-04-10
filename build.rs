@@ -45,38 +45,101 @@ fn main() {
         }
     }
 
-    match std::env::var("NCURSES_RS_RUSTC_LINK_LIB") {
-        Ok(x) => println!("cargo:rustc-link-lib={}", x),
-        _ => if ncurses_lib.is_none() {
-            println!("cargo:rustc-link-lib={}", ncurses_lib_names.last().unwrap())
+    let mut already_printed:bool=false;
+    const ENV_VAR_NAME_FOR_LIB:&str="NCURSES_RS_RUSTC_LINK_LIB";
+    println!("cargo:rerun-if-env-changed={}",ENV_VAR_NAME_FOR_LIB);
+    let lib_name:String=match std::env::var(ENV_VAR_NAME_FOR_LIB) {
+        Ok(x) => x,
+        _ => if let Some(ref lib)=ncurses_lib {
+            // you can get something like this ["ncurses", "tinfo"] as the lib.libs vector
+            // but we shouldn't assume "ncurses" is the first ie. lib.libs[0]
+            // and the exact name of it can be ncurses,ncursesw,ncurses5,ncursesw5 ...
+            // so find whichever it is and return that:
+            let substring_to_find = "curses";
+            if let Some(found) = lib.libs.iter().find(|&s| s.contains(substring_to_find)) {
+                //If we're here, the pkg_config::probe_library() calls from above ie. through find_library()
+                //have already printed these:
+                //   cargo:rustc-link-lib=ncurses
+                //   cargo:rustc-link-lib=tinfo
+                //so there's no need to re-print the ncurses line
+                already_printed=true;
+                found.clone()
+            } else {
+                //if here, we should probably panic, but who knows it might still work even without pkg-config
+
+                // Construct the repeated pkg-config command string
+                let repeated_pkg_config_command: String = ncurses_lib_names
+                    .iter()
+                    .map(|ncurses_lib_name| format!("pkg-config --libs {}", ncurses_lib_name))
+                    .collect::<Vec<_>>()
+                    .join("` or `");
+
+                // Construct the warning message string with the repeated pkg-config commands
+                let warning_message = format!(
+                    "pkg_config reported that it found the ncurses libs but the substring '{}' was not among them, ie. in the output of the shell command(s) eg. `{}`",
+                    substring_to_find,
+                    repeated_pkg_config_command
+                    );
+
+                // Print the warning message, but use old style warning with one ":" not two "::",
+                // because old cargos(pre 23 Dec 2023) will simply ignore it and show no warning if it's "::"
+                println!("cargo:warning={}", warning_message);
+                //fallback lib name: 'ncurses' or 'ncursesw'
+                //if this fails, there's the warning above to get an idea as to why.
+                ncurses_lib_names.last().unwrap().to_string()
+            }
+        } else {
+            //pkg-config didn't find the lib, fallback to 'ncurses' or 'ncursesw'
+            ncurses_lib_names.last().unwrap().to_string()
         }
+    };
+    if !already_printed {
+        println!("cargo:rustc-link-lib={}", lib_name);
     }
 
-    if let Ok(x) = std::env::var("NCURSES_RS_RUSTC_FLAGS") {
+    const ENV_VAR_NAME_FOR_FLAGS:&str="NCURSES_RS_RUSTC_FLAGS";
+    println!("cargo:rerun-if-env-changed={}",ENV_VAR_NAME_FOR_FLAGS);
+    if let Ok(x) = std::env::var(ENV_VAR_NAME_FOR_FLAGS) {
         println!("cargo:rustc-flags={}", x);
     }
 
     check_chtype_size(&ncurses_lib);
 
-    gen_constants();
-    gen_menu_constants();
-    build_wrap();
+    gen_constants(&ncurses_lib, &lib_name);
+    gen_menu_constants(&ncurses_lib, &lib_name);
+    build_wrap(&ncurses_lib);
 }
 
-fn build_wrap() {
+fn build_wrap(ncurses_lib: &Option<Library>) {
     println!("cargo:rerun-if-changed=src/wrap.c");
-    cc::Build::new()
-        .file("src/wrap.c")
+    let mut build = cc::Build::new();
+    if let Some(lib) = ncurses_lib {
+        for path in lib.include_paths.iter() {
+            build.include(path);
+        }
+    }
+    build.file("src/wrap.c")
         .compile("wrap");
 }
 
-fn gen_constants() {
+fn gen_constants(ncurses_lib: &Option<Library>, lib_name:&str) {
     println!("cargo:rerun-if-changed=src/genconstants.c");
     let out_dir = env::var("OUT_DIR").expect("cannot get OUT_DIR");
     let bin = format!("{}", Path::new(&out_dir).join(if cfg!(windows) { "genconstants.exe" } else { "genconstants" }).display());
     let src = format!("{}", Path::new(&out_dir).join("raw_constants.rs").display());
 
-    let build = cc::Build::new();
+    let mut build = cc::Build::new();
+    let link_paths_for_linker;
+    if let Some(lib) = ncurses_lib {
+        for path in lib.include_paths.iter() {
+            build.include(path);
+        }
+        link_paths_for_linker=lib.link_paths.iter()
+            .map(|link_path| format!("-L{}", link_path.display()))
+            .collect::<Vec<String>>();
+    } else {
+        link_paths_for_linker=vec!();
+    }
     let compiler = build.try_get_compiler().expect("Failed Build::try_get_compiler");
     let mut command = compiler.to_command();
 
@@ -84,7 +147,8 @@ fn gen_constants() {
         command.args(x.split(" "));
     }    
 
-    command.arg("-o").arg(&bin).arg("src/genconstants.c").arg("-lcurses");
+    command.arg("-o").arg(&bin).arg("src/genconstants.c")
+        .arg(format!("-l{}",lib_name)).args(link_paths_for_linker);
     assert!(command.status().expect("compilation failed").success());
 
     let consts = Command::new(&bin).output()
@@ -95,13 +159,25 @@ fn gen_constants() {
     file.write_all(&consts.stdout).unwrap();
 }
 
-fn gen_menu_constants() {
+//FIXME: dedup code in these 2 functions
+fn gen_menu_constants(ncurses_lib: &Option<Library>, lib_name:&str) {
     println!("cargo:rerun-if-changed=src/menu/genconstants.c");
     let out_dir = env::var("OUT_DIR").expect("cannot get OUT_DIR");
     let bin = format!("{}", Path::new(&out_dir).join(if cfg!(windows) { "genmenuconstants.exe" } else { "genmenuconstants" }).display());
     let src = format!("{}", Path::new(&out_dir).join("menu_constants.rs").display());
 
-    let build = cc::Build::new();
+    let mut build = cc::Build::new();
+    let link_paths_for_linker;
+    if let Some(lib) = ncurses_lib {
+        for path in lib.include_paths.iter() {
+            build.include(path);
+        }
+        link_paths_for_linker=lib.link_paths.iter()
+            .map(|link_path| format!("-L{}", link_path.display()))
+            .collect::<Vec<String>>();
+    } else {
+        link_paths_for_linker=vec!();
+    }
     let compiler = build.try_get_compiler().expect("Failed Build::try_get_compiler");
     let mut command = compiler.to_command();
 
@@ -109,7 +185,8 @@ fn gen_menu_constants() {
         command.args(x.split(" "));
     }    
 
-    command.arg("-o").arg(&bin).arg("src/menu/genconstants.c").arg("-lcurses");
+    command.arg("-o").arg(&bin).arg("src/menu/genconstants.c")
+        .arg(format!("-l{}",lib_name)).args(link_paths_for_linker);
     assert!(command.status().expect("compilation failed").success());
 
     let consts = Command::new(&bin).output()
