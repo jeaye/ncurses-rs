@@ -102,6 +102,7 @@ fn main() {
                     ncurses_lib_names.last().unwrap().to_string()
                 }
             } else {
+                println!("cargo:warning={}", "You may not have either pkg-config or pkgconf, or ncurses installed (it's 'ncurses-devel' on Fedora). Using fallback but if compilation fails below, that's is why.");
                 //pkg-config didn't find the lib, fallback to 'ncurses' or 'ncursesw'
                 ncurses_lib_names.last().unwrap().to_string()
             }
@@ -271,7 +272,10 @@ int main(void)
     }
 
     command.arg("-o").arg(&bin).arg(&src);
-    assert!(command.status().expect("compilation failed").success());
+    assert!(
+        command.status().expect("compilation failed").success(),
+        "Is ncurses installed? pkg-config or pkgconf too? it's ncurses-devel on Fedora"
+    );
     let features = Command::new(&bin)
         .output()
         .expect(&format!("{} failed", bin));
