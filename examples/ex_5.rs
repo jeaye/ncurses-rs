@@ -38,8 +38,8 @@ fn main() {
 
   /* Print a border around the main window */
   box_(my_menu_win, 0, 0);
-  mvprintw(LINES() - 3, 0, "Press <ENTER> to see the option selected");
-  mvprintw(LINES() - 2, 0, "F1 to exit");
+  mvprintw(LINES() - 3, 0, "Press <ENTER> to see the option selected").unwrap();//safe
+  mvprintw(LINES() - 2, 0, "F1 to exit").unwrap(); //safe
   refresh();
 
   /* Post the menu */
@@ -60,7 +60,8 @@ fn main() {
       10 => {/* Enter */
         mv(20, 0);
         clrtoeol();
-        mvprintw(20, 0, &format!("Item selected is : {}", item_name(current_item(my_menu)))[..]);
+        mvprintw(20, 0, &format!("Item selected is : {}", item_name(current_item(my_menu)))[..]).unwrap();
+        //unwrap() here is safe unless the items have any \0 (nul) char in them, then it will panic!
         pos_menu_cursor(my_menu);
       },
       _ => {}
