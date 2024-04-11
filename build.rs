@@ -8,9 +8,9 @@ use std::io::Write;
 use std::path::Path;
 use std::process::Command;
 
-const ENV_VAR_NAME_FOR_NCURSES_RS_CFLAGS:&str="NCURSES_RS_CFLAGS";
-const ENV_VAR_NAME_FOR_LIB:&str="NCURSES_RS_RUSTC_LINK_LIB";
-const ENV_VAR_NAME_FOR_NCURSES_RS_RUSTC_FLAGS:&str="NCURSES_RS_RUSTC_FLAGS";
+const ENV_VAR_NAME_FOR_NCURSES_RS_CFLAGS: &str = "NCURSES_RS_CFLAGS";
+const ENV_VAR_NAME_FOR_LIB: &str = "NCURSES_RS_RUSTC_LINK_LIB";
+const ENV_VAR_NAME_FOR_NCURSES_RS_RUSTC_FLAGS: &str = "NCURSES_RS_RUSTC_FLAGS";
 
 fn find_library(names: &[&str]) -> Option<Library> {
     for name in names {
@@ -23,9 +23,15 @@ fn find_library(names: &[&str]) -> Option<Library> {
 
 fn main() {
     println!("cargo:rerun-if-env-changed=PKG_CONFIG_PATH");
-    println!("cargo:rerun-if-env-changed={}",ENV_VAR_NAME_FOR_NCURSES_RS_CFLAGS);
-    println!("cargo:rerun-if-env-changed={}",ENV_VAR_NAME_FOR_NCURSES_RS_RUSTC_FLAGS);
-    println!("cargo:rerun-if-env-changed={}",ENV_VAR_NAME_FOR_LIB);
+    println!(
+        "cargo:rerun-if-env-changed={}",
+        ENV_VAR_NAME_FOR_NCURSES_RS_CFLAGS
+    );
+    println!(
+        "cargo:rerun-if-env-changed={}",
+        ENV_VAR_NAME_FOR_NCURSES_RS_RUSTC_FLAGS
+    );
+    println!("cargo:rerun-if-env-changed={}", ENV_VAR_NAME_FOR_LIB);
 
     let wide = cfg!(all(feature = "wide", not(target_os = "macos")));
 
@@ -52,51 +58,53 @@ fn main() {
         }
     }
 
-    let mut already_printed:bool=false;
-    let lib_name:String=match std::env::var(ENV_VAR_NAME_FOR_LIB) {
+    let mut already_printed: bool = false;
+    let lib_name: String = match std::env::var(ENV_VAR_NAME_FOR_LIB) {
         Ok(x) => x,
-        _ => if let Some(ref lib)=ncurses_lib {
-            // you can get something like this ["ncurses", "tinfo"] as the lib.libs vector
-            // but we shouldn't assume "ncurses" is the first ie. lib.libs[0]
-            // and the exact name of it can be ncurses,ncursesw,ncurses5,ncursesw5 ...
-            // so find whichever it is and return that:
-            let substring_to_find = "curses";
-            if let Some(found) = lib.libs.iter().find(|&s| s.contains(substring_to_find)) {
-                //If we're here, the function calls to pkg_config::probe_library()
-                //from above ie. through find_library(), have already printed these:
-                //   cargo:rustc-link-lib=ncurses
-                //   cargo:rustc-link-lib=tinfo
-                //so there's no need to re-print the ncurses line as it would be the same.
-                already_printed=true;
-                found.clone()
-            } else {
-                //if here, we should probably panic, but who knows it might still work even without pkg-config
+        _ => {
+            if let Some(ref lib) = ncurses_lib {
+                // you can get something like this ["ncurses", "tinfo"] as the lib.libs vector
+                // but we shouldn't assume "ncurses" is the first ie. lib.libs[0]
+                // and the exact name of it can be ncurses,ncursesw,ncurses5,ncursesw5 ...
+                // so find whichever it is and return that:
+                let substring_to_find = "curses";
+                if let Some(found) = lib.libs.iter().find(|&s| s.contains(substring_to_find)) {
+                    //If we're here, the function calls to pkg_config::probe_library()
+                    //from above ie. through find_library(), have already printed these:
+                    //   cargo:rustc-link-lib=ncurses
+                    //   cargo:rustc-link-lib=tinfo
+                    //so there's no need to re-print the ncurses line as it would be the same.
+                    already_printed = true;
+                    found.clone()
+                } else {
+                    //if here, we should probably panic, but who knows it might still work even without pkg-config
 
-                // Construct the repeated pkg-config command string
-                let repeated_pkg_config_command: String = ncurses_lib_names
-                    .iter()
-                    .map(|ncurses_lib_name| format!("pkg-config --libs {}", ncurses_lib_name))
-                    .collect::<Vec<_>>()
-                    .join("` or `");
+                    // Construct the repeated pkg-config command string
+                    let repeated_pkg_config_command: String = ncurses_lib_names
+                        .iter()
+                        .map(|ncurses_lib_name| format!("pkg-config --libs {}", ncurses_lib_name))
+                        .collect::<Vec<_>>()
+                        .join("` or `");
 
-                // Construct the warning message string with the repeated pkg-config commands
-                let warning_message = format!(
+                    // Construct the warning message string with the repeated pkg-config commands
+                    let warning_message = format!(
                     "pkg_config reported that it found the ncurses libs but the substring '{}' was not among them, ie. in the output of the shell command(s) eg. `{}`",
                     substring_to_find,
                     repeated_pkg_config_command
                     );
 
-                // Print the warning message, but use old style warning with one ":" not two "::",
-                // because old cargos(pre 23 Dec 2023) will simply ignore it and show no warning if it's "::"
-                println!("cargo:warning={}", warning_message);
+                    // Print the warning message, but use old style warning with one ":" not two "::",
+                    // because old cargos(pre 23 Dec 2023) will simply ignore it and show no warning if it's "::"
+                    println!("cargo:warning={}", warning_message);
 
-                //fallback lib name: 'ncurses' or 'ncursesw'
-                //if this fails later, there's the warning above to get an idea as to why.
+                    //fallback lib name: 'ncurses' or 'ncursesw'
+                    //if this fails later, there's the warning above to get an idea as to why.
+                    ncurses_lib_names.last().unwrap().to_string()
+                }
+            } else {
+                //pkg-config didn't find the lib, fallback to 'ncurses' or 'ncursesw'
                 ncurses_lib_names.last().unwrap().to_string()
             }
-        } else {
-            //pkg-config didn't find the lib, fallback to 'ncurses' or 'ncursesw'
-            ncurses_lib_names.last().unwrap().to_string()
         }
     };
     if !already_printed {
@@ -109,8 +117,20 @@ fn main() {
 
     check_chtype_size(&ncurses_lib);
 
-    gen_rs("src/genconstants.c", "genconstants", "raw_constants.rs", &ncurses_lib, &lib_name);
-    gen_rs("src/menu/genconstants.c", "genmenuconstants", "menu_constants.rs", &ncurses_lib, &lib_name);
+    gen_rs(
+        "src/genconstants.c",
+        "genconstants",
+        "raw_constants.rs",
+        &ncurses_lib,
+        &lib_name,
+    );
+    gen_rs(
+        "src/menu/genconstants.c",
+        "genmenuconstants",
+        "menu_constants.rs",
+        &ncurses_lib,
+        &lib_name,
+    );
     build_wrap(&ncurses_lib);
 }
 
@@ -122,18 +142,31 @@ fn build_wrap(ncurses_lib: &Option<Library>) {
             build.include(path);
         }
     }
-    build.file("src/wrap.c")
-        .compile("wrap");
+    build.file("src/wrap.c").compile("wrap");
 }
 
-fn gen_rs(source_c_file:&str, out_bin_file:&str, gen_rust_file:&str, ncurses_lib: &Option<Library>, lib_name:&str) {
+fn gen_rs(
+    source_c_file: &str,
+    out_bin_file: &str,
+    gen_rust_file: &str,
+    ncurses_lib: &Option<Library>,
+    lib_name: &str,
+) {
     println!("cargo:rerun-if-changed={}", source_c_file);
     let out_dir = env::var("OUT_DIR").expect("cannot get OUT_DIR");
     let gen_rust_file_full_path = format!("{}", Path::new(&out_dir).join(gen_rust_file).display());
-    let bin = format!("{}", Path::new(&out_dir)
-                          .join(format!("{}{}",out_bin_file,if cfg!(windows) { ".exe" } else { "" })).display());
+    let bin = format!(
+        "{}",
+        Path::new(&out_dir)
+            .join(format!(
+                "{}{}",
+                out_bin_file,
+                if cfg!(windows) { ".exe" } else { "" }
+            ))
+            .display()
+    );
     let mut build = cc::Build::new();
-    let mut linker_searchdir_args=Vec::new();
+    let mut linker_searchdir_args = Vec::new();
     if let Some(lib) = ncurses_lib {
         for path in lib.include_paths.iter() {
             build.include(path);
@@ -143,38 +176,59 @@ fn gen_rs(source_c_file:&str, out_bin_file:&str, gen_rust_file:&str, ncurses_lib
             linker_searchdir_args.push(link_path.display().to_string());
         }
     }
-    let compiler = build.try_get_compiler().expect("Failed Build::try_get_compiler");
+    let compiler = build
+        .try_get_compiler()
+        .expect("Failed Build::try_get_compiler");
     let mut command = compiler.to_command();
 
     if let Ok(x) = std::env::var(ENV_VAR_NAME_FOR_NCURSES_RS_CFLAGS) {
         command.args(x.split(" "));
     }
 
-    command.arg("-o").arg(&bin).arg(source_c_file)
+    command
+        .arg("-o")
+        .arg(&bin)
+        .arg(source_c_file)
         .args(["-l", lib_name])
         .args(linker_searchdir_args);
     assert!(command.status().expect("compilation failed").success());
 
-    let consts = Command::new(&bin).output()
+    let consts = Command::new(&bin)
+        .output()
         .expect(&format!("{} failed", bin));
 
     let mut file = File::create(&gen_rust_file_full_path).unwrap_or_else(|err| {
-        panic!("Couldn't create rust file '{}', reason: '{}'", gen_rust_file_full_path, err)
+        panic!(
+            "Couldn't create rust file '{}', reason: '{}'",
+            gen_rust_file_full_path, err
+        )
     });
 
     file.write_all(&consts.stdout).unwrap_or_else(|err| {
-        panic!("Couldn't write to rust file '{}', reason: '{}'", gen_rust_file_full_path, err)
+        panic!(
+            "Couldn't write to rust file '{}', reason: '{}'",
+            gen_rust_file_full_path, err
+        )
     });
 }
-
 
 fn check_chtype_size(ncurses_lib: &Option<Library>) {
     let out_dir = env::var("OUT_DIR").expect("cannot get OUT_DIR");
     let src = format!("{}", Path::new(&out_dir).join("chtype_size.c").display());
-    let bin = format!("{}", Path::new(&out_dir).join(if cfg!(windows) { "chtype_size.exe" } else { "chtype_size" }).display());
+    let bin = format!(
+        "{}",
+        Path::new(&out_dir)
+            .join(if cfg!(windows) {
+                "chtype_size.exe"
+            } else {
+                "chtype_size"
+            })
+            .display()
+    );
 
     let mut fp = File::create(&src).expect(&format!("cannot create {}", src));
-    fp.write_all(b"
+    fp.write_all(
+        b"
 #include <assert.h>
 #include <limits.h>
 #include <stdio.h>
@@ -195,7 +249,9 @@ int main(void)
 #endif
     return 0;
 }
-    ").expect(&format!("cannot write into {}", src));
+    ",
+    )
+    .expect(&format!("cannot write into {}", src));
 
     let mut build = cc::Build::new();
     if let Some(lib) = ncurses_lib {
@@ -203,7 +259,9 @@ int main(void)
             build.include(path);
         }
     }
-    let compiler = build.try_get_compiler().expect("Failed Build::try_get_compiler");
+    let compiler = build
+        .try_get_compiler()
+        .expect("Failed Build::try_get_compiler");
     let mut command = compiler.to_command();
 
     if let Ok(x) = std::env::var(ENV_VAR_NAME_FOR_NCURSES_RS_CFLAGS) {
@@ -212,7 +270,8 @@ int main(void)
 
     command.arg("-o").arg(&bin).arg(&src);
     assert!(command.status().expect("compilation failed").success());
-    let features = Command::new(&bin).output()
+    let features = Command::new(&bin)
+        .output()
         .expect(&format!("{} failed", bin));
     print!("{}", String::from_utf8_lossy(&features.stdout));
 
