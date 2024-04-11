@@ -154,17 +154,18 @@ fn gen_rs(
 ) {
     println!("cargo:rerun-if-changed={}", source_c_file);
     let out_dir = env::var("OUT_DIR").expect("cannot get OUT_DIR");
-    let gen_rust_file_full_path = format!("{}", Path::new(&out_dir).join(gen_rust_file).display());
-    let bin = format!(
-        "{}",
-        Path::new(&out_dir)
-            .join(format!(
-                "{}{}",
-                out_bin_file,
-                if cfg!(windows) { ".exe" } else { "" }
-            ))
-            .display()
-    );
+    let gen_rust_file_full_path = Path::new(&out_dir)
+        .join(gen_rust_file)
+        .display()
+        .to_string();
+    let bin = Path::new(&out_dir)
+        .join(format!(
+            "{}{}",
+            out_bin_file,
+            if cfg!(windows) { ".exe" } else { "" }
+        ))
+        .display()
+        .to_string();
     let mut build = cc::Build::new();
     let mut linker_searchdir_args = Vec::new();
     if let Some(lib) = ncurses_lib {
@@ -214,17 +215,18 @@ fn gen_rs(
 
 fn check_chtype_size(ncurses_lib: &Option<Library>) {
     let out_dir = env::var("OUT_DIR").expect("cannot get OUT_DIR");
-    let src = format!("{}", Path::new(&out_dir).join("chtype_size.c").display());
-    let bin = format!(
-        "{}",
-        Path::new(&out_dir)
-            .join(if cfg!(windows) {
-                "chtype_size.exe"
-            } else {
-                "chtype_size"
-            })
-            .display()
-    );
+    let src = Path::new(&out_dir)
+        .join("chtype_size.c")
+        .display()
+        .to_string();
+    let bin = Path::new(&out_dir)
+        .join(if cfg!(windows) {
+            "chtype_size.exe"
+        } else {
+            "chtype_size"
+        })
+        .display()
+        .to_string();
 
     let mut fp = File::create(&src).expect(&format!("cannot create {}", src));
     fp.write_all(
