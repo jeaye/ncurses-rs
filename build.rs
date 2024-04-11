@@ -102,7 +102,7 @@ fn main() {
                     ncurses_lib_names.last().unwrap().to_string()
                 }
             } else {
-                println!("cargo:warning={}", "You may not have either pkg-config or pkgconf, or ncurses installed (it's 'ncurses-devel' on Fedora). Using fallback but if compilation fails below, that's is why.");
+                println!("cargo:warning=You may not have either pkg-config or pkgconf, or ncurses installed (it's 'ncurses-devel' on Fedora). Using fallback but if compilation fails below, that's is why.");
                 //pkg-config didn't find the lib, fallback to 'ncurses' or 'ncursesw'
                 ncurses_lib_names.last().unwrap().to_string()
             }
@@ -180,7 +180,7 @@ fn gen_rs(
     let mut command = compiler.to_command();
 
     if let Ok(x) = std::env::var(ENV_VAR_NAME_FOR_NCURSES_RS_CFLAGS) {
-        command.args(x.split(" "));
+        command.args(x.split(' '));
     }
 
     command
@@ -193,7 +193,7 @@ fn gen_rs(
 
     let consts = Command::new(&bin)
         .output()
-        .expect(&format!("{} failed", bin));
+        .unwrap_or_else(|e| panic!("Executing '{}' failed, reason: '{}'", bin, e));
 
     let gen_rust_file_full_path = Path::new(&out_dir)
         .join(gen_rust_file)
@@ -229,7 +229,8 @@ fn check_chtype_size(ncurses_lib: &Option<Library>) {
         .display()
         .to_string();
 
-    let mut fp = File::create(&src).expect(&format!("cannot create {}", src));
+    let mut fp =
+        File::create(&src).unwrap_or_else(|e| panic!("cannot create '{}', reason: '{}'", src, e));
     fp.write_all(
         b"
 #include <assert.h>
@@ -254,7 +255,7 @@ int main(void)
 }
     ",
     )
-    .expect(&format!("cannot write into {}", src));
+    .unwrap_or_else(|e| panic!("cannot write into '{}', reason: '{}'", src, e));
 
     let mut build = cc::Build::new();
     if let Some(lib) = ncurses_lib {
@@ -268,7 +269,7 @@ int main(void)
     let mut command = compiler.to_command();
 
     if let Ok(x) = std::env::var(ENV_VAR_NAME_FOR_NCURSES_RS_CFLAGS) {
-        command.args(x.split(" "));
+        command.args(x.split(' '));
     }
 
     command.arg("-o").arg(&bin).arg(&src);
@@ -278,9 +279,11 @@ int main(void)
     );
     let features = Command::new(&bin)
         .output()
-        .expect(&format!("{} failed", bin));
+        .unwrap_or_else(|e| panic!("Executing '{}' failed, reason: '{}'", bin, e));
     print!("{}", String::from_utf8_lossy(&features.stdout));
 
-    std::fs::remove_file(&src).expect(&format!("cannot delete {}", src));
-    std::fs::remove_file(&bin).expect(&format!("cannot delete {}", bin));
+    std::fs::remove_file(&src)
+        .unwrap_or_else(|e| panic!("Cannot delete generated file '{}', reason: '{}'", src, e));
+    std::fs::remove_file(&bin)
+        .unwrap_or_else(|e| panic!("cannot delete compiled file '{}', reason: '{}'", bin, e));
 }
