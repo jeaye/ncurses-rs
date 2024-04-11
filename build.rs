@@ -154,10 +154,6 @@ fn gen_rs(
 ) {
     println!("cargo:rerun-if-changed={}", source_c_file);
     let out_dir = env::var("OUT_DIR").expect("cannot get OUT_DIR");
-    let gen_rust_file_full_path = Path::new(&out_dir)
-        .join(gen_rust_file)
-        .display()
-        .to_string();
     let bin = Path::new(&out_dir)
         .join(format!(
             "{}{}",
@@ -198,6 +194,10 @@ fn gen_rs(
         .output()
         .expect(&format!("{} failed", bin));
 
+    let gen_rust_file_full_path = Path::new(&out_dir)
+        .join(gen_rust_file)
+        .display()
+        .to_string();
     let mut file = File::create(&gen_rust_file_full_path).unwrap_or_else(|err| {
         panic!(
             "Couldn't create rust file '{}', reason: '{}'",
