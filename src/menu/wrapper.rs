@@ -1,5 +1,6 @@
 #![allow(dead_code)]
 #![allow(unused_imports)]
+#![warn(temporary_cstring_as_ptr)] // false positives? https://github.com/rust-lang/rust/issues/78691
 
 use std::str;
 use std::ptr;
@@ -412,7 +413,8 @@ pub fn unpost_menu(menu: MENU) -> i32 {
 #[cfg(feature="menu")]
 pub fn menu_request_by_name<T: Into<Vec<u8>>>(name: T) -> i32 {
   unsafe {
-    super::ll::menu_request_by_name(CString::new(name).unwrap().as_ptr())
+    let cs=CString::new(name).unwrap();
+    super::ll::menu_request_by_name(cs.as_ptr())
   }
 }
 
