@@ -8,6 +8,10 @@ use std::io::Write;
 use std::path::Path;
 use std::process::Command;
 
+const ENV_VAR_NAME_FOR_NCURSES_RS_CFLAGS:&str="NCURSES_RS_CFLAGS";
+const ENV_VAR_NAME_FOR_LIB:&str="NCURSES_RS_RUSTC_LINK_LIB";
+const ENV_VAR_NAME_FOR_NCURSES_RS_RUSTC_FLAGS:&str="NCURSES_RS_RUSTC_FLAGS";
+
 fn find_library(names: &[&str]) -> Option<Library> {
     for name in names {
         if let Ok(lib) = pkg_config::probe_library(name) {
@@ -19,6 +23,9 @@ fn find_library(names: &[&str]) -> Option<Library> {
 
 fn main() {
     println!("cargo:rerun-if-env-changed=PKG_CONFIG_PATH");
+    println!("cargo:rerun-if-env-changed={}",ENV_VAR_NAME_FOR_NCURSES_RS_CFLAGS);
+    println!("cargo:rerun-if-env-changed={}",ENV_VAR_NAME_FOR_NCURSES_RS_RUSTC_FLAGS);
+    println!("cargo:rerun-if-env-changed={}",ENV_VAR_NAME_FOR_LIB);
 
     let wide = cfg!(all(feature = "wide", not(target_os = "macos")));
 
@@ -46,8 +53,6 @@ fn main() {
     }
 
     let mut already_printed:bool=false;
-    const ENV_VAR_NAME_FOR_LIB:&str="NCURSES_RS_RUSTC_LINK_LIB";
-    println!("cargo:rerun-if-env-changed={}",ENV_VAR_NAME_FOR_LIB);
     let lib_name:String=match std::env::var(ENV_VAR_NAME_FOR_LIB) {
         Ok(x) => x,
         _ => if let Some(ref lib)=ncurses_lib {
@@ -57,11 +62,11 @@ fn main() {
             // so find whichever it is and return that:
             let substring_to_find = "curses";
             if let Some(found) = lib.libs.iter().find(|&s| s.contains(substring_to_find)) {
-                //If we're here, the pkg_config::probe_library() calls from above ie. through find_library()
-                //have already printed these:
+                //If we're here, the function calls to pkg_config::probe_library()
+                //from above ie. through find_library(), have already printed these:
                 //   cargo:rustc-link-lib=ncurses
                 //   cargo:rustc-link-lib=tinfo
-                //so there's no need to re-print the ncurses line
+                //so there's no need to re-print the ncurses line as it would be the same.
                 already_printed=true;
                 found.clone()
             } else {
@@ -84,8 +89,9 @@ fn main() {
                 // Print the warning message, but use old style warning with one ":" not two "::",
                 // because old cargos(pre 23 Dec 2023) will simply ignore it and show no warning if it's "::"
                 println!("cargo:warning={}", warning_message);
+
                 //fallback lib name: 'ncurses' or 'ncursesw'
-                //if this fails, there's the warning above to get an idea as to why.
+                //if this fails later, there's the warning above to get an idea as to why.
                 ncurses_lib_names.last().unwrap().to_string()
             }
         } else {
@@ -97,16 +103,14 @@ fn main() {
         println!("cargo:rustc-link-lib={}", lib_name);
     }
 
-    const ENV_VAR_NAME_FOR_FLAGS:&str="NCURSES_RS_RUSTC_FLAGS";
-    println!("cargo:rerun-if-env-changed={}",ENV_VAR_NAME_FOR_FLAGS);
-    if let Ok(x) = std::env::var(ENV_VAR_NAME_FOR_FLAGS) {
+    if let Ok(x) = std::env::var(ENV_VAR_NAME_FOR_NCURSES_RS_RUSTC_FLAGS) {
         println!("cargo:rustc-flags={}", x);
     }
 
     check_chtype_size(&ncurses_lib);
 
-    gen_constants(&ncurses_lib, &lib_name);
-    gen_menu_constants(&ncurses_lib, &lib_name);
+    gen_rs("src/genconstants.c", "genconstants", "raw_constants.rs", &ncurses_lib, &lib_name);
+    gen_rs("src/menu/genconstants.c", "genmenuconstants", "menu_constants.rs", &ncurses_lib, &lib_name);
     build_wrap(&ncurses_lib);
 }
 
@@ -122,80 +126,47 @@ fn build_wrap(ncurses_lib: &Option<Library>) {
         .compile("wrap");
 }
 
-fn gen_constants(ncurses_lib: &Option<Library>, lib_name:&str) {
-    println!("cargo:rerun-if-changed=src/genconstants.c");
+fn gen_rs(source_c_file:&str, out_bin_file:&str, gen_rust_file:&str, ncurses_lib: &Option<Library>, lib_name:&str) {
+    println!("cargo:rerun-if-changed={}", source_c_file);
     let out_dir = env::var("OUT_DIR").expect("cannot get OUT_DIR");
-    let bin = format!("{}", Path::new(&out_dir).join(if cfg!(windows) { "genconstants.exe" } else { "genconstants" }).display());
-    let src = format!("{}", Path::new(&out_dir).join("raw_constants.rs").display());
-
+    let gen_rust_file_full_path = format!("{}", Path::new(&out_dir).join(gen_rust_file).display());
+    let bin = format!("{}", Path::new(&out_dir)
+                          .join(format!("{}{}",out_bin_file,if cfg!(windows) { ".exe" } else { "" })).display());
     let mut build = cc::Build::new();
-    let link_paths_for_linker;
+    let mut linker_searchdir_args=Vec::new();
     if let Some(lib) = ncurses_lib {
         for path in lib.include_paths.iter() {
             build.include(path);
         }
-        link_paths_for_linker=lib.link_paths.iter()
-            .map(|link_path| format!("-L{}", link_path.display()))
-            .collect::<Vec<String>>();
-    } else {
-        link_paths_for_linker=vec!();
+        for link_path in &lib.link_paths {
+            linker_searchdir_args.push("-L".to_string());
+            linker_searchdir_args.push(link_path.display().to_string());
+        }
     }
     let compiler = build.try_get_compiler().expect("Failed Build::try_get_compiler");
     let mut command = compiler.to_command();
 
-    if let Ok(x) = std::env::var("NCURSES_RS_CFLAGS") {
+    if let Ok(x) = std::env::var(ENV_VAR_NAME_FOR_NCURSES_RS_CFLAGS) {
         command.args(x.split(" "));
-    }    
+    }
 
-    command.arg("-o").arg(&bin).arg("src/genconstants.c")
-        .arg(format!("-l{}",lib_name)).args(link_paths_for_linker);
+    command.arg("-o").arg(&bin).arg(source_c_file)
+        .args(["-l", lib_name])
+        .args(linker_searchdir_args);
     assert!(command.status().expect("compilation failed").success());
 
     let consts = Command::new(&bin).output()
         .expect(&format!("{} failed", bin));
 
-    let mut file = File::create(&src).unwrap();
-    
-    file.write_all(&consts.stdout).unwrap();
+    let mut file = File::create(&gen_rust_file_full_path).unwrap_or_else(|err| {
+        panic!("Couldn't create rust file '{}', reason: '{}'", gen_rust_file_full_path, err)
+    });
+
+    file.write_all(&consts.stdout).unwrap_or_else(|err| {
+        panic!("Couldn't write to rust file '{}', reason: '{}'", gen_rust_file_full_path, err)
+    });
 }
 
-//FIXME: dedup code in these 2 functions
-fn gen_menu_constants(ncurses_lib: &Option<Library>, lib_name:&str) {
-    println!("cargo:rerun-if-changed=src/menu/genconstants.c");
-    let out_dir = env::var("OUT_DIR").expect("cannot get OUT_DIR");
-    let bin = format!("{}", Path::new(&out_dir).join(if cfg!(windows) { "genmenuconstants.exe" } else { "genmenuconstants" }).display());
-    let src = format!("{}", Path::new(&out_dir).join("menu_constants.rs").display());
-
-    let mut build = cc::Build::new();
-    let link_paths_for_linker;
-    if let Some(lib) = ncurses_lib {
-        for path in lib.include_paths.iter() {
-            build.include(path);
-        }
-        link_paths_for_linker=lib.link_paths.iter()
-            .map(|link_path| format!("-L{}", link_path.display()))
-            .collect::<Vec<String>>();
-    } else {
-        link_paths_for_linker=vec!();
-    }
-    let compiler = build.try_get_compiler().expect("Failed Build::try_get_compiler");
-    let mut command = compiler.to_command();
-
-    if let Ok(x) = std::env::var("NCURSES_RS_CFLAGS") {
-        command.args(x.split(" "));
-    }    
-
-    command.arg("-o").arg(&bin).arg("src/menu/genconstants.c")
-        .arg(format!("-l{}",lib_name)).args(link_paths_for_linker);
-    assert!(command.status().expect("compilation failed").success());
-
-    let consts = Command::new(&bin).output()
-        .expect(&format!("{} failed", bin));
-
-    let mut file = File::create(&src).unwrap();
-    
-    file.write_all(&consts.stdout).unwrap();
-}
 
 fn check_chtype_size(ncurses_lib: &Option<Library>) {
     let out_dir = env::var("OUT_DIR").expect("cannot get OUT_DIR");
@@ -235,7 +206,7 @@ int main(void)
     let compiler = build.try_get_compiler().expect("Failed Build::try_get_compiler");
     let mut command = compiler.to_command();
 
-    if let Ok(x) = std::env::var("NCURSES_RS_CFLAGS") {
+    if let Ok(x) = std::env::var(ENV_VAR_NAME_FOR_NCURSES_RS_CFLAGS) {
         command.args(x.split(" "));
     }
 
