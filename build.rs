@@ -102,7 +102,7 @@ fn main() {
                     ncurses_lib_names.last().unwrap().to_string()
                 }
             } else {
-                println!("cargo:warning=You may not have either pkg-config or pkgconf, or ncurses installed (it's 'ncurses-devel' on Fedora). Using fallback but if compilation fails below, that's is why.");
+                println!("cargo:warning=You may not have either pkg-config or pkgconf, or ncurses installed (it's 'ncurses-devel' on Fedora). Using fallback but if compilation fails below, that is why.");
                 //pkg-config didn't find the lib, fallback to 'ncurses' or 'ncursesw'
                 ncurses_lib_names.last().unwrap().to_string()
             }
