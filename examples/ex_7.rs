@@ -10,6 +10,7 @@
 
 extern crate ncurses;
 
+#[cfg(feature = "wide")]
 use std::char;
 use ncurses::*;
 

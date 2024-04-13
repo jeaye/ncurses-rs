@@ -1,6 +1,7 @@
 #[allow(unused_imports)]
 extern crate ncurses;
 
+#[cfg(feature="menu")]
 use ncurses::*;
 
 #[cfg(feature="menu")]
