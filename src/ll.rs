@@ -426,7 +426,7 @@ extern {
     
 }
 
-/// Extended color support. Requires ncurses6.
+// XXX: Extended color support. Requires ncurses6.
 #[cfg(feature = "extended_colors")]
 extern {
     pub fn init_extended_color(_: c_int, _: c_int, _: c_int, _: c_int) -> c_int;
