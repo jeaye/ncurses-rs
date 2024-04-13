@@ -62,7 +62,10 @@ extern {
     pub fn bkgd(_:chtype) -> c_int;
     pub fn bkgdset(_:chtype);
     pub fn border(_:chtype,_:chtype,_:chtype,_:chtype,_:chtype,_:chtype,_:chtype,_:chtype) -> c_int;
+    #[link_name="box"] // points to 'box' of ncurses lib, but is 'box_' here in rust.
     pub fn box_(_:WINDOW, _:chtype, _:chtype) -> c_int;
+    //This is 'box' both in rust and in ncurses lib; but 'box' is reserved keyword, so use r#box
+    pub fn r#box(_:WINDOW, _:chtype, _:chtype) -> c_int;
     pub fn can_change_color() -> c_bool;
     pub fn cbreak() -> c_int;
     pub fn chgat(_:c_int, _:attr_t, _:c_short, _:void_p) -> c_int;

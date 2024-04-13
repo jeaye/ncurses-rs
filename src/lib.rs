@@ -158,7 +158,12 @@ pub fn border(ls: chtype, rs: chtype, ts: chtype, bs: chtype, tl: chtype, tr: ch
 { unsafe { ll::border(ls, rs, ts, bs, tl, tr, bl, br) } }
 
 
-#[link_name="box"] pub fn box_(w: WINDOW, v: chtype, h: chtype) -> i32
+// this is 'box' in rust but must use r#box because 'box' is reserved keyword
+#[inline(always)]
+pub fn r#box(w: WINDOW, v: chtype, h: chtype) -> i32
+{ box_(w,v,h) }
+
+pub fn box_(w: WINDOW, v: chtype, h: chtype) -> i32
 { wborder(w, v, v, h, h, 0, 0, 0, 0) }
 
 
