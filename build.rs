@@ -134,6 +134,8 @@ fn build_wrap(ncurses_lib: &Option<Library>) {
         //    build.include(path);
         //}
     }
+    build.opt_level(1); //else is 0, causes warning on NixOS: _FORTIFY_SOURCE requires compiling with optimization (-O)
+
     // The following creates `libwrap.a` on linux
     build.file("src/wrap.c").compile("wrap");
 }
