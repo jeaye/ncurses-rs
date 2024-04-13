@@ -30,5 +30,9 @@ wide_chtype = []
 mouse_v1 = []
 extended_colors = ["wide"]
 
+#Internal features used in 'build.rs' only:
+test_build_rs_of_ncurses_rs = []
+dummy_feature_to_detect_that_--all-features_arg_was_used= []
+
 [lib]
 name = "ncurses"
