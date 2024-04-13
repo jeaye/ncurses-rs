@@ -261,8 +261,8 @@ extern {
     //  fn vidputs(_:chtype, extern  fn f(c_int) -> c_int) -> c_int;
     //pub fn vidputs(_:chtype, f:*mut c_char) -> c_int;
     pub fn vline(_:chtype, _:c_int) -> c_int;
-    pub fn vwprintw(_:WINDOW, _:char_p, _:va_list) -> c_int;
-    pub fn vw_printw(_:WINDOW, _:char_p,_:va_list) -> c_int;
+    pub fn vwprintw(_:WINDOW, fmt:char_p, _:va_list) -> c_int;
+    pub fn vw_printw(_:WINDOW, fmt:char_p,_:va_list) -> c_int;
     //  fn vwscanw(_:WINDOW, _:char_p, _:va_list) -> c_int;
     //  fn vw_scanw(_:WINDOW, _:char_p, _:va_list) -> c_int;
     pub fn waddch(_:WINDOW, _:chtype) -> c_int;
