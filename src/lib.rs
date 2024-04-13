@@ -1096,7 +1096,6 @@ pub fn prefresh(pad: WINDOW, pmin_row: i32, pmin_col: i32, smin_row: i32, smin_c
 { unsafe { ll::prefresh(pad, pmin_row, pmin_col, smin_row, smin_col, smax_row, smax_col) } }
 
 
-#[deprecated(since = "5.98.0", note = "printw format support is disabled. Use addstr instead")]
 pub fn printw(s: &str) -> Result<i32, std::ffi::NulError>
 {
     // We don't actually need this function to support format strings,
