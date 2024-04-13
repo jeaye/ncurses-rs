@@ -9,6 +9,6 @@ pkgs.stdenv.mkDerivation
     pkgs.cargo
     pkgs.rustup
     pkgs.rustfmt
-    pkgs.ncurses5
+    pkgs.ncurses
   ];
 }
