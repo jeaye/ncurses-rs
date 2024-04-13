@@ -17,7 +17,7 @@ extern crate libc;
 use std::mem;
 use std::{ char, ptr };
 use std::ffi::{CString, CStr};
-use self::ll::{FILE_p};
+use self::ll::FILE_p;
 pub use self::constants::*;
 pub use self::panel::wrapper::*;
 pub use self::menu::wrapper::*;
