@@ -54,6 +54,24 @@ const NCURSES_LIB_NAMES: &[&str] = if IS_WIDE {
     &["ncurses5", "ncurses"]
 };
 
+const MENU_LIB_NAMES: &[&str] = if IS_WIDE {
+    &["menuw5", "menuw"]
+} else {
+    &["menu5", "menu"]
+};
+
+const PANEL_LIB_NAMES: &[&str] = if IS_WIDE {
+    &["panelw5", "panelw"]
+} else {
+    &["panel5", "panel"]
+};
+//TODO: why are we trying the v5 of the lib first instead of v6 (which is the second/last in list),
+//was v5 newer than the next in list? is it so on other systems?
+//like: was it ever ncurses5 newer than ncurses ?
+//Since we're trying v5 and it finds it, it will use it and stop looking, even though the next one
+//might be v6
+
+/// finds and emits cargo:rustc-link-lib=
 fn find_library(names: &[&str]) -> Option<Library> {
     for name in names {
         if let Ok(lib) = pkg_config::probe_library(name) {
@@ -80,23 +98,22 @@ fn main() {
     let ncurses_lib = find_library(NCURSES_LIB_NAMES);
 
     if cfg!(feature = "menu") {
-        if IS_WIDE {
-            find_library(&["menuw5", "menuw"]);
-        } else {
-            find_library(&["menu5", "menu"]);
+        if find_library(MENU_LIB_NAMES).is_none() {
+            let fallback_lib_name = *MENU_LIB_NAMES.last().unwrap();
+            println!("cargo:rustc-link-lib={}", fallback_lib_name);
         }
     }
 
     if cfg!(feature = "panel") {
-        if IS_WIDE {
-            find_library(&["panelw5", "panelw"]);
-        } else {
-            find_library(&["panel5", "panel"]);
+        if find_library(PANEL_LIB_NAMES).is_none() {
+            let fallback_lib_name = *PANEL_LIB_NAMES.last().unwrap();
+            println!("cargo:rustc-link-lib={}", fallback_lib_name);
         }
     }
 
     // gets the name of ncurses lib found by pkg-config, if it found any!
     // else (warns and)returns the default one like 'ncurses' or 'ncursesw'
+    // and emits cargo:rustc-link-lib= for it unless already done.
     let lib_name = get_ncurses_lib_name(&ncurses_lib);
 
     if let Ok(x) = std::env::var(ENV_VAR_NAME_FOR_NCURSES_RS_RUSTC_FLAGS) {
@@ -345,9 +362,16 @@ fn get_ncurses_lib_name(ncurses_lib: &Option<Library>) -> String {
                     (*NCURSES_LIB_NAMES.last().unwrap()).to_string()
                 }
             } else {
-                println!("cargo:warning=You may not have either pkg-config or pkgconf, or ncurses installed (it's 'ncurses-devel' on Fedora). Using fallback but if compilation fails below, that is why.");
                 //pkg-config didn't find the lib, fallback to 'ncurses' or 'ncursesw'
-                (*NCURSES_LIB_NAMES.last().unwrap()).to_string()
+                let what_lib = (*NCURSES_LIB_NAMES.last().unwrap()).to_string();
+                // On FreeBSD it works without pkgconf and ncurses(6.4) installed but it will fail
+                // to link ex_5 with 'menu' lib, unless `NCURSES_RS_RUSTC_FLAGS="-lmenu" is set.
+                // this is why we now use fallbacks for 'menu' and 'panel` above too(not just for 'ncurses' lib)
+                // that is, when pkgconf or pkg-config are missing, yet the libs are there.
+                // TODO: maybe do it even for 'tinfo' but at least NixOS won't have tinfo at all so
+                // it would fail?!
+                println!("cargo:warning=It's likely you have not installed one of ['pkg-config' or 'pkgconf'], and/or 'ncurses' (it's package 'ncurses-devel' on Fedora). This seems to work fine on FreeBSD 14 regardless, however to not see this warning and to ensure 100% compatibility be sure to install at least `pkgconf` if not both ie. `# pkg install ncurses pkgconf`. Using fallback lib name '{}' but if compilation fails below(like when linking ex_5 with 'menu' feature), that is why.", what_lib);
+                what_lib
             }
         }
     };
