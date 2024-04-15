@@ -392,7 +392,7 @@ fn gen_rs(
     assert_eq!(
         exit_code,
         0,
-        "Executing '{}' failed with exit code '{}',\n|||stdout start|||\n{}\n|||stdout end||| |||stderr start|||\n{}\n|||stderr end|||",
+        "Executing '{}' failed with exit code '{}',\n|||stdout start|||\n{}\n|||stdout end||| |||stderr start|||\n{}\n|||stderr end|||\n!! Maybe you need to try a different value for the TERM environment variable !!",
         bin_full,
         exit_code,
         String::from_utf8_lossy(&consts.stdout),
