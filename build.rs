@@ -183,6 +183,11 @@ fn main() {
 
     check_chtype_size(&ncurses_lib);
 
+    //The code in src/genconstants.c uses initscr() of ncurses (see: $ man 3x initscr)
+    //which depends on TERM env.var and will fail if TERM is wrong, say 'TERM=foo',
+    //with: "Error opening terminal: foo." and exit code 1
+    //therefore rebuild if TERM is changed without needing a 'cargo clean' first:
+    println!("cargo:rerun-if-env-changed=TERM",);
     gen_rs(
         "src/genconstants.c",
         "genconstants",
@@ -370,10 +375,29 @@ fn gen_rs(
         .args_checked(linker_searchdir_args);
     command.success_or_panic(); //runs compiler
 
-    //execute the compiled binary
+    //Execute the compiled binary, panicking if non-zero exit code, else compilation will fail
+    //later with things like: "error[E0432]: unresolved import `constants::TRUE`" in the case of
+    //generating raw_constants.rs which would be empty due to 'genconstants' having failed with exit
+    //code 1
     let consts = Command::new(&bin_full)
-        .output()
+        .output() // TODO: maybe make this a trait extension and dedup code
         .unwrap_or_else(|err| panic!("Executing '{}' failed, reason: '{}'", bin_full, err));
+    let exit_code = consts.status.code().unwrap_or_else(|| {
+        panic!(
+            "Execution of '{}' failed, possibly killed by signal? stderr is: '{}'",
+            bin_full,
+            String::from_utf8_lossy(&consts.stderr)
+        )
+    });
+    assert_eq!(
+        exit_code,
+        0,
+        "Executing '{}' failed with exit code '{}',\n|||stdout start|||\n{}\n|||stdout end||| |||stderr start|||\n{}\n|||stderr end|||",
+        bin_full,
+        exit_code,
+        String::from_utf8_lossy(&consts.stdout),
+        String::from_utf8_lossy(&consts.stderr),
+    );
 
     //write the output from executing the binary into a new rust source file .rs
     //that .rs file is later used outside of this build.rs, in the normal build
@@ -457,8 +481,26 @@ int main(void)
     command.success_or_panic(); //runs compiler
 
     let features = Command::new(&bin_full)
-        .output()
+        .output() // TODO: maybe make this a trait extension and dedup code
         .unwrap_or_else(|err| panic!("Executing '{}' failed, reason: '{}'", bin_full, err));
+    let exit_code = features.status.code().unwrap_or_else(|| {
+        panic!(
+            "Execution of '{}' failed, possibly killed by signal? stderr is: '{}'",
+            bin_full,
+            String::from_utf8_lossy(&features.stderr)
+        )
+    });
+    assert_eq!(
+        exit_code,
+        0,
+        "Executing '{}' failed with exit code '{}',\n|||stdout start|||\n{}\n|||stdout end||| |||stderr start|||\n{}\n|||stderr end|||",
+        bin_full,
+        exit_code,
+        String::from_utf8_lossy(&features.stdout),
+        String::from_utf8_lossy(&features.stderr),
+    );
+
+    //for cargo to consume
     print!("{}", String::from_utf8_lossy(&features.stdout));
 
     if DELETE_GENERATEDS {
