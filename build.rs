@@ -65,11 +65,31 @@ const PANEL_LIB_NAMES: &[&str] = if IS_WIDE {
 } else {
     &["panel5", "panel"]
 };
+
+const TINFO_LIB_NAMES: &[&str] = if IS_WIDE {
+    //elements order here matters, because:
+    //Fedora has ncursesw+tinfo(without w) for wide!
+    //and -ltinfow fails to link on NixOS and Fedora! so -ltinfo must be used even tho wide.
+    //(presumably because tinfo doesn't depend on wideness?)
+    //NixOS has only ncursesw(tinfo is presumably inside it) but -ltinfo still works for it(it's a
+    //symlink to ncursesw lib)
+    //Gentoo has ncursesw+tinfow
+    //
+    //These are tried in order and first that links is selected:
+    &["tinfow5", "tinfow", "tinfo"]
+} else {
+    //no reason to ever fallback to tinfow here when not-wide!
+    //Fedora/Gentoo has ncurses+tinfo
+    //NixOS has only ncursesw(but works for non-wide), -ltinfo symlinks to ncursesw .so file)
+    //so 'tinfo' is safe fallback here.
+    &["tinfo5", "tinfo"]
+};
 //TODO: why are we trying the v5 of the lib first instead of v6 (which is the second/last in list),
 //was v5 newer than the next in list? is it so on other systems?
 //like: was it ever ncurses5 newer than ncurses ?
 //Since we're trying v5 and it finds it, it will use it and stop looking, even though the next one
 //might be v6
+//This is the commit that added this v5 then v6 way: https://github.com/jeaye/ncurses-rs/commit/daddcbb557169cfac03af9667ef7aefed19f9409
 
 /// finds and emits cargo:rustc-link-lib=
 fn find_library(names: &[&str]) -> Option<Library> {
@@ -111,6 +131,41 @@ fn main() {
         }
     }
 
+    //This comment block is about libtinfo.
+    //If pkg-config can't find it, use fallback: 'tinfo' or 'tinfow'
+    //if cargo can't find it it will ignore it gracefully - NO IT WON'T!
+    //if it can find it, it will link it.
+    //It's needed for ex_5 to can link  when pkg-config is missing,
+    //otherwise you get this: undefined reference to symbol 'noraw'
+    //Thus w/o this block, the following command would be needed to run ex_5
+    //$ NCURSES_RS_RUSTC_FLAGS="-ltinfo" cargo run --features=menu --example ex_5
+    //To emulate this even if you have pkg-config you can tell it to not do its job
+    // by setting these env. vars before the above command:
+    // $ NCURSES_NO_PKG_CONFIG=1 NCURSESW_NO_PKG_CONFIG=1 NCURSES5_NO_PKG_CONFIG=1 NCURSESW5_NO_PKG_CONFIG=1 the_rest_of_the_command_here
+    // Fedora and Gentoo are two that have both ncurses(w) and tinfo(w), ie. split,
+    // however Gentoo has ncurses+tinfo and ncursesw+tinfow,
+    // but Fedora has ncurses+tinfo and ncursesw+tinfo (see 'tinfo' is same! no w)
+    // NixOS has only ncursesw (tinfo is presumably inside?) but -lncurses -lncursesw -ltinfo work!
+    // but -ltinfow doesn't work! on NixOS and Fedora!
+    // On Gentoo -ltinfow works too!
+    // so when pkg-config is missing, how do we know which tinfo to tell cargo to link, if any!
+    // doneFIXME: ^ I guess we gonna have to compile own .c to link with tinfo to see if it fails or
+    // works!
+    if find_library(TINFO_LIB_NAMES).is_none() {
+        //Pick the tinfo lib to link with, as fallback,
+        //the first one that links successfully!
+        //The order in the list matters!
+        for each in TINFO_LIB_NAMES {
+            if try_link(each, &ncurses_lib) {
+                println!("cargo:warning=Found tinfo fallback '{}'", each);
+                //successfully linked with this tinfo variant,
+                //so let's use it as fallback
+                println!("cargo:rustc-link-lib={}", each);
+                break;
+            }
+        }
+    }
+
     // gets the name of ncurses lib found by pkg-config, if it found any!
     // else (warns and)returns the default one like 'ncurses' or 'ncursesw'
     // and emits cargo:rustc-link-lib= for it unless already done.
@@ -142,6 +197,95 @@ fn main() {
 }
 // -----------------------------------------------------------------
 
+/// Tries to see if linker can find/link with the named library.
+/// Uses ncurses lib searchdirs(if any found by pkg-config) to find that lib.
+/// This is mainly used when pkg-config is missing.
+/// Should still work if pkg-config exists though.
+/// Returns true is linking succeeded, false otherwise.
+fn try_link(lib_name: &str, ncurses_lib: &Option<Library>) -> bool {
+    //OUT_DIR is set by cargo during build
+    let out_dir = env::var("OUT_DIR").expect("cannot get OUT_DIR");
+
+    //We won't execute it though, so doesn't matter if it's .exe for Windows
+    let out_bin_fname = format!("try_link_with_{}", lib_name);
+
+    //we'll generate this .c file with our contents
+    let out_src_full = Path::new(&out_dir)
+        .join(format!("{}.c", out_bin_fname))
+        .display()
+        .to_string();
+
+    let mut file = File::create(&out_src_full).unwrap_or_else(|err| {
+        panic!(
+            "Couldn't create rust file '{}', reason: '{}'",
+            out_src_full, err
+        )
+    });
+
+    let source_code = b"int main() { return 0; }";
+    file.write_all(source_code).unwrap_or_else(|err| {
+        panic!(
+            "Couldn't write to C file '{}', reason: '{}'",
+            out_src_full, err
+        )
+    });
+    drop(file); //explicit file close
+
+    let build = cc::Build::new();
+    let mut linker_searchdir_args: Vec<String> = Vec::new();
+    //Add linker paths from ncurses lib, if any found! ie. -L
+    //(this likely will be empty if pkg-config doesn't exist)
+    //Include paths(for headers) don't matter! ie. -I
+    if let Some(lib) = ncurses_lib {
+        for link_path in &lib.link_paths {
+            linker_searchdir_args.push("-L".to_string());
+            linker_searchdir_args.push(link_path.display().to_string());
+        }
+    }
+
+    let compiler = build
+        .try_get_compiler()
+        .expect("Failed Build::try_get_compiler");
+    let mut command = compiler.to_command();
+
+    let out_bin_full = Path::new(&out_dir)
+        .join(out_bin_fname)
+        .display()
+        .to_string();
+    //Create a bin(not a lib) from a .c file
+    //though it wouldn't matter here if it's bin or lib, I'm
+    //not sure how to find its exact output name after, to delete it.
+    //Adding the relevant args for the libs that we depend upon such as ncurses
+    command
+        .arg("-o")
+        .arg_checked(&out_bin_full)
+        .arg_checked(&out_src_full)
+        .args_checked(["-l", lib_name])
+        .args_checked(linker_searchdir_args);
+    let exit_status = command.status_or_panic(); //runs compiler
+    let ret = exit_status.success();
+    if !is_debug() {
+        //we don't keep the generated files around, should we?
+        if ret {
+            //delete temporary bin that we successfully generated
+            std::fs::remove_file(&out_bin_full).unwrap_or_else(|err| {
+                panic!(
+                    "Cannot delete generated bin file '{}', reason: '{}'",
+                    out_bin_full, err
+                )
+            });
+        }
+        //delete the .c that we generated
+        std::fs::remove_file(&out_src_full).unwrap_or_else(|err| {
+            panic!(
+                "Cannot delete generated C file '{}', reason: '{}'",
+                out_src_full, err
+            )
+        });
+    }
+    return ret;
+}
+
 fn build_wrap(ncurses_lib: &Option<Library>) {
     println!("cargo:rerun-if-changed=src/wrap.c");
     let mut build = cc::Build::new();
@@ -157,11 +301,14 @@ fn build_wrap(ncurses_lib: &Option<Library>) {
     build.file("src/wrap.c").compile("wrap");
 }
 
-/// Compiles a .c file then generates a .rs file from its output.
+/// Compiles an existing .c file, runs its bin to generate a .rs file from its output.
 /// Uses ncurses include paths and links with ncurses lib(s)
+// Note: won't link with tinfo unless pkg-config returned it.
+// ie. if `pkg-config ncurses --libs` shows: -lncurses -ltinfo
+// So even though we used a fallback tinfo in main, for cargo, it won't be used here. FIXME: if tinfo is needed here ever! (it's currently not, btw)
 fn gen_rs(
     source_c_file: &str,
-    out_bin_file: &str,
+    out_bin_fname: &str,
     gen_rust_file: &str,
     ncurses_lib: &Option<Library>,
     lib_name: &str,
@@ -169,8 +316,11 @@ fn gen_rs(
     println!("cargo:rerun-if-changed={}", source_c_file);
     let out_dir = env::var("OUT_DIR").expect("cannot get OUT_DIR");
     #[cfg(windows)]
-    let out_bin_file = format!("{}.exe", out_bin_file);
-    let bin_full = Path::new(&out_dir).join(out_bin_file).display().to_string();
+    let out_bin_fname = format!("{}.exe", out_bin_fname);
+    let bin_full = Path::new(&out_dir)
+        .join(out_bin_fname)
+        .display()
+        .to_string();
 
     //Note: env.var. "CC" can override the compiler used and will cause rebuild if changed.
     let mut build = cc::Build::new();
@@ -252,6 +402,7 @@ fn check_chtype_size(ncurses_lib: &Option<Library>) {
     };
     let bin_full = Path::new(&out_dir).join(bin_name).display().to_string();
 
+    //TODO: do we want to keep or delete this file after ?
     let mut fp = File::create(&src)
         .unwrap_or_else(|err| panic!("cannot create '{}', reason: '{}'", src, err));
     fp.write_all(
@@ -279,6 +430,7 @@ int main(void)
     ",
     )
     .unwrap_or_else(|err| panic!("cannot write into file '{}', reason: '{}'", src, err));
+    drop(fp); //explicit file close (flush)
 
     let mut build = cc::Build::new();
     if let Some(lib) = ncurses_lib {
@@ -303,17 +455,36 @@ int main(void)
         .unwrap_or_else(|err| panic!("Executing '{}' failed, reason: '{}'", bin_full, err));
     print!("{}", String::from_utf8_lossy(&features.stdout));
 
-    std::fs::remove_file(&src)
-        .unwrap_or_else(|err| panic!("Cannot delete generated file '{}', reason: '{}'", src, err));
-    std::fs::remove_file(&bin_full).unwrap_or_else(|err| {
-        panic!(
-            "cannot delete compiled file '{}', reason: '{}'",
-            bin_full, err
-        )
-    });
+    //Don't delete anything we've generated, unless in --release mode or debug= is set in [profile.*]
+    if !is_debug() {
+        std::fs::remove_file(&src).unwrap_or_else(|err| {
+            panic!("Cannot delete generated file '{}', reason: '{}'", src, err)
+        });
+        std::fs::remove_file(&bin_full).unwrap_or_else(|err| {
+            panic!(
+                "cannot delete compiled file '{}', reason: '{}'",
+                bin_full, err
+            )
+        });
+    }
 }
 
-//call this only once
+//TODO: maybe don't delete anything we've generated? let 'cargo clean' do it.
+#[inline]
+fn is_debug() -> bool {
+    //cargo sets DEBUG to 'true' if 'cargo build', and to 'false' if 'cargo build --release'
+    //this is the -C debuginfo flag " which controls the amount of debug information included
+    //in the compiled binary."
+    //it actually depends on `debug=` of the profile in Cargo.toml https://doc.rust-lang.org/cargo/reference/profiles.html#debug
+    //thus also doesn't need a println!("cargo:rerun-if-env-changed=DEBUG");
+    // possible values here are only 'true' and 'false', even if debug="none"
+    // or debug=false or debug=0 under say [profile.dev] of Cargo.toml, here
+    // env.var "DEBUG" is still the string "false".
+    // Also, it ignores any env.var DEBUG set before running 'cargo build'
+    env::var("DEBUG").is_ok_and(|val| val != "false")
+}
+
+//call this only once, to avoid re-printing "cargo:rustc-link-lib=" // FIXME
 fn get_ncurses_lib_name(ncurses_lib: &Option<Library>) -> String {
     let mut already_printed: bool = false;
     let lib_name: String = match std::env::var(ENV_VAR_NAME_FOR_LIB) {
@@ -368,9 +539,7 @@ fn get_ncurses_lib_name(ncurses_lib: &Option<Library>) -> String {
                 // to link ex_5 with 'menu' lib, unless `NCURSES_RS_RUSTC_FLAGS="-lmenu" is set.
                 // this is why we now use fallbacks for 'menu' and 'panel` above too(not just for 'ncurses' lib)
                 // that is, when pkgconf or pkg-config are missing, yet the libs are there.
-                // TODO: maybe do it even for 'tinfo' but at least NixOS won't have tinfo at all so
-                // it would fail?!
-                println!("cargo:warning=It's likely you have not installed one of ['pkg-config' or 'pkgconf'], and/or 'ncurses' (it's package 'ncurses-devel' on Fedora). This seems to work fine on FreeBSD 14 regardless, however to not see this warning and to ensure 100% compatibility be sure to install at least `pkgconf` if not both ie. `# pkg install ncurses pkgconf`. Using fallback lib name '{}' but if compilation fails below(like when linking ex_5 with 'menu' feature), that is why.", what_lib);
+                println!("cargo:warning=Using fallback lib name '{}' but if compilation fails below(like when linking ex_5 with 'menu' feature), that is why. It's likely you have not installed one of ['pkg-config' or 'pkgconf'], and/or 'ncurses' (it's package 'ncurses-devel' on Fedora). This seems to work fine on FreeBSD 14 regardless, however to not see this warning and to ensure 100% compatibility(on any OS) be sure to install, on FreeBSD, at least `pkgconf` if not both ie. `# pkg install ncurses pkgconf`.", what_lib);
                 what_lib
             }
         }
