@@ -4,11 +4,12 @@
 #define PCONSTU(ty, NAME) printf("pub const " #NAME ": " #ty " = %llu;\n", (unsigned long long) (NAME))
 
 int main() {
-        /* some values aren't set until after this is run */
-        printf("//");
+	/* some values aren't set until after this is run */
+	printf("//");
+	//fflush(stdout);fflush(stderr);*((int *)0) = 42; //segfault(on purpose for testing purposes) before terminal gets messed up needing a `reset` shell command to restore!
 	initscr();
 	endwin();
-        printf("\n");
+	printf("\n");
 
 	/* Success/Failure. */
 	PCONST(i32, ERR);
@@ -296,4 +297,7 @@ int main() {
 	PCONSTU(crate::ll::chtype, A_ATTRIBUTES);
 	PCONSTU(crate::ll::chtype, A_CHARTEXT);
 	PCONSTU(crate::ll::chtype, A_COLOR);
+
+	//do last, flush just to be sure!
+	fflush(stdout);fflush(stderr);
 }
