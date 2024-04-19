@@ -123,13 +123,35 @@ const TINFO_LIB_NAMES: &[&str] = if IS_WIDE_AND_NOT_ON_MACOS {
 /// finds and emits cargo:rustc-link-lib=
 fn find_library(names: &[&str]) -> Option<Library> {
     for name in names {
-        //println!("cargo:warning=Trying lib '{}'",name);
+        //cargo_warn!("Trying lib '{}'",name);
         if let Ok(lib) = pkg_config::probe_library(name) {
-            //println!("cargo:warning=Found lib '{}' '{:?}'",name, lib);
+            //cargo_warn!("Found lib '{}' '{:?}'",name, lib);
             return Some(lib);
         }
     }
     None
+}
+
+/// Emits the passed string(s) prefixed by 'cargo:warning=' on stdout,
+/// which cargo will transform into a warning.
+/// It acts like println!() macro, so you can call it the same way to do formatting!
+/// Will replace newlines in the warning message with spaces,
+/// otherwise the text after would not have been seen in the warning.
+macro_rules! cargo_warn {
+    ($($arg:tt)*) => {
+        cargo_warn_unformatted(format!("{}", format_args!($($arg)*)));
+    };
+}
+
+/// Pass the string to be emitted as a cargo warning.
+/// Presumably you've already used format!() on it.
+/// Will replace newlines in the warning message with spaces,
+/// otherwise the text after would not have been seen in the warning.
+fn cargo_warn_unformatted(warn_msg: String) {
+    // Replace '\r' with nothing
+    // Replace '\n' with space
+    let warn_msg = warn_msg.replace('\r', "").replace('\n', " ");
+    println!("cargo:warning={}", warn_msg);
 }
 // -----------------------------------------------------------------
 // This is the normal build.rs main(),
@@ -148,15 +170,21 @@ fn main() {
     if cfg!(feature = "menu") {
         if find_library(MENU_LIB_NAMES).is_none() {
             let fallback_lib_name = MENU_LIB_NAME_FALLBACK;
+            //FIXME: on openbsd(at least), the 'menu' linking fails because it depends on ncurses
+            //also being linked in, so we must always link with ncurses lib on try_link() which
+            //also means we must know if we have to use ncurses lib override before even trying
+            //menu,panel,tinfo, and thus pass the ncurses lib name to try_link as third arg.
             if try_link(fallback_lib_name, &ncurses_lib) {
-                println!("cargo:warning=Using lib fallback '{}' which links successfully. You might be missing `pkg-config`/`pkgconf`.", fallback_lib_name);
+                cargo_warn!("Using lib fallback '{}' which links successfully. You might be missing `pkg-config`/`pkgconf`.", fallback_lib_name);
             } else {
-                println!("cargo:warning=Possibly missing lib for the '{}' feature, and couldn't find its fallback lib name '{}' but we're gonna use it anyway thus compilation is likely to fail below because of this.\n
-                         You might need installed ncurses and pkg-config/pkgconf to fix this.", "menu", fallback_lib_name);
+                //TODO: find out why this works on openbsd, maybe missing -L paths to the lib which
+                //cargo somehow has and uses, despite pkg-config saying it has none.
+                cargo_warn!("Possibly missing lib for the '{}' feature, and couldn't find its fallback lib name '{}' but we're gonna use it anyway thus compilation is likely to fail below because of this(and yet it works fine on, at least, OpenBSD). You might need installed ncurses and pkg-config/pkgconf to fix this.", "menu", fallback_lib_name);
             }
             //We still try linking with it anyway, in case our try_link() code is somehow wrong,
             //like it doesn't include some link searchdir paths that are somehow included
-            //otherwise.
+            //otherwise. Or, it fails to link because libmenu fails to link without libncurses also
+            //being linked!(happens on openbsd, fixing by always linking with libncurses via try_link())
             println!("cargo:rustc-link-lib={}", fallback_lib_name);
         }
     }
@@ -165,10 +193,9 @@ fn main() {
         if find_library(PANEL_LIB_NAMES).is_none() {
             let fallback_lib_name = PANEL_LIB_NAME_FALLBACK;
             if try_link(fallback_lib_name, &ncurses_lib) {
-                println!("cargo:warning=Using lib fallback '{}' which links successfully. You might be missing `pkg-config`/`pkgconf`.", fallback_lib_name);
+                cargo_warn!("Using lib fallback '{}' which links successfully. You might be missing `pkg-config`/`pkgconf`.", fallback_lib_name);
             } else {
-                println!("cargo:warning=Possibly missing lib for the '{}' feature, and couldn't find its fallback lib name '{}' but we're gonna use it anyway thus compilation is likely to fail below because of this.\n
-                         You might need installed ncurses and pkg-config/pkgconf to fix this.", "panel", fallback_lib_name);
+                cargo_warn!("Possibly missing lib for the '{}' feature, and couldn't find its fallback lib name '{}' but we're gonna use it anyway thus compilation is likely to fail below because of this. You might need installed ncurses and pkg-config/pkgconf to fix this.", "panel", fallback_lib_name);
             }
             //We still try linking with it anyway, in case our try_link() code is somehow wrong,
             //like it doesn't include some link searchdir paths that are somehow included
@@ -223,10 +250,7 @@ fn main() {
             .find(|&each| {
                 let ret: bool = try_link(each, &ncurses_lib);
                 if ret {
-                    println!(
-                        "cargo:warning=Using lib fallback '{}' which links successfully.",
-                        each
-                    );
+                    cargo_warn!("Using lib fallback '{}' which links successfully.", each);
                     println!("cargo:rustc-link-lib={}", each);
                 }
                 ret
@@ -238,10 +262,10 @@ fn main() {
         && tinfo_name == "tinfo"
         && std::env::var("TINFOW_NO_PKG_CONFIG").is_ok()
     {
-        println!("cargo:warning=Looks like you're using wide(and are not on macos) and you've set TINFOW_NO_PKG_CONFIG but have NOT set TINFO_NO_PKG_CONFIG too, so you're linking tinfo(no w) with other wide libs like ncursesw, which will cause '{}' eg. for example ex_5 when trying to run it. This is a warning not a panic because we assume you know what you're doing, and besides this works on Fedora (even if that env. var isn't set)!","Segmentation fault (core dumped)");
+        cargo_warn!("Looks like you're using wide(and are not on macos) and you've set TINFOW_NO_PKG_CONFIG but have NOT set TINFO_NO_PKG_CONFIG too, so you're linking tinfo(no w) with other wide libs like ncursesw, which will cause '{}' eg. for example ex_5 when trying to run it. This is a warning not a panic because we assume you know what you're doing, and besides this works on Fedora (even if that env. var isn't set)!","Segmentation fault (core dumped)");
     }
     //TODO: test on macos-es. When not using the brew ncurses, it won't have A_ITALIC and BUTTON5_*
-    //thus cursive will fail compilation. TODO: detect this and issue cargo:warning from here.
+    //thus cursive will fail compilation. donedifferentlyTODO: detect this and issue cargo:warning from here.
 
     // Gets the name of ncurses lib found by pkg-config, if it found any!
     // else (warns and)returns the default one like 'ncurses' or 'ncursesw'
@@ -324,7 +348,7 @@ fn get_out_dir() -> &'static str {
     //^ Rust automatically coerces the &String reference to a &str reference, making the function return type &'static str valid without any additional explicit conversion. This behavior is possible due to Deref coercion.
 }
 
-/// Tries to see if linker can find/link with the named library.
+/// Tries to see if linker can find/link with the named library, to create a binary.
 /// Uses ncurses lib searchdirs(if any found by pkg-config) to find that lib.
 /// This is mainly used when pkg-config is missing.
 /// Should still work if pkg-config exists though(except it will be missing the found link searchdirs and thus might fail? TODO: test this on NixOS, with NCURSES(W)_NO_PKG_CONFIG=1 env.var, for something like menu(w) or panel(w) )
@@ -658,7 +682,7 @@ fn get_ncurses_lib_name(ncurses_lib: &Option<Library>) -> String {
                 // that is, when pkgconf or pkg-config are missing, yet the libs are there.
                 // Print the warning message, but use old style warning with one ":" not two "::",
                 // because old cargos(pre 23 Dec 2023) will simply ignore it and show no warning if it's "::"
-                println!("cargo:warning=Using (untested)fallback lib name '{}' but if compilation fails below(like when linking ex_5 with 'menu' feature), that is why. It's likely you have not installed one of ['pkg-config' or 'pkgconf'], and/or 'ncurses' (it's package 'ncurses-devel' on Fedora). This seems to work fine on FreeBSD 14 regardless, however to not see this warning and to ensure 100% compatibility(on any OS) be sure to install, on FreeBSD, at least `pkgconf` if not both ie. `# pkg install ncurses pkgconf`.", what_lib);
+                cargo_warn!("Using (untested)fallback lib name '{}' but if compilation fails below(like when linking ex_5 with 'menu' feature), that is why. It's likely you have not installed one of ['pkg-config' or 'pkgconf'], and/or 'ncurses' (it's package 'ncurses-devel' on Fedora). This seems to work fine on FreeBSD 14 regardless, however to not see this warning and to ensure 100% compatibility(on any OS) be sure to install, on FreeBSD, at least `pkgconf` if not both ie. `# pkg install ncurses pkgconf`.", what_lib);
                 //fallback lib name: 'ncurses' or 'ncursesw'
                 //if this fails later, there's the warning above to get an idea as to why.
                 lib_name = what_lib;
