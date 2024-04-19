@@ -164,27 +164,56 @@ fn main() {
     watch_env_var("PKG_CONFIG_PATH");
 
     let ncurses_lib = find_library(NCURSES_LIB_NAMES);
+    // Gets the name of ncurses lib found by pkg-config, if it found any!
+    // else (warns and)returns the default one like 'ncurses' or 'ncursesw'
+    // and emits cargo:rustc-link-lib= for it unless already done.
+    let lib_name = get_ncurses_lib_name(&ncurses_lib);
+    //XXX: cargo seems to use --as-needed (arg for 'ld' linker) which isn't easy to figure out(had
+    //to replace /usr/bin/ld temporarily, it won't work with just setting PATH because cc calls
+    //sibbling ld disregarding PATH), but this means the order in which
+    //we try to find the libs here matters(in theory): now it's ncurses,menu,panel,tinfo
+    //Not entirely sure here if this will break things in practice(our case), as we previously used:
+    //menu,panel,tinfo,ncurses order
+    // https://wiki.gentoo.org/wiki/Project:Quality_Assurance/As-needed#Importance_of_linking_order
+    // So in theory(untested), if a bin linked with cargo and only used symbols from menu not from ncurses,
+    // and since menu wanted symbols from ncurses (like it does on OpenBSD), due to
+    // -Wl,--as-needed, ncurses lib won't be linked in final bin(because bin doesn't use symbols
+    // from it) thus cause the bin to fail with unresolved symbols at runtime.
+    // However, in practice, we're "lucky" that anything(presumably), like any bin we make that uses our
+    // ncurses rust crate, will also use ncurses lib thus forcing it to be linked,
+    // thus menu or panel libs that require it will always have it (dyn)linked in the bin. (use ldd on it to see)
 
     //TODO: dedup, unmessify
     //TODO: dedup warning msgs and see when to still emit them.
     if cfg!(feature = "menu") {
         if find_library(MENU_LIB_NAMES).is_none() {
             let fallback_lib_name = MENU_LIB_NAME_FALLBACK;
-            //FIXME: on openbsd(at least), the 'menu' linking fails because it depends on ncurses
-            //also being linked in, so we must always link with ncurses lib on try_link() which
-            //also means we must know if we have to use ncurses lib override before even trying
-            //menu,panel,tinfo, and thus pass the ncurses lib name to try_link as third arg.
-            if try_link(fallback_lib_name, &ncurses_lib) {
-                cargo_warn!("Using lib fallback '{}' which links successfully. You might be missing `pkg-config`/`pkgconf`.", fallback_lib_name);
+            //doneFIXME: on openbsd(at least), the 'menu' linking via try_link() (ie. just -lmenu)
+            //fails because it depends on ncurses also being linked in (via -lncurses)
+            //because 'menu' lib doesn't have ncurses as a dynamic lib need, as it does on other OS-es like Gentoo
+            //which you can see via readelf -d /usr/lib/libmenu.so.7.0 it's missing a line like:
+            //(NEEDED)             Shared library: [libncurses.so.6]
+            //which exists on Gentoo/NixOS for example.
+            //so we must link with ncurses lib on try_link() to avoid unresolved symbols
+            //from 'menu' lib (which,again, needs ncurses, but doesn't say(inside it) that it does)
+            //which also means we must know if we have to use ncurses lib override before even trying
+            //to link menu,panel,tinfo, and thus need to pass the ncurses lib name to try_link() as third arg.
+            if let Some(needed_ncurses) = try_link(fallback_lib_name, &ncurses_lib, &lib_name) {
+                let extra: String = if needed_ncurses {
+                    format!(", but needed '{}' to link without undefined symbols(known to be true on OpenBSD)", lib_name)
+                } else {
+                    "".to_string()
+                };
+                cargo_warn!("Using lib fallback '{}' which links successfully{}. The need for fallback suggests that you might be missing `pkg-config`/`pkgconf`.", fallback_lib_name, extra);
             } else {
-                //TODO: find out why this works on openbsd, maybe missing -L paths to the lib which
-                //cargo somehow has and uses, despite pkg-config saying it has none.
-                cargo_warn!("Possibly missing lib for the '{}' feature, and couldn't find its fallback lib name '{}' but we're gonna use it anyway thus compilation is likely to fail below because of this(and yet it works fine on, at least, OpenBSD). You might need installed ncurses and pkg-config/pkgconf to fix this.", "menu", fallback_lib_name);
+                let feature_name = "menu";
+                cargo_warn!("Possibly missing lib for the '{}' feature, and couldn't find its fallback lib name '{}' but we're gonna use it anyway thus compilation is likely to fail below because of this. You might need installed ncurses and pkg-config/pkgconf to fix this.", feature_name, fallback_lib_name);
             }
             //We still try linking with it anyway, in case our try_link() code is somehow wrong,
             //like it doesn't include some link searchdir paths that are somehow included
-            //otherwise. Or, it fails to link because libmenu fails to link without libncurses also
-            //being linked!(happens on openbsd, fixing by always linking with libncurses via try_link())
+            //otherwise. Or, as it used to happen before i fixed it: it fails to link because
+            //libmenu has undefined symbols if not also linked with libncurses which is what
+            //happens on openbsd; fixed now by always linking with libncurses via try_link() above
             println!("cargo:rustc-link-lib={}", fallback_lib_name);
         }
     }
@@ -192,10 +221,16 @@ fn main() {
     if cfg!(feature = "panel") {
         if find_library(PANEL_LIB_NAMES).is_none() {
             let fallback_lib_name = PANEL_LIB_NAME_FALLBACK;
-            if try_link(fallback_lib_name, &ncurses_lib) {
-                cargo_warn!("Using lib fallback '{}' which links successfully. You might be missing `pkg-config`/`pkgconf`.", fallback_lib_name);
+            if let Some(needed_ncurses) = try_link(fallback_lib_name, &ncurses_lib, &lib_name) {
+                let extra: String = if needed_ncurses {
+                    format!(", but needed '{}' to link without undefined symbols(known to be true on OpenBSD)", lib_name)
+                } else {
+                    "".to_string()
+                };
+                cargo_warn!("Using lib fallback '{}' which links successfully{}. The need for fallback suggests that you might be missing `pkg-config`/`pkgconf`.", fallback_lib_name, extra);
             } else {
-                cargo_warn!("Possibly missing lib for the '{}' feature, and couldn't find its fallback lib name '{}' but we're gonna use it anyway thus compilation is likely to fail below because of this. You might need installed ncurses and pkg-config/pkgconf to fix this.", "panel", fallback_lib_name);
+                let feature_name = "panel";
+                cargo_warn!("Possibly missing lib for the '{}' feature, and couldn't find its fallback lib name '{}' but we're gonna use it anyway thus compilation is likely to fail below because of this. You might need installed ncurses and pkg-config/pkgconf to fix this.", feature_name, fallback_lib_name);
             }
             //We still try linking with it anyway, in case our try_link() code is somehow wrong,
             //like it doesn't include some link searchdir paths that are somehow included
@@ -248,14 +283,19 @@ fn main() {
         TINFO_LIB_NAMES
             .iter()
             .find(|&each| {
-                let ret: bool = try_link(each, &ncurses_lib);
-                if ret {
-                    cargo_warn!("Using lib fallback '{}' which links successfully.", each);
+                let ret: bool = if let Some(needed_ncurses)=try_link(each, &ncurses_lib, &lib_name) {
+                    let extra:String=if needed_ncurses {
+                        format!(", but needed '{}' to link without undefined symbols", lib_name)
+                    } else {
+                        "".to_string()
+                    };
+                    cargo_warn!("Using lib fallback '{}' which links successfully{}. The need for fallback suggests that you might be missing `pkg-config`/`pkgconf`.", each, extra);
                     println!("cargo:rustc-link-lib={}", each);
-                }
+                    true
+                } else { false };
                 ret
             })
-            .unwrap_or_else(|| &"")
+            .unwrap_or_else(|| &"") // found no tinfo that links without errors.
             .to_string()
     };
     if IS_WIDE_AND_NOT_ON_MACOS
@@ -266,11 +306,6 @@ fn main() {
     }
     //TODO: test on macos-es. When not using the brew ncurses, it won't have A_ITALIC and BUTTON5_*
     //thus cursive will fail compilation. donedifferentlyTODO: detect this and issue cargo:warning from here.
-
-    // Gets the name of ncurses lib found by pkg-config, if it found any!
-    // else (warns and)returns the default one like 'ncurses' or 'ncursesw'
-    // and emits cargo:rustc-link-lib= for it unless already done.
-    let lib_name = get_ncurses_lib_name(&ncurses_lib);
 
     watch_env_var(ENV_VAR_NAME_FOR_NCURSES_RS_RUSTC_FLAGS);
     if let Ok(x) = std::env::var(ENV_VAR_NAME_FOR_NCURSES_RS_RUSTC_FLAGS) {
@@ -352,9 +387,20 @@ fn get_out_dir() -> &'static str {
 /// Uses ncurses lib searchdirs(if any found by pkg-config) to find that lib.
 /// This is mainly used when pkg-config is missing.
 /// Should still work if pkg-config exists though(except it will be missing the found link searchdirs and thus might fail? TODO: test this on NixOS, with NCURSES(W)_NO_PKG_CONFIG=1 env.var, for something like menu(w) or panel(w) )
-/// Returns true if linking succeeded, false otherwise.
-fn try_link(lib_name: &str, ncurses_lib: &Option<Library>) -> bool {
+/// Returns Some(nn) if linking succeeded, None otherwise, nn is a bool saying if ncurses was needed to can link.
+/// Will try to link twice if linking with only that lib fails, the second try adds ncurses lib to
+/// linking command, because the lib might depend on it even though it doesn't say(inside it) that
+/// it does (this is what happens on OpenBSD).
+fn try_link(
+    lib_name: &str,
+    ncurses_lib: &Option<Library>,
+    ncurses_lib_name_to_use: &str,
+) -> Option<bool> {
     let out_dir = get_out_dir();
+    assert!(
+        !ncurses_lib_name_to_use.is_empty(),
+        "You passed empty ncurses lib name string."
+    );
 
     //We won't execute it though, so doesn't matter if it's .exe for Windows
     let out_bin_fname = format!("try_link_with_{}", lib_name);
@@ -374,6 +420,8 @@ fn try_link(lib_name: &str, ncurses_lib: &Option<Library>) -> bool {
     //Add linker paths from ncurses lib, if any found! ie. -L
     //(this likely will be empty if pkg-config doesn't exist)
     //Include paths(for headers) don't matter! ie. -I
+    //Presumably the other libs(menu,panel,tinfo) are in the same dir(s) as the ncurses lib,
+    //because they're part of ncurses even though they're split on some distros/OSs.
     if let Some(lib) = ncurses_lib {
         for link_path in &lib.link_paths {
             linker_searchdir_args.push("-L".to_string());
@@ -391,14 +439,34 @@ fn try_link(lib_name: &str, ncurses_lib: &Option<Library>) -> bool {
     //though it wouldn't matter here if it's bin or lib, I'm
     //not sure how to find its exact output name after, to delete it.
     //Adding the relevant args for the libs that we depend upon such as ncurses
+    //
+    //First we try to link just the requested lib, eg. 'menu' or 'panel' or 'tinfo'
+    //if this fails, then we try adding 'ncurses' to libs to link, thus
+    //on OpenBSD for example, where libmenu doesn't say it depends on the 'ncurses' lib
+    //it can link successfully because we manually link with it, thus linker won't fail with unresolved symbols.
     command
         .arg("-o")
         .arg_checked(&out_bin_full)
         .arg_checked(&out_src_full)
-        .args_checked(["-l", lib_name])
+        .args_checked(["-l", lib_name]) //this might require the ncurses lib below(on openbsd for sure!)
         .args_checked(linker_searchdir_args);
-    let exit_status = command.status_or_panic(); //runs compiler
-    let ret: bool = exit_status.success();
+    //this copy will link only the lib, without ncurses
+    let mut command_copy: Command = command.make_a_partial_copy(); //woulda been too easy if had .clone()
+
+    //we add ncurses to linked libs, but we only call this if the first try(ie. that copy) fails.
+    command.args_checked(["-l", ncurses_lib_name_to_use]);
+    let exit_status = command_copy.status_or_panic(); //runs compiler
+    let mut ret: bool = exit_status.success();
+    let mut requires_ncurses_lib: bool = false;
+    if !ret {
+        //first try failed, try second with -lncurses(w) added.
+        let exit_status = command.status_or_panic(); //runs compiler
+        ret = exit_status.success();
+        if ret {
+            //cargo_warn!("");
+            requires_ncurses_lib = true;
+        }
+    }
 
     if DELETE_GENERATEDS {
         if ret {
@@ -418,7 +486,12 @@ fn try_link(lib_name: &str, ncurses_lib: &Option<Library>) -> bool {
             )
         });
     }
-    return ret;
+
+    return if ret {
+        Some(requires_ncurses_lib)
+    } else {
+        None
+    };
 }
 
 //TODO: change this to apply to anything that's emitted for cargo to consume, except warnings, and
@@ -567,6 +640,7 @@ fn gen_rs(
 
 fn check_chtype_size(ncurses_lib: &Option<Library>) {
     let out_dir = get_out_dir();
+    //FIXME: see if .display() is a good idea, maybe can avoid it.
     let src_full = Path::new(&out_dir)
         .join("chtype_size.c")
         .display()
@@ -690,7 +764,7 @@ fn get_ncurses_lib_name(ncurses_lib: &Option<Library>) -> String {
         }
     };
     if !already_printed {
-        //TODO: try_link() ? then refactor the warning messages.
+        //TODO: try_link() ? then refactor the warning messages. Well, now that try_link already links ncurses lib, this isn't needed? or if it is, don't specify -l twice for it inside try_link
         println!("cargo:rustc-link-lib={}", lib_name);
     }
     lib_name
@@ -738,7 +812,7 @@ trait MyCompilerCommand {
     fn status_or_panic_but_no_check_args(&mut self) -> ExitStatus;
     fn show_what_will_run(&mut self) -> &mut Self;
     fn get_program_or_panic(&self) -> &str;
-    fn get_what_will_run(&self) -> (String, usize, String);
+    fn get_what_will_run(&self) -> (String, usize, String, Option<&Path>, String);
     fn assert_no_nul_in_args(&mut self) -> &mut Self;
     /// Panics if arg has \0 in it.
     fn args_checked<I, S>(&mut self, args: I) -> &mut Command
@@ -750,6 +824,7 @@ trait MyCompilerCommand {
     /// Doesn't do any other checks, passes it to Command::arg()
     fn arg_checked<S: AsRef<OsStr>>(&mut self, arg: S) -> &mut Command;
     fn panic<T: std::fmt::Display>(&mut self, err: T, what_type_of_command: &str) -> !;
+    fn make_a_partial_copy(&self) -> Self;
 }
 
 fn has_null_byte<S: AsRef<OsStr>>(arg: S) -> bool {
@@ -798,7 +873,6 @@ impl MyCompilerCommand for std::process::Command {
         let and_panic = || -> ! {
             panic!(
                 "due to the above-reported error while executing '{}'.",
-                //self.get_program_or_panic()
                 prog
             );
         };
@@ -908,7 +982,7 @@ impl MyCompilerCommand for std::process::Command {
         p_prog
     }
 
-    fn get_what_will_run(&self) -> (String, usize, String) {
+    fn get_what_will_run(&self) -> (String, usize, String, Option<&Path>, String) {
         let p_prog = self.get_program_or_panic();
         let args = self.get_args();
         let how_many_args: usize = args.len();
@@ -941,11 +1015,31 @@ impl MyCompilerCommand for std::process::Command {
         //TODO: maybe a better way to get the args as a Vec<String> and impl Display ? but not
         //for the generic Vec<String> i think. Then, we won't have to return how_many_args!
 
+        let cur_dir = self.get_current_dir();
+        let env_vars: Vec<(&OsStr, Option<&OsStr>)> = self.get_envs().collect();
+        let mut formatted_env_vars = String::new(); //empty string if no env vars set
+        if !formatted_env_vars.is_empty() {
+            for (key, value) in env_vars {
+                match value {
+                    Some(value) => formatted_env_vars.push_str(&format!(
+                        "(set) {}={}\n",
+                        key.to_string_lossy(),
+                        value.to_string_lossy()
+                    )),
+                    None => {
+                        formatted_env_vars.push_str(&format!("(del) {}\n", key.to_string_lossy()))
+                    } // Key was removed
+                }
+            }
+        };
+        //FIXME: make this a struct so the order doesn't get confused in callers.
         //return this tuple
         (
             p_prog.to_string(),
             how_many_args,
             format!("\"{}\"", formatted_args),
+            cur_dir,
+            formatted_env_vars,
         )
     }
 
@@ -981,7 +1075,8 @@ impl MyCompilerCommand for std::process::Command {
 
     /// (not meant to be used outside)
     fn panic<T: std::fmt::Display>(&mut self, err: T, what_type_of_command: &str) -> ! {
-        let (p_prog, how_many_args, formatted_args) = self.get_what_will_run();
+        //FIXME: show cur_dir and envs too? but don't dup code from show_what_will_run()
+        let (p_prog, how_many_args, formatted_args, _cur_dir, _envs) = self.get_what_will_run();
         let extra_space = if what_type_of_command.is_empty() {
             ""
         } else {
@@ -995,12 +1090,43 @@ impl MyCompilerCommand for std::process::Command {
 
     /// shows on stderr, which command will be executed.
     fn show_what_will_run(&mut self) -> &mut Self {
-        let (exe_name, how_many_args, formatted_args) = self.get_what_will_run();
+        let (exe_name, how_many_args, formatted_args, cur_dir, formatted_env_vars) =
+            self.get_what_will_run();
+        let cur_dir: String = if let Some(dir) = cur_dir {
+            format!(", in current dir: '{}'", dir.display())
+        } else {
+            ", in unspecified current dir".to_string()
+        };
+        let formatted_env_vars: String = if formatted_env_vars.is_empty() {
+            ", with no extra env.vars added or deleted".to_string()
+        } else {
+            format!(", with env.vars: '{}'", formatted_env_vars)
+        };
         eprintln!(
-            "!! Next, attempting to run compilation command '{}' with '{}' args: '{}'",
-            exe_name, how_many_args, formatted_args
+            "!! Next, attempting to run command '{}' with '{}' args: '{}'{}{}.",
+            exe_name, how_many_args, formatted_args, cur_dir, formatted_env_vars
         );
         self
+    }
+
+    /// copies exe,args,pwd and env.vars
+    fn make_a_partial_copy(&self) -> Self {
+        let prog = self.get_program();
+        let mut r#new = Command::new(prog);
+        r#new.args_checked(self.get_args());
+        //r#new.envs(self.get_envs().collect::<Vec<_>>());
+        for (k, v) in self.get_envs() {
+            if let Some(v) = v {
+                r#new.env(k, v);
+            } else {
+                r#new.env_remove(k);
+            }
+        }
+        if let Some(cd) = self.get_current_dir() {
+            r#new.current_dir(cd);
+        }
+
+        r#new
     }
 }
 
@@ -1214,7 +1340,7 @@ fn test_get_what_will_run() {
         OsString::from("arg4"),
     ]);
     command.arg_checked(OsString::from_vec(b"my\xffarg3".to_vec()));
-    let (prog, how_many_args, formatted_args) = command.get_what_will_run();
+    let (prog, how_many_args, formatted_args, _cur_dir, _envs) = command.get_what_will_run();
     let expected_hma = 4;
     let expected_fa = "\"ar♥g1\" \"my\\xFFarg3\" \"arg4\" \"my\\xFFarg3\"";
     assert_eq!(prog, expected_prog);
