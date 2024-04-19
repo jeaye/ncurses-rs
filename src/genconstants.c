@@ -1,15 +1,67 @@
+#include <stdio.h> // for printf/fprintf but curses.h already includes this(everywhere?)
 #include <curses.h>
 
 #define PCONST(ty, NAME) printf("pub const " #NAME ": " #ty " = %lld;\n", (long long) (NAME))
 #define PCONSTU(ty, NAME) printf("pub const " #NAME ": " #ty " = %llu;\n", (unsigned long long) (NAME))
 
-int main() {
+//XXX: If NAME isn't defined via #define or anything in the ncurses.h file, instead of not defining it at all in our ncurses crate, we define it as being of a specific type(seen below as long snakecase text) which when used by any other crates(like the 'cursive' crate) will compile error in a helpful manner(the type itself is the error message and gives an idea on how to fix it)
+
+// This long snakecase text below, is a type in rust which will be shown when a crate(like cursive) that uses our crate compiles on a system with old ncurses(like macos Mojave 10.14.6 with its native ncurses version instead of the homebrew ncurses version installed), whereby one or more macro definitions like A_ITALIC aren't defined in ncurses.h
+#define ERROR_MSG_TYPE "Your_ncurses_installation_is_too_old_and_it_does_not_have_this_underlined_identifier_defined_in_its_header_file_therefore_the_ncurses_crate_did_not_include_it_because_it_tries_to_be_compatible_however_this_crate_in_which_you_see_the_error_it_needs_the_identifier__If_you_are_on_MacOS_then_use_the_brew_version_of_ncurses_and_set_PKG_CONFIG_PATH_to_the_pkgconfig_dir_from_within_it"
+//using these two(alias,constructor) in .rs avoids duplication of the long-named type for every .c defined that we wanna handle
+#define ERROR_MSG_TYPE_ALIAS "TypeAliasForErrorMsgType"
+#define ERROR_MSG_TYPE_CONSTRUCTOR "ERROR_MSG_TYPE_CONSTRUCTOR"
+
+//Same deal as before except this(error) is for defined in ncurses.h file that are expected to be missing in latest ncurses version installed in the system...
+#define ERROR_MSG_TYPE_EXPECTED_MISS "The_ncurses_crate_did_not_define_this_underlined_identifier_because_your_ncurses_installation_is_up_to_date_and_expectedly_did_not_have_it__however_the_crate_where_you_see_this_error_requires_this_identifier__so_either_upgrade_or_fix_this_crate__or_downgrade_your_ncurses_installation_and_cargo_clean_before_retrying__or_alternatively_try_using_an_older_ncurses_crate_if_you_know_that_worked_before"
+#define ERROR_MSG_EXPECTED_MISS_TYPE_ALIAS "TypeAliasForErrorMsgWhenExpectedMissType"
+#define ERROR_MSG_EXPECTED_MISS_TYPE_CONSTRUCTOR "ERROR_MSG_EXPECTED_MISS_TYPE_CONSTRUCTOR"
+
+//Don't forget to call this in main(), one time.
+#define DEFINE_RS_TYPES \
+  do {\
+    printf("/// For MacOS: `brew install ncurses` then `export PKG_CONFIG_PATH=\"/usr/local/opt/ncurses/lib/pkgconfig\"`\n/// that will give you a compatible/newer ncurses installation.\n");\
+    printf("#[derive(Debug)] // derive to avoid a warning\n\
+#[allow(non_camel_case_types)] \
+pub struct "ERROR_MSG_TYPE";\n\n\
+type "ERROR_MSG_TYPE_ALIAS" = "ERROR_MSG_TYPE";\n\n\
+#[allow(dead_code)]\n\
+const "ERROR_MSG_TYPE_CONSTRUCTOR": "ERROR_MSG_TYPE_ALIAS" = "ERROR_MSG_TYPE";\n\n\n");\
+printf("///Typically, the crate that errors with the following, should be patched to not use the identifier that's tagged with this type, because the latest ncurses installation doesn't have that identifier definition(anymore).\n");\
+printf("#[derive(Debug)] // derive to avoid a warning\n\
+#[allow(non_camel_case_types)] \
+pub struct "ERROR_MSG_TYPE_EXPECTED_MISS";\n\n\
+type "ERROR_MSG_EXPECTED_MISS_TYPE_ALIAS" = "ERROR_MSG_TYPE_EXPECTED_MISS";\n\n\
+#[allow(dead_code)]\n\
+const "ERROR_MSG_EXPECTED_MISS_TYPE_CONSTRUCTOR": "ERROR_MSG_EXPECTED_MISS_TYPE_ALIAS" = "ERROR_MSG_TYPE_EXPECTED_MISS";\n\n\
+\n\n");\
+  } while(0)
+
+#define UNEXPECTED_MISS(NAME) \
+  do {\
+    fprintf(stderr,"Unexpected missing def: " #NAME "\n");\
+    printf("pub const " #NAME ": " ERROR_MSG_TYPE_ALIAS " = " ERROR_MSG_TYPE_CONSTRUCTOR ";\n");\
+  } while(0)
+
+#define EXPECT_MISS(NAME) \
+  do {\
+    fprintf(stderr,"Missing def(but it's expected to be missing): " #NAME "\n");\
+    printf("pub const " #NAME ": " ERROR_MSG_EXPECTED_MISS_TYPE_ALIAS " = " ERROR_MSG_EXPECTED_MISS_TYPE_CONSTRUCTOR ";\n");\
+  } while(0)
+
+//#warning "This warning is unseen during `cargo build` unless compilation fails somewhere at build.rs time"
+
+int main(void) {
+	printf("/* Commented out ncurses initialization chars: '");
+
+	//fflush(stdout);fflush(stderr);*((int *)0) = 42; //segfault(on purpose for manual testing purposes from build.rs) here before terminal gets messed up needing a `reset` shell command to restore! and after something's printed to stdout.
+
 	/* some values aren't set until after this is run */
-	printf("//");
-	//fflush(stdout);fflush(stderr);*((int *)0) = 42; //segfault(on purpose for testing purposes) before terminal gets messed up needing a `reset` shell command to restore!
 	initscr();
 	endwin();
-	printf("\n");
+	printf("' */\n");
+
+  DEFINE_RS_TYPES;
 
 	/* Success/Failure. */
 	PCONST(i32, ERR);
@@ -20,6 +72,8 @@ int main() {
 	/* Attributes. */
 #ifdef NCURSES_ATTR_SHIFT
 	PCONST(u32, NCURSES_ATTR_SHIFT);
+#else
+  UNEXPECTED_MISS(NCURSES_ATTR_SHIFT);
 #endif
 
 	/* Colors */
@@ -35,30 +89,44 @@ int main() {
 	/* Values for the _flags member */
 #ifdef _SUBWIN
 	PCONST(i32, _SUBWIN);
+#else
+  UNEXPECTED_MISS(_SUBWIN);
 #endif
 
 #ifdef _ENDLINE
 	PCONST(i32, _ENDLINE);
+#else
+  UNEXPECTED_MISS(_ENDLINE);
 #endif
 
 #ifdef _FULLWIN
 	PCONST(i32, _FULLWIN);
+#else
+  UNEXPECTED_MISS(_FULLWIN);
 #endif
 
 #ifdef _SCROLLWIN
 	PCONST(i32, _SCROLLWIN);
+#else
+  UNEXPECTED_MISS(_SCROLLWIN);
 #endif
 
 #ifdef _ISPAD
 	PCONST(i32, _ISPAD);
+#else
+  UNEXPECTED_MISS(_ISPAD);
 #endif
 
 #ifdef _HASMOVED
 	PCONST(i32, _HASMOVED);
+#else
+  UNEXPECTED_MISS(_HASMOVED);
 #endif
 
 #ifdef _WRAPPED
 	PCONST(i32, _WRAPPED);
+#else
+  UNEXPECTED_MISS(_WRAPPED);
 #endif
 
 	/*
@@ -67,6 +135,8 @@ int main() {
 	 */
 #ifdef _NOCHANGE
 	PCONST(i32, _NOCHANGE);
+#else
+  UNEXPECTED_MISS(_NOCHANGE);
 #endif
 
 	/*
@@ -75,6 +145,8 @@ int main() {
 	 */
 #ifdef _NEWINDEX
 	PCONST(i32, _NEWINDEX);
+#else
+  UNEXPECTED_MISS(_NEWINDEX);
 #endif
 
 	/* Keys */
@@ -110,18 +182,28 @@ int main() {
 	PCONST(i32, KEY_LL);
 #ifdef KEY_A1
 	PCONST(i32, KEY_A1);
+#else
+  UNEXPECTED_MISS(KEY_A1);
 #endif
 #ifdef KEY_A3
 	PCONST(i32, KEY_A3);
+#else
+  UNEXPECTED_MISS(KEY_A3);
 #endif
 #ifdef KEY_B2
 	PCONST(i32, KEY_B2);
+#else
+  UNEXPECTED_MISS(KEY_B2);
 #endif
 #ifdef KEY_C1
 	PCONST(i32, KEY_C1);
+#else
+  UNEXPECTED_MISS(KEY_C1);
 #endif
 #ifdef KEY_C3
 	PCONST(i32, KEY_C3);
+#else
+  UNEXPECTED_MISS(KEY_C3);
 #endif
 	PCONST(i32, KEY_BTAB);
 	PCONST(i32, KEY_BEG);
@@ -181,46 +263,68 @@ int main() {
 	PCONST(i32, KEY_UNDO);
 	PCONST(i32, KEY_MOUSE);
 	PCONST(i32, KEY_RESIZE);
+
+//TODO: make this 5 line block a 1 line(macro-like) and have rust preprocess it into the 5 lines, so that eg. KEY_EVENT is used only once to avoid duplication and typo or copy/paste mistakes when repeating it.
 #ifdef KEY_EVENT
 	PCONST(i32, KEY_EVENT);
+#else
+  EXPECT_MISS(KEY_EVENT);
 #endif
 	PCONST(i32, KEY_MAX);
 
 #ifdef NCURSES_MOUSE_VERSION
 	PCONST(i32, NCURSES_MOUSE_VERSION);
+#else
+  UNEXPECTED_MISS(NCURSES_MOUSE_VERSION);
 #endif
 
 #ifdef MASK_SHIFT
 	PCONST(i32, MASK_SHIFT);
+#else
+  EXPECT_MISS(MASK_SHIFT);
 #endif
 
 #ifdef MODIFIER_SHIFT
 	PCONST(i32, MODIFIER_SHIFT);
+#else
+  EXPECT_MISS(MODIFIER_SHIFT);
 #endif
 
 	/* Mouse Support */
 #ifdef NCURSES_BUTTON_RELEASED
 	PCONST(i32, NCURSES_BUTTON_RELEASED);
+#else
+  UNEXPECTED_MISS(NCURSES_BUTTON_RELEASED);
 #endif
 
 #ifdef NCURSES_BUTTON_PRESSED
 	PCONST(i32, NCURSES_BUTTON_PRESSED);
+#else
+  UNEXPECTED_MISS(NCURSES_BUTTON_PRESSED);
 #endif
 
 #ifdef NCURSES_BUTTON_CLICKED
 	PCONST(i32, NCURSES_BUTTON_CLICKED);
+#else
+  UNEXPECTED_MISS(NCURSES_BUTTON_CLICKED);
 #endif
 
 #ifdef NCURSES_DOUBLE_CLICKED
 	PCONST(i32, NCURSES_DOUBLE_CLICKED);
+#else
+  UNEXPECTED_MISS(NCURSES_DOUBLE_CLICKED);
 #endif
 
 #ifdef NCURSES_TRIPLE_CLICKED
 	PCONST(i32, NCURSES_TRIPLE_CLICKED);
+#else
+  UNEXPECTED_MISS(NCURSES_TRIPLE_CLICKED);
 #endif
 
 #ifdef NCURSES_RESERVED_EVENT
 	PCONST(i32, NCURSES_RESERVED_EVENT);
+#else
+  UNEXPECTED_MISS(NCURSES_RESERVED_EVENT);
 #endif
 
 	/* event masks */
@@ -250,22 +354,32 @@ int main() {
 
 #ifdef BUTTON5_RELEASED
 	PCONST(i32, BUTTON5_RELEASED);
+#else
+  UNEXPECTED_MISS(BUTTON5_RELEASED);
 #endif
 
 #ifdef BUTTON5_PRESSED
 	PCONST(i32, BUTTON5_PRESSED);
+#else
+  UNEXPECTED_MISS(BUTTON5_PRESSED);
 #endif
 
 #ifdef BUTTON5_CLICKED
 	PCONST(i32, BUTTON5_CLICKED);
+#else
+  UNEXPECTED_MISS(BUTTON5_CLICKED);
 #endif
 
 #ifdef BUTTON5_DOUBLE_CLICKED
 	PCONST(i32, BUTTON5_DOUBLE_CLICKED);
+#else
+  UNEXPECTED_MISS(BUTTON5_DOUBLE_CLICKED);
 #endif
 
 #ifdef BUTTON5_TRIPLE_CLICKED
 	PCONST(i32, BUTTON5_TRIPLE_CLICKED);
+#else
+  UNEXPECTED_MISS(BUTTON5_TRIPLE_CLICKED);
 #endif
 
 	PCONST(i32, BUTTON_CTRL);
@@ -281,6 +395,8 @@ int main() {
 	PCONSTU(crate::ll::chtype, A_UNDERLINE);
 #ifdef A_ITALIC
 	PCONSTU(crate::ll::chtype, A_ITALIC);
+#else
+  UNEXPECTED_MISS(A_ITALIC);
 #endif
 	PCONSTU(crate::ll::chtype, A_REVERSE);
 	PCONSTU(crate::ll::chtype, A_BLINK);
@@ -289,6 +405,8 @@ int main() {
 
 #ifdef A_BLANK
 	PCONSTU(crate::ll::chtype, A_BLANK);
+#else
+  EXPECT_MISS(A_BLANK);
 #endif
 
 	PCONSTU(crate::ll::chtype, A_INVIS);
