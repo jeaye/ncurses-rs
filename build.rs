@@ -96,7 +96,7 @@ const PANEL_LIB_NAMES: &[&str] = if IS_WIDE_AND_NOT_ON_MACOS {
 
 const TINFO_LIB_NAMES: &[&str] = if IS_WIDE_AND_NOT_ON_MACOS {
     //elements order here matters, because:
-    //Fedora has ncursesw+tinfo(without w) for wide!
+    //Fedora/Ubuntu has ncursesw+tinfo(without w) for wide!
     //and -ltinfow fails to link on NixOS and Fedora! so -ltinfo must be used even tho wide.
     //(presumably because tinfo doesn't depend on wideness?)
     //NixOS has only ncursesw(tinfo is presumably inside it) but -ltinfo still works for it(it's a
@@ -196,11 +196,12 @@ fn main() {
         //TODO: need a better way to detect if it's UTF-8 capable and correctly set. Maybe some
         //locale crate.
 
-        //This is the order of precedence, if any are set, the one leftmost in this list overrides
+        //This is the order of precedence, if any/all are set, the one leftmost in this list overrides
         //the others that come after it;
         let env_vars = vec!["LC_ALL", "LC_CTYPE", "LANG"];
         for var in &env_vars {
             //tell cargo to rebuild if they change, else we see same warning on every `cargo run`
+            //even though it doesn't(presumably) affect the build, but only the bin at runtime.
             watch_env_var(var);
         }
         //the first one(from the above) that's set, overrides the rest, so ignore the rest.
@@ -251,60 +252,24 @@ fn main() {
         }
     } // is wide
 
-    //TODO: dedup, unmessify
-    //TODO: dedup warning msgs and see when to still emit them.
     if cfg!(feature = "menu") {
-        if find_library(MENU_LIB_NAMES).is_none() {
-            let fallback_lib_name = MENU_LIB_NAME_FALLBACK;
-            //doneFIXME: on openbsd(at least), the 'menu' linking via try_link() (ie. just -lmenu)
-            //fails because it depends on ncurses also being linked in (via -lncurses)
-            //because 'menu' lib doesn't have ncurses as a dynamic lib need, as it does on other OS-es like Gentoo
-            //which you can see via readelf -d /usr/lib/libmenu.so.7.0 it's missing a line like:
-            //(NEEDED)             Shared library: [libncurses.so.6]
-            //which exists on Gentoo/NixOS for example.
-            //so we must link with ncurses lib on try_link() to avoid unresolved symbols
-            //from 'menu' lib (which,again, needs ncurses, but doesn't say(inside it) that it does)
-            //which also means we must know if we have to use ncurses lib override before even trying
-            //to link menu,panel,tinfo, and thus need to pass the ncurses lib name to try_link() as third arg.
-            if let Some(needed_ncurses) = try_link(fallback_lib_name, &ncurses_lib, &lib_name) {
-                let extra: String = if needed_ncurses {
-                    format!(", but needed '{}' to link without undefined symbols(known to be true on OpenBSD)", lib_name)
-                } else {
-                    "".to_string()
-                };
-                cargo_warn!("Using lib fallback '{}' which links successfully{}. The need for fallback suggests that you might be missing `pkg-config`/`pkgconf`.", fallback_lib_name, extra);
-            } else {
-                let feature_name = "menu";
-                cargo_warn!("Possibly missing lib for the '{}' feature, and couldn't find its fallback lib name '{}' but we're gonna use it anyway thus compilation is likely to fail below because of this. You might need installed ncurses and pkg-config/pkgconf to fix this.", feature_name, fallback_lib_name);
-            }
-            //We still try linking with it anyway, in case our try_link() code is somehow wrong,
-            //like it doesn't include some link searchdir paths that are somehow included
-            //otherwise. Or, as it used to happen before i fixed it: it fails to link because
-            //libmenu has undefined symbols if not also linked with libncurses which is what
-            //happens on openbsd; fixed now by always linking with libncurses via try_link() above
-            println!("cargo:rustc-link-lib={}", fallback_lib_name);
-        }
+        find_sublib(
+            "menu",
+            MENU_LIB_NAMES,
+            MENU_LIB_NAME_FALLBACK,
+            &ncurses_lib,
+            &lib_name,
+        );
     }
 
     if cfg!(feature = "panel") {
-        if find_library(PANEL_LIB_NAMES).is_none() {
-            let fallback_lib_name = PANEL_LIB_NAME_FALLBACK;
-            if let Some(needed_ncurses) = try_link(fallback_lib_name, &ncurses_lib, &lib_name) {
-                let extra: String = if needed_ncurses {
-                    format!(", but needed '{}' to link without undefined symbols(known to be true on OpenBSD)", lib_name)
-                } else {
-                    "".to_string()
-                };
-                cargo_warn!("Using lib fallback '{}' which links successfully{}. The need for fallback suggests that you might be missing `pkg-config`/`pkgconf`.", fallback_lib_name, extra);
-            } else {
-                let feature_name = "panel";
-                cargo_warn!("Possibly missing lib for the '{}' feature, and couldn't find its fallback lib name '{}' but we're gonna use it anyway thus compilation is likely to fail below because of this. You might need installed ncurses and pkg-config/pkgconf to fix this.", feature_name, fallback_lib_name);
-            }
-            //We still try linking with it anyway, in case our try_link() code is somehow wrong,
-            //like it doesn't include some link searchdir paths that are somehow included
-            //otherwise.
-            println!("cargo:rustc-link-lib={}", fallback_lib_name);
-        }
+        find_sublib(
+            "panel",
+            PANEL_LIB_NAMES,
+            PANEL_LIB_NAME_FALLBACK,
+            &ncurses_lib,
+            &lib_name,
+        );
     }
 
     //This comment block is about libtinfo.
@@ -363,7 +328,7 @@ fn main() {
                 } else { false };
                 ret
             })
-            .unwrap_or_else(|| &"") // found no tinfo that links without errors.
+            .unwrap_or_else(|| &"") // found no tinfo that links without errors which may be ok(eg. on Nixos)
             .to_string()
     };
     if IS_WIDE_AND_NOT_ON_MACOS
@@ -406,6 +371,48 @@ fn main() {
     build_wrap(&ncurses_lib);
 }
 // -----------------------------------------------------------------
+
+/// This is for menu and panel to see if pkg-config finds them and if not then see
+/// which fallback lib name links successfully and whether or not also needs ncurses(w)
+/// to successfully link.
+fn find_sublib(
+    feature_name: &str,
+    sublibs_list: &[&str],
+    sublib_fallback_name: &str,
+    ncurses_lib: &Option<Library>,
+    ncurses_lib_name_to_use: &str,
+) {
+    if find_library(sublibs_list).is_none() {
+        //On openbsd(at least), the 'menu' lib linking via try_link() (ie. just -lmenu)
+        //fails because it depends on ncurses also being linked in (via -lncurses)
+        //because 'menu' lib doesn't have ncurses as a dynamic lib need, as it does on other OS-es like Gentoo
+        //which you can see via readelf -d /usr/lib/libmenu.so.7.0 it's missing a line like:
+        //(NEEDED)             Shared library: [libncurses.so.6]
+        //which exists on Gentoo/NixOS for example.
+        //So we must link with ncurses lib on try_link() to avoid unresolved symbols
+        //from 'menu' lib (which we do now as second try if just -lmenu linking fails),
+        //which also means we must know if we have to use ncurses lib override before even trying
+        //to link menu,panel,tinfo, and thus need to pass the ncurses lib name to try_link() as third arg.
+        if let Some(needed_ncurses) =
+            try_link(sublib_fallback_name, &ncurses_lib, &ncurses_lib_name_to_use)
+        {
+            let extra: String = if needed_ncurses {
+                format!(", but needed '{}' to link  without undefined symbols(known to be true on OpenBSD)", ncurses_lib_name_to_use)
+            } else {
+                "".to_string()
+            };
+            cargo_warn!("Using lib fallback '{}' which links successfully{}. The need for fallback suggests that you might be missing `pkg-config`/`pkgconf` or if they're not missing then you might not have a file named '{}.pc'.", sublib_fallback_name, extra, sublib_fallback_name);
+        } else {
+            cargo_warn!("Possibly missing lib for the '{}' feature, and couldn't find its fallback lib name '{}' but we're gonna use it anyway thus compilation is likely to fail below because of this. You might need installed ncurses and pkg-config/pkgconf to fix this.", feature_name, sublib_fallback_name);
+        }
+        //We still try linking with it anyway, in case our try_link() code is somehow wrong,
+        //like it doesn't include some link searchdir paths that are somehow included
+        //otherwise. Or, as it used to happen before i fixed it: it fails to link because
+        //libmenu has undefined symbols if not also linked with libncurses which is what
+        //happens on openbsd; fixed now by always linking with libncurses via try_link() above
+        println!("cargo:rustc-link-lib={}", sublib_fallback_name);
+    } // else,if found, it's already emitted the println to tell cargo to link what it found.
+}
 
 //TODO: look into how to make doc tests and if they'd work with build.rs
 /// Creates file with the specified contents.
