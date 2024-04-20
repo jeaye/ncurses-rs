@@ -861,6 +861,7 @@ impl MyExitStatus for std::process::ExitStatus {
                 "!!! Compiler failed{} Is ncurses installed? \
         pkg-config or pkgconf too? \
         it's 'ncurses-devel' on Fedora; \
+        and 'libncurses-dev' on Ubuntu; \
         run `nix-shell` first, on NixOS. \
         Or maybe it failed for different reasons which are seen in the errored output above.",
                 how
@@ -1311,7 +1312,7 @@ fn test_panic_for_command_non_zero_exit() {
         command.args(args_fail);
         command.success_or_panic();
     });
-    let expected_panic_msg = "!!! Compiler failed with exit code 43. Is ncurses installed? pkg-config or pkgconf too? it's 'ncurses-devel' on Fedora; run `nix-shell` first, on NixOS. Or maybe it failed for different reasons which are seen in the errored output above.";
+    let expected_panic_msg = "!!! Compiler failed with exit code 43. Is ncurses installed? pkg-config or pkgconf too? it's 'ncurses-devel' on Fedora; and 'libncurses-dev' on Ubuntu; run `nix-shell` first, on NixOS. Or maybe it failed for different reasons which are seen in the errored output above.";
     expect_panic(result, expected_panic_msg);
 }
 
