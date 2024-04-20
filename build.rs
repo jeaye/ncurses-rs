@@ -182,6 +182,74 @@ fn main() {
     // However, in practice, we're "lucky" that anything(presumably), like any bin we make that uses our
     // ncurses rust crate, will also use ncurses lib thus forcing it to be linked,
     // thus menu or panel libs that require it will always have it (dyn)linked in the bin. (use ldd on it to see)
+    // An unrelated note: on OpenBSD 7.5 linking with -lncursesw links with `/usr/lib/libcurses.so.15.0` which is a hardlink to `/usr/lib/libncursesw.so.15.0`, same happens for -lcurses and -lncurses, they link to the same lib, as if both normal and wide char should support should already be inside it(and they are). Same holds for libmenu(w).so.7.0 and libpanel(w).so.7.0
+
+    if IS_WIDE {
+        // A binary that uses ncurses with wide feature, is affected by the value of the following env. vars:
+        // "LC_ALL", "LC_CTYPE", "LANG", they should be set to eg. en_US.UTF-8
+        // info from: https://invisible-island.net/ncurses/ncurses-openbsd.html#problem_locales
+        // and from: https://github.com/mimblewimble/grin/issues/3776#issuecomment-1826805985
+
+        // Every other distro already has at least LANG set, but is otherwise affected the same if
+        // for example LANG is unset or LANG=C is used, when running the binary with wide feature.
+
+        //TODO: need a better way to detect if it's UTF-8 capable and correctly set. Maybe some
+        //locale crate.
+
+        //This is the order of precedence, if any are set, the one leftmost in this list overrides
+        //the others that come after it;
+        let env_vars = vec!["LC_ALL", "LC_CTYPE", "LANG"];
+        for var in &env_vars {
+            //tell cargo to rebuild if they change, else we see same warning on every `cargo run`
+            watch_env_var(var);
+        }
+        //the first one(from the above) that's set, overrides the rest, so ignore the rest.
+        let mut first_one_set: Option<(bool, &str, String)> = None;
+
+        /// Function to check if a string ends with the substring "UTF-8"
+        /// case sensitive(true) or insensitive(false) is selected by bool arg.
+        fn ends_in_utf8(value: &str, case_sensitive: bool) -> bool {
+            let ci: String = if !case_sensitive {
+                value.to_uppercase()
+            } else {
+                value.to_string()
+            };
+            //Gentoo can take both utf8 and utf-8, case insesitive
+            //but the en_US part is case sensitive!
+            //OpenBSD 7.5 can only take uppercase UTF-8
+            //but the en_US part is case INsensitive!
+            ci.ends_with("UTF-8") || ci.ends_with("UTF8")
+        }
+
+        for var in &env_vars {
+            if let Ok(value) = env::var(var) {
+                //we make sure to warn on openbsd if we don't find UTF-8 exactly!
+                //on others, we just case insensitively check if it ends with utf-8/utf8
+                const CASENESS: bool = if cfg!(target_os = "openbsd") {
+                    true
+                } else {
+                    false
+                };
+                if ends_in_utf8(&value, CASENESS) {
+                    first_one_set = Some((true, var, value));
+                } else {
+                    first_one_set = Some((false, var, value));
+                }
+
+                break;
+            }
+        }
+        let extra=" Note that, at least on OpenBSD 7.5, you must set the 'UTF-8' part to be all uppercase as it seems to be case sensitive so uTf-8, Utf-8, utf-8 or even UTF8 without dash, won't work but the 'en_US' part can be any case, apparently. On Gentoo however, even utf8 without a dash works(as also with a dash like uTf-8) and it's case insensitive, however the en_US part is case sensitive! Check your distro for the correct form maybe.";
+        if let Some((is_utf8, var_name, var_value)) = first_one_set {
+            if !is_utf8 {
+                cargo_warn!("You've enabled the 'wide' feature but you've set environment variable '{}={}', which isn't UTF-8, apparently, so wide characters will look garbled when you run your resulting ncurses-using binary unless you set one of these environment vars {:?} to, for example, \"en_US.UTF-8\". This affects the binary at runtime not at compile time.{}",var_name,var_value, &env_vars, extra);
+            }
+            //if it is utf8, then we're all good
+        } else {
+            // no env.vars are set, is this OpenBSD?! applies to any OS though.
+            cargo_warn!("You've enabled the 'wide' feature but you've not set any environment variables from the set of these {:?}, so unless you set one of them to for example \"en_US.UTF-8\" then wide characters will look garbled when you run your resulting ncurses-using binary. This affects the binary at runtime not at compile time.{}", &env_vars, extra);
+        }
+    } // is wide
 
     //TODO: dedup, unmessify
     //TODO: dedup warning msgs and see when to still emit them.
