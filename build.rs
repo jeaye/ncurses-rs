@@ -445,22 +445,40 @@ fn overwrite_file_contents<P: AsRef<Path>>(file_name: P, contents: &[u8]) {
     drop(file); //explicit file close, not needed since it's in a function now!
 }
 
+//OUT_DIR is set by cargo during `cargo build` while build.rs' bin gets executed, but not during
+//the compilation(ie. env!("OUT_DIR") isn't set!)
+const ENV_NAME_OF_OUT_DIR: &str = "OUT_DIR";
+#[inline]
+fn internal_get_out_dir() -> impl AsRef<Path> {
+    let out_dir=env::var(ENV_NAME_OF_OUT_DIR).unwrap_or_else(|err| {
+        panic!(
+            "Cannot get env.var. '{}', reason: '{}'. Use `cargo build` instead of running this build script binary directly!",
+            ENV_NAME_OF_OUT_DIR, err
+            )
+    });
+    out_dir
+}
+
+/// attempts to lower MSRV by not using OnceLock
+#[cfg(all(
+    feature = "not_OnceLock",
+    not(feature = "dummy_feature_to_detect_that_--all-features_arg_was_used")
+))]
+fn get_out_dir() -> impl AsRef<Path> {
+    std::path::PathBuf::from(internal_get_out_dir().as_ref())
+}
+
+/// thread safe memoizing func(via OnceLock) for returning OUT_DIR env. var. value
+#[cfg(any(
+    not(feature = "not_OnceLock"),
+    feature = "dummy_feature_to_detect_that_--all-features_arg_was_used"
+))]
 fn get_out_dir() -> impl AsRef<Path> {
     use std::path::PathBuf;
     use std::sync::OnceLock;
     static LOCK: OnceLock<PathBuf> = OnceLock::new();
 
-    //OUT_DIR is set by cargo during build
-    const ENV_NAME_OF_OUT_DIR: &str = "OUT_DIR";
-    let pb_ref:&PathBuf = LOCK.get_or_init(|| {
-        let out_dir=env::var(ENV_NAME_OF_OUT_DIR).unwrap_or_else(|err| {
-            panic!(
-                "Cannot get env.var. '{}', reason: '{}'. Use `cargo build` instead of running this build script binary directly!",
-                ENV_NAME_OF_OUT_DIR, err
-            )
-        });
-        PathBuf::from(out_dir)
-    });
+    let pb_ref: &PathBuf = LOCK.get_or_init(|| PathBuf::from(internal_get_out_dir().as_ref()));
     pb_ref
     //^ &PathBuf implements AsRef<Path>
 }
@@ -586,11 +604,28 @@ fn try_link(
     };
 }
 
+#[inline]
+fn internal_watch_var(env_var: &'static str) {
+    println!("cargo:rerun-if-env-changed={}", env_var);
+}
+/// attempts to lower MSRV by not using OnceLock
+#[cfg(all(
+    feature = "not_OnceLock",
+    not(feature = "dummy_feature_to_detect_that_--all-features_arg_was_used")
+))]
+fn watch_env_var(env_var: &'static str) {
+    internal_watch_var(env_var);
+}
+
 //TODO: maybe change this to apply to anything that's emitted for cargo to consume, except warnings,
 //and make it HashMap with a counter.
 /// Emits "cargo:rerun-if-env-changed=ENV_VAR" on stdout
-/// only once for each ENV_VAR
-/// regardless of how many times it gets called.
+/// only once for each ENV_VAR regardless of how many times it gets called.
+/// uses OnceLock internally.
+#[cfg(any(
+    not(feature = "not_OnceLock"),
+    feature = "dummy_feature_to_detect_that_--all-features_arg_was_used"
+))]
 fn watch_env_var(env_var: &'static str) {
     assert!(!env_var.is_empty(), "Passed empty env.var. to watch for.");
     use std::collections::HashSet;
@@ -604,7 +639,7 @@ fn watch_env_var(env_var: &'static str) {
     if let Ok(mut guard) = hs.write() {
         // Critical section where the lock is held
         if !guard.contains(env_var) {
-            println!("cargo:rerun-if-env-changed={}", env_var);
+            internal_watch_var(env_var);
             guard.insert(env_var);
         }
     } //lock released here

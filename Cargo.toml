@@ -11,7 +11,7 @@ keywords = ["ncurses","TUI"]
 license = "MIT"
 build = "build.rs"
 #https://doc.rust-lang.org/cargo/reference/manifest.html#the-rust-version-field
-rust-version = "1.70.0"
+rust-version = "1.70.0" #but can be 1.57.0, see feature not_OnceLock
 #Using this key rust-version= here aka MSRV, makes 1.56.0 be the minimum supported rust version(MSRV)
 #The first version of Cargo that supports this field was released with Rust 1.56.0. In older releases, the field will be ignored, and Cargo will display a warning.
 #Due to addr_of!() MSRV 1.51.0 is required minimum.
@@ -19,6 +19,10 @@ rust-version = "1.70.0"
 # Cargo.lock missing(on first repo clone) and cc version specified isn't fixed like cc="=1.0.92", so:
 #due to latest cc pulled being 1.0.95(21Apr2024) it requires 1.63.0 MSRV (ie: `cargo msrv list`)
 #Due to build.rs OnceLock() 1.70.0 is required minimum.
+#But you can use --features=not_OnceLock to get MSRV to 1.57.0 or lower
+#Due to build.rs' use of std::process::Command::get_*() MSRV is 1.57.0
+#To minimize MSRV further you can set `cc = "=1.0.92"` (not the extra "=") below then run `cargo update`
+# that makes MSRV be 1.53.0 minimum, but other things will raise it at 1.57.0
 
 [build-dependencies]
 cc = "1.0.92"
@@ -39,8 +43,13 @@ wide_chtype = []
 mouse_v1 = []
 extended_colors = ["wide"]
 
+# Use this feature to reduce MSRV to 1.57.0, it only affects build.rs code anyway,
+#but you've to set cc="=1.0.92" too, and rust-version="1.57.0" above.
+# This isn't picked up with --all-features; if all is wanted, you've to specify each by hand via --features=
+not_OnceLock = []
+
 #Internal features used in 'build.rs' only:
-test_build_rs_of_ncurses_rs = []
+test_build_rs_of_ncurses_rs = [] #<- not picked up by --all-features
 dummy_feature_to_detect_that_--all-features_arg_was_used= []
 
 [lib]
