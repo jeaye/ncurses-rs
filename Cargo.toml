@@ -10,6 +10,15 @@ readme = "README.md"
 keywords = ["ncurses","TUI"]
 license = "MIT"
 build = "build.rs"
+#https://doc.rust-lang.org/cargo/reference/manifest.html#the-rust-version-field
+rust-version = "1.70.0"
+#Using this key rust-version= here aka MSRV, makes 1.56.0 be the minimum supported rust version(MSRV)
+#The first version of Cargo that supports this field was released with Rust 1.56.0. In older releases, the field will be ignored, and Cargo will display a warning.
+#Due to addr_of!() MSRV 1.51.0 is required minimum.
+#cc 1.0.92 requires 1.53.0 MSRV, however `cargo build` will pull latest cc due to
+# Cargo.lock missing(on first repo clone) and cc version specified isn't fixed like cc="=1.0.92", so:
+#due to latest cc pulled being 1.0.95(21Apr2024) it requires 1.63.0 MSRV (ie: `cargo msrv list`)
+#Due to build.rs OnceLock() 1.70.0 is required minimum.
 
 [build-dependencies]
 cc = "1.0.92"

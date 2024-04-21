@@ -58,7 +58,9 @@ wrap_extern!(LINES: c_int);
 wrap_extern!(TABSIZE: c_int);
 pub fn acs_map() -> *const chtype {
     unsafe {
-        &wrapped::acs_map as *const chtype
+        std::ptr::addr_of!(wrapped::acs_map) as *const chtype
+        // addr_of! needs minimum rust 1.51.0, if want lower, try this instead:
+        // &wrapped::acs_map as *const chtype
     }
 }
 
