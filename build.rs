@@ -116,8 +116,8 @@ const TINFO_LIB_NAMES: &[&str] = if IS_WIDE_AND_NOT_ON_MACOS {
 //TODO: why are we trying the v5 of the lib first instead of v6 (which is the second/last in list),
 //was v5 newer than the next in list? is it so on other systems?
 //like: was it ever ncurses5 newer than ncurses ?
-//Since we're trying v5 and it finds it, it will use it and stop looking, even though the next one
-//might be v6
+//Since we're trying v5 and it finds it, it will use it and stop looking,
+//even though the next one in list might be v6
 //This is the commit that added this v5 then v6 way: https://github.com/jeaye/ncurses-rs/commit/daddcbb557169cfac03af9667ef7aefed19f9409
 
 /// finds and emits cargo:rustc-link-lib=
@@ -337,7 +337,7 @@ fn main() {
     {
         cargo_warn!("Looks like you're using wide(and are not on macos) and you've set TINFOW_NO_PKG_CONFIG but have NOT set TINFO_NO_PKG_CONFIG too, so you're linking tinfo(no w) with other wide libs like ncursesw, which will cause '{}' eg. for example ex_5 when trying to run it. This is a warning not a panic because we assume you know what you're doing, and besides this works on Fedora (even if that env. var isn't set)!","Segmentation fault (core dumped)");
     }
-    //TODO: test on macos-es. When not using the brew ncurses, it won't have A_ITALIC and BUTTON5_*
+    //done1TODO: test on macos-es. When not using the brew ncurses, it won't have A_ITALIC and BUTTON5_*
     //thus cursive will fail compilation. donedifferentlyTODO: detect this and issue cargo:warning from here.
 
     watch_env_var(ENV_VAR_NAME_FOR_NCURSES_RS_RUSTC_FLAGS);
@@ -414,54 +414,77 @@ fn find_sublib(
     } // else,if found, it's already emitted the println to tell cargo to link what it found.
 }
 
-//TODO: look into how to make doc tests and if they'd work with build.rs
+//cargo won't run doc tests inside build.rs
 /// Creates file with the specified contents.
 /// Any existing file with that name is lost.
 /// Panics if file_name isn't prefixed by the value of OUT_DIR (at runtime) for extra safety.
-fn overwrite_file_contents(file_name: &str, contents: &[u8]) {
+fn overwrite_file_contents<P: AsRef<Path>>(file_name: P, contents: &[u8]) {
     //Note: asserts in build.rs appear to be enabled even for cargo build --release, and can't be disabled(which is good, we want them on, always)
+    let file_name = file_name.as_ref();
     assert!(
         file_name.starts_with(&get_out_dir()),
-        "The file name you wanted to create '{}' should be created in OUT_DIR only",
+        "The file name you wanted to create {:?} should be created in OUT_DIR only",
         file_name
     );
-    //FIXME: Maybe don't require utf-8 valid paths? by requiring &str here,
-    //the caller would do PathBuf::display() which replaces '\xFF' with the placeholder char
-    //which is the replacement character \u{FFFD}
-    //Many other programs break at compile time if path contains non-utf8 chars, before we even get here!
+    //PathBuf::display() replaces '\xFF' with the placeholder char which is the replacement character \u{FFFD}
+    //and also \0 aren't seen at all in the output. Therefore it's best to use {:?} debug to see
+    //them escaped! Debug already shows double quotes around it.
+    //On another note: many other programs break at compile time if path contains non-utf8 chars,
+    //before we even get here in this build.rs!
     let mut file = File::create(file_name)
-        .unwrap_or_else(|err| panic!("Couldn't create file '{}', reason: '{}'", file_name, err));
+        .unwrap_or_else(|err| panic!("Couldn't create file {:?}, reason: '{}'", file_name, err));
 
     file.write_all(contents).unwrap_or_else(|err| {
         panic!(
-            "Couldn't write contents to file '{}', reason: '{}'",
+            "Couldn't write contents to file {:?}, reason: '{}'",
             file_name, err
         )
     });
     drop(file); //explicit file close, not needed since it's in a function now!
 }
 
-fn get_out_dir() -> &'static str {
+fn get_out_dir() -> impl AsRef<Path> {
+    use std::path::PathBuf;
     use std::sync::OnceLock;
-    static LOCK: OnceLock<String> = OnceLock::new();
+    static LOCK: OnceLock<PathBuf> = OnceLock::new();
 
     //OUT_DIR is set by cargo during build
     const ENV_NAME_OF_OUT_DIR: &str = "OUT_DIR";
-    LOCK.get_or_init(|| {
-        env::var(ENV_NAME_OF_OUT_DIR).unwrap_or_else(|err| {
+    let pb_ref:&PathBuf = LOCK.get_or_init(|| {
+        let out_dir=env::var(ENV_NAME_OF_OUT_DIR).unwrap_or_else(|err| {
             panic!(
                 "Cannot get env.var. '{}', reason: '{}'. Use `cargo build` instead of running this build script binary directly!",
                 ENV_NAME_OF_OUT_DIR, err
             )
-        })
-    })
-    //^ Rust automatically coerces the &String reference to a &str reference, making the function return type &'static str valid without any additional explicit conversion. This behavior is possible due to Deref coercion.
+        });
+        PathBuf::from(out_dir)
+    });
+    pb_ref
+    //^ &PathBuf implements AsRef<Path>
+}
+
+fn get_linker_searchdirs(from_lib: &Option<Library>) -> Vec<String> {
+    let mut linker_searchdir_args: Vec<String> = Vec::new();
+    if let Some(lib) = from_lib {
+        for link_path in &lib.link_paths {
+            linker_searchdir_args.push("-L".to_string());
+            //Must not use link_path.display() which does lossy conversion to UTF-8, else errors
+            //might slip through unnoticed and might be harder to track, when paths aren't UTF-8 valid.
+            //Can however use .display() in other parts of the code that only need to
+            //show the path in a message.
+            linker_searchdir_args.push(link_path.to_str().unwrap_or_else(|| {
+                //XXX: We use debug {:?} to show the path because .display() wouldn't show for example
+                //\0 in the path.
+                panic!("!!! Lib link path {:?} contains invalid UTF-8. This is likely an existing path on you system, so to get rid of this, you'd have to fix/rename the path to be UTF-8. This path was likely found via `pkg-config`.", link_path);
+            }).to_string());
+        }
+    }
+    linker_searchdir_args
 }
 
 /// Tries to see if linker can find/link with the named library, to create a binary.
 /// Uses ncurses lib searchdirs(if any found by pkg-config) to find that lib.
-/// This is mainly used when pkg-config is missing.
-/// Should still work if pkg-config exists though(except it will be missing the found link searchdirs and thus might fail? TODO: test this on NixOS, with NCURSES(W)_NO_PKG_CONFIG=1 env.var, for something like menu(w) or panel(w) )
+/// This is mainly used when pkg-config is missing but should still work if pkg-config exists.
 /// Returns Some(nn) if linking succeeded, None otherwise, nn is a bool saying if ncurses was needed to can link.
 /// Will try to link twice if linking with only that lib fails, the second try adds ncurses lib to
 /// linking command, because the lib might depend on it even though it doesn't say(inside it) that
@@ -481,35 +504,17 @@ fn try_link(
     let out_bin_fname = format!("try_link_with_{}", lib_name);
 
     //we'll generate this .c file with our contents
-    let out_src_full = Path::new(&out_dir)
-        .join(format!("{}.c", out_bin_fname))
-        .display()
-        .to_string();
+    let out_src_full = Path::new(out_dir.as_ref()).join(format!("{}.c", out_bin_fname));
 
     let source_code = b"int main(void) { return 0; }";
     overwrite_file_contents(&out_src_full, source_code);
     //TODO: remove commented out code everywhere in build.rs
 
     let build = cc::Build::new();
-    let mut linker_searchdir_args: Vec<String> = Vec::new();
-    //Add linker paths from ncurses lib, if any found! ie. -L
-    //(this likely will be empty if pkg-config doesn't exist)
-    //Include paths(for headers) don't matter! ie. -I
-    //Presumably the other libs(menu,panel,tinfo) are in the same dir(s) as the ncurses lib,
-    //because they're part of ncurses even though they're split on some distros/OSs.
-    if let Some(lib) = ncurses_lib {
-        for link_path in &lib.link_paths {
-            linker_searchdir_args.push("-L".to_string());
-            linker_searchdir_args.push(link_path.display().to_string());
-        }
-    }
 
     let mut command = get_the_compiler_command_from_build(build);
 
-    let out_bin_full = Path::new(&out_dir)
-        .join(out_bin_fname)
-        .display()
-        .to_string();
+    let out_bin_full = Path::new(out_dir.as_ref()).join(out_bin_fname);
     //Create a bin(not a lib) from a .c file
     //though it wouldn't matter here if it's bin or lib, I'm
     //not sure how to find its exact output name after, to delete it.
@@ -523,8 +528,18 @@ fn try_link(
         .arg("-o")
         .arg_checked(&out_bin_full)
         .arg_checked(&out_src_full)
-        .args_checked(["-l", lib_name]) //this might require the ncurses lib below(on openbsd for sure!)
-        .args_checked(linker_searchdir_args);
+        .args_checked(["-l", lib_name]); //this might require the ncurses lib below(on openbsd for sure!)
+
+    //Add linker paths from ncurses lib, if any found! ie. -L
+    //(this likely will be empty if pkg-config doesn't exist)
+    //Include paths(for headers) don't matter! ie. -I
+    //Presumably the other libs(menu,panel,tinfo) are in the same dir(s) as the ncurses lib,
+    //because they're part of ncurses even though they're split on some distros/OSs.
+    let linker_searchdir_args: Vec<String> = get_linker_searchdirs(&ncurses_lib);
+    if !linker_searchdir_args.is_empty() {
+        command.args_checked(linker_searchdir_args);
+    }
+
     //this copy will link only the lib, without ncurses
     let mut command_copy: Command = command.make_a_partial_copy(); //woulda been too easy if had .clone()
 
@@ -548,7 +563,7 @@ fn try_link(
             //delete temporary bin that we successfully generated
             std::fs::remove_file(&out_bin_full).unwrap_or_else(|err| {
                 panic!(
-                    "Cannot delete generated bin file '{}', reason: '{}'",
+                    "Cannot delete generated bin file {:?}, reason: '{}'",
                     out_bin_full, err
                 )
             });
@@ -556,7 +571,7 @@ fn try_link(
         //delete the .c that we generated
         std::fs::remove_file(&out_src_full).unwrap_or_else(|err| {
             panic!(
-                "Cannot delete generated C file '{}', reason: '{}'",
+                "Cannot delete generated C file {:?}, reason: '{}'",
                 out_src_full, err
             )
         });
@@ -609,6 +624,8 @@ fn new_build(lib: &Option<Library>) -> cc::Build {
         //}
     }
     build.opt_level(1); //else is 0, causes warning on NixOS: _FORTIFY_SOURCE requires compiling with optimization (-O)
+
+    build.define("DEBUG", None); //-DDEBUG so that asserts are enabled for sure!
 
     //XXX:Don't have to emit cargo:rerun-if-env-changed= here because try_flags_from_environment()
     //below does it for us, however it does it on every call! (unless Build::emit_rerun_if_env_changed(false))
@@ -665,24 +682,14 @@ fn gen_rs(
     ncurses_lib: &Option<Library>,
     lib_name: &str,
 ) {
-    //TODO: see if build.file() already emits this!
+    //Build::file() doesn't already emit this:
     println!("cargo:rerun-if-changed={}", source_c_file);
     let out_dir = get_out_dir();
     #[cfg(windows)]
     let out_bin_fname = format!("{}.exe", out_bin_fname); //shadowed
-    let bin_full = Path::new(&out_dir)
-        .join(out_bin_fname)
-        .display()
-        .to_string();
+    let bin_full = Path::new(out_dir.as_ref()).join(out_bin_fname);
 
     let build = new_build(ncurses_lib);
-    let mut linker_searchdir_args: Vec<String> = Vec::new();
-    if let Some(lib) = ncurses_lib {
-        for link_path in &lib.link_paths {
-            linker_searchdir_args.push("-L".to_string());
-            linker_searchdir_args.push(link_path.display().to_string());
-        }
-    }
 
     let mut command = get_the_compiler_command_from_build(build);
 
@@ -692,8 +699,11 @@ fn gen_rs(
         .arg("-o")
         .arg_checked(&bin_full)
         .arg_checked(source_c_file)
-        .args_checked(["-l", lib_name])
-        .args_checked(linker_searchdir_args);
+        .args_checked(["-l", lib_name]);
+    let linker_searchdir_args: Vec<String> = get_linker_searchdirs(&ncurses_lib);
+    if !linker_searchdir_args.is_empty() {
+        command.args_checked(linker_searchdir_args);
+    }
     command.success_or_panic(); //runs compiler
 
     //Execute the compiled binary, panicking if non-zero exit code, else compilation will fail
@@ -704,10 +714,7 @@ fn gen_rs(
 
     //Write the output from executing the binary into a new rust source file .rs
     //That .rs file is later used outside of this build.rs, in the normal build
-    let gen_rust_file_full_path = Path::new(&out_dir)
-        .join(gen_rust_file)
-        .display()
-        .to_string();
+    let gen_rust_file_full_path = Path::new(out_dir.as_ref()).join(gen_rust_file);
     overwrite_file_contents(&gen_rust_file_full_path, &output.stdout);
     //we ignore stderr.
     //we don't delete this file because it's used to compile the rest of the crate.
@@ -715,17 +722,13 @@ fn gen_rs(
 
 fn check_chtype_size(ncurses_lib: &Option<Library>) {
     let out_dir = get_out_dir();
-    //FIXME: see if .display() is a good idea, maybe can avoid it.
-    let src_full = Path::new(&out_dir)
-        .join("chtype_size.c")
-        .display()
-        .to_string();
+    let src_full = Path::new(out_dir.as_ref()).join("chtype_size.c");
     let bin_name = if cfg!(windows) {
         "chtype_size.exe"
     } else {
         "chtype_size"
     };
-    let bin_full = Path::new(&out_dir).join(bin_name).display().to_string();
+    let bin_full = Path::new(out_dir.as_ref()).join(bin_name);
 
     let contents = br#"// autogenerated by build.rs
 #include <assert.h>
@@ -769,13 +772,13 @@ int main(void)
     if DELETE_GENERATEDS {
         std::fs::remove_file(&src_full).unwrap_or_else(|err| {
             panic!(
-                "Cannot delete generated C file '{}', reason: '{}'",
+                "Cannot delete generated C file {:?}, reason: '{}'",
                 src_full, err
             )
         });
         std::fs::remove_file(&bin_full).unwrap_or_else(|err| {
             panic!(
-                "cannot delete compiled bin file '{}', reason: '{}'",
+                "cannot delete compiled bin file {:?}, reason: '{}'",
                 bin_full, err
             )
         });
@@ -980,7 +983,7 @@ impl MyCompilerCommand for std::process::Command {
             );
             show_stdout_stderr();
             eprintln!(
-                //FIXME: this msg can't be part of the (future)extension trait impl, it's for src/genconstants.c only.
+                //FIXME: this msg can't be part of the extension trait impl, it's for src/genconstants.c only.
                 "!! Maybe you need to try a different value for the TERM environment variable !!"
             );
             and_panic();
@@ -1169,7 +1172,7 @@ impl MyCompilerCommand for std::process::Command {
         let (exe_name, how_many_args, formatted_args, cur_dir, formatted_env_vars) =
             self.get_what_will_run();
         let cur_dir: String = if let Some(dir) = cur_dir {
-            format!(", in current dir: '{}'", dir.display())
+            format!(", in current dir: {:?}", dir)
         } else {
             ", in unspecified current dir".to_string()
         };
