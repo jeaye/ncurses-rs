@@ -9,6 +9,9 @@ repository = "https://github.com/jeaye/ncurses-rs"
 readme = "README.md"
 keywords = ["ncurses","TUI"]
 license = "MIT"
+#If the edition field is not present in Cargo.toml, then the 2015 edition is assumed for backwards compatibility. 
+#Set to avoid a warning with newer rust:
+edition = "2015"
 build = "build.rs"
 #https://doc.rust-lang.org/cargo/reference/manifest.html#the-rust-version-field
 rust-version = "1.70.0" #but can be 1.57.0, see feature not_OnceLock
