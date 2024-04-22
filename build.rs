@@ -120,7 +120,9 @@ const TINFO_LIB_NAMES: &[&str] = if IS_WIDE_AND_NOT_ON_MACOS {
 //even though the next one in list might be v6
 //This is the commit that added this v5 then v6 way: https://github.com/jeaye/ncurses-rs/commit/daddcbb557169cfac03af9667ef7aefed19f9409
 
-/// finds and emits cargo:rustc-link-lib=
+/// Uses pkg-config to find the lib and then emits cargo:rustc-link-lib= for it
+/// eg. `pkg-config ncurses --libs`
+/// link searchdirs and header include dirs, if any, are also in the result.
 fn find_library(names: &[&str]) -> Option<Library> {
     for name in names {
         //cargo_warn!("Trying lib '{}'",name);
@@ -163,6 +165,7 @@ fn cargo_warn_unformatted(warn_msg: String) {
 fn main() {
     watch_env_var("PKG_CONFIG_PATH");
 
+    //This is what pkg-config finds, if any, including link searchdirs and include dirs for it!
     let ncurses_lib = find_library(NCURSES_LIB_NAMES);
     // Gets the name of ncurses lib found by pkg-config, if it found any!
     // else (warns and)returns the default one like 'ncurses' or 'ncursesw'
@@ -193,8 +196,8 @@ fn main() {
         // Every other distro already has at least LANG set, but is otherwise affected the same if
         // for example LANG is unset or LANG=C is used, when running the binary with wide feature.
 
-        //TODO: need a better way to detect if it's UTF-8 capable and correctly set. Maybe some
-        //locale crate.
+        //TODO: maybe need a better way to detect if it's UTF-8 capable and correctly set.
+        //Perhaps some locale crate.
 
         //This is the order of precedence, if any/all are set, the one leftmost in this list overrides
         //the others that come after it;
@@ -240,7 +243,7 @@ fn main() {
                 break;
             }
         }
-        let extra=" Note that, at least on OpenBSD 7.5, you must set the 'UTF-8' part to be all uppercase as it seems to be case sensitive so uTf-8, Utf-8, utf-8 or even UTF8 without dash, won't work but the 'en_US' part can be any case, apparently. On Gentoo however, even utf8 without a dash works(as also with a dash like uTf-8) and it's case insensitive, however the en_US part is case sensitive! Check your distro for the correct form maybe.";
+        let extra=" Note that, at least on OpenBSD 7.5, you must set the 'UTF-8' part to be all uppercase as it seems to be case sensitive so uTf-8, Utf-8, utf-8 or even UTF8 without dash, won't work but the 'en_US' part can be any text or even empty, apparently. On Gentoo however, even utf8 without a dash works(as also with a dash like uTf-8) and it's case insensitive, however the en_US part is case sensitive! Check your distro for the correct form maybe.";
         if let Some((is_utf8, var_name, var_value)) = first_one_set {
             if !is_utf8 {
                 cargo_warn!("You've enabled the 'wide' feature but you've set environment variable '{}={}', which isn't UTF-8, apparently, so wide characters will look garbled when you run your resulting ncurses-using binary unless you set one of these environment vars {:?} to, for example, \"en_US.UTF-8\". This affects the binary at runtime not at compile time.{}",var_name,var_value, &env_vars, extra);
@@ -274,8 +277,8 @@ fn main() {
 
     //This comment block is about libtinfo.
     //If pkg-config can't find it, use fallback: 'tinfo' or 'tinfow'
-    //if cargo can't find it it will ignore it gracefully - NO IT WON'T!
-    //if it can find it, it will link it.
+    //If we tell cargo about it via cargo:rustc-link-lib=tinfo,
+    //and it can find it, it will link it, else it will err.
     //It's needed for ex_5 to can link  when pkg-config is missing,
     //otherwise you get this: undefined reference to symbol 'noraw'
     //Thus w/o this block, the following command would be needed to run ex_5
@@ -285,13 +288,13 @@ fn main() {
     // $ NCURSES_NO_PKG_CONFIG=1 NCURSESW_NO_PKG_CONFIG=1 NCURSES5_NO_PKG_CONFIG=1 NCURSESW5_NO_PKG_CONFIG=1 the_rest_of_the_command_here
     // Fedora and Gentoo are two that have both ncurses(w) and tinfo(w), ie. split,
     // however Gentoo has ncurses+tinfo and ncursesw+tinfow,
-    // but Fedora has ncurses+tinfo and ncursesw+tinfo (see 'tinfo' is same! no w)
+    // but Fedora&Ubuntu has ncurses+tinfo and ncursesw+tinfo (see 'tinfo' is same! no w)
     // NixOS has only ncursesw (tinfo is presumably inside?) but -lncurses -lncursesw -ltinfo work!
-    // but -ltinfow doesn't work! on NixOS and Fedora!
-    // On Gentoo -ltinfow works too!
-    // so when pkg-config is missing, how do we know which tinfo to tell cargo to link, if any!
-    // doneFIXME: ^ I guess we gonna have to compile own .c to link with tinfo to see if it fails or
-    // works!
+    // but -ltinfow fails on NixOS and Fedora!
+    // On Gentoo -ltinfow works too(ie. in addition to the other 3 variants)!
+    // So when pkg-config is missing, how do we know which tinfo to tell cargo to link, if any!
+    // we use try_link() which tries to link a dummy .c file with each tinfo variant and pick
+    // the first that links without errors.
     let tinfo_name = if let Some(found) = find_library(TINFO_LIB_NAMES) {
         let libs = found.libs;
         assert_eq!(
@@ -309,7 +312,11 @@ fn main() {
             })
             .clone()
     } else {
-        //None found; but at least on NixOS it works without any tinfo(it's inside ncursesw lib and tinfo/ncurses all symlink to that same ncursesw.so, except tinfow which doesn't exist but pkg-config points it to -lncursesw), so no need to warn that we didn't find any tinfo.
+        //None found; but at least on NixOS it works without any tinfo(it's inside ncursesw lib
+        //and tinfo/ncurses all symlink to that same libncursesw.so, except tinfow,
+        //which doesn't exist but pkg-config points it to -lncursesw),
+        //so no need to warn that we didn't find any tinfo.
+        //
         //Pick the tinfo lib to link with, as fallback,
         //the first one that links successfully!
         //The order in the list matters!
