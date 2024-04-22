@@ -229,12 +229,8 @@ fn main() {
             if let Ok(value) = env::var(var) {
                 //we make sure to warn on openbsd if we don't find UTF-8 exactly!
                 //on others, we just case insensitively check if it ends with utf-8/utf8
-                const CASENESS: bool = if cfg!(target_os = "openbsd") {
-                    true
-                } else {
-                    false
-                };
-                if ends_in_utf8(&value, CASENESS) {
+                const CASE_SENSITIVE: bool = cfg!(target_os = "openbsd");
+                if ends_in_utf8(&value, CASE_SENSITIVE) {
                     first_one_set = Some((true, var, value));
                 } else {
                     first_one_set = Some((false, var, value));
@@ -335,7 +331,7 @@ fn main() {
                 } else { false };
                 ret
             })
-            .unwrap_or_else(|| &"") // found no tinfo that links without errors which may be ok(eg. on Nixos)
+            .unwrap_or(&"") // found no tinfo that links without errors which may be ok(eg. on Nixos)
             .to_string()
     };
     if IS_WIDE_AND_NOT_ON_MACOS
@@ -403,7 +399,7 @@ fn find_sublib(
         //which also means we must know if we have to use ncurses lib override before even trying
         //to link menu,panel,tinfo, and thus need to pass the ncurses lib name to try_link() as third arg.
         if let Some(needed_ncurses) =
-            try_link(sublib_fallback_name, &ncurses_lib, &ncurses_lib_name_to_use)
+            try_link(sublib_fallback_name, ncurses_lib, ncurses_lib_name_to_use)
         {
             let extra: String = if needed_ncurses {
                 format!(", but needed '{}' to link  without undefined symbols(known to be true on OpenBSD)", ncurses_lib_name_to_use)
@@ -457,13 +453,12 @@ fn overwrite_file_contents<P: AsRef<Path>>(file_name: P, contents: &[u8]) {
 const ENV_NAME_OF_OUT_DIR: &str = "OUT_DIR";
 #[inline]
 fn internal_get_out_dir() -> impl AsRef<Path> {
-    let out_dir=env::var(ENV_NAME_OF_OUT_DIR).unwrap_or_else(|err| {
+    env::var(ENV_NAME_OF_OUT_DIR).unwrap_or_else(|err| {
         panic!(
             "Cannot get env.var. '{}', reason: '{}'. Use `cargo build` instead of running this build script binary directly!",
             ENV_NAME_OF_OUT_DIR, err
             )
-    });
-    out_dir
+    })
 }
 
 /// attempts to lower MSRV by not using OnceLock
@@ -562,7 +557,7 @@ fn try_link(
     //Include paths(for headers) don't matter! ie. -I
     //Presumably the other libs(menu,panel,tinfo) are in the same dir(s) as the ncurses lib,
     //because they're part of ncurses even though they're split on some distros/OSs.
-    let linker_searchdir_args: Vec<String> = get_linker_searchdirs(&ncurses_lib);
+    let linker_searchdir_args: Vec<String> = get_linker_searchdirs(ncurses_lib);
     if !linker_searchdir_args.is_empty() {
         command.args_checked(linker_searchdir_args);
     }
@@ -604,11 +599,11 @@ fn try_link(
         });
     }
 
-    return if ret {
+    if ret {
         Some(requires_ncurses_lib)
     } else {
         None
-    };
+    }
 }
 
 #[inline]
@@ -688,7 +683,7 @@ fn new_build(lib: &Option<Library>) -> cc::Build {
     //build.flag_if_supported("-Wstrict-prototypes");//maybe fix me: triggers warnings in wrap.c
     build.flag_if_supported("-Weverything"); //only clang
 
-    return build; // explicit return makes it more obvious that the ";" is missing so it's a return!
+    build
 }
 
 fn build_wrap(ncurses_lib: &Option<Library>) {
@@ -710,8 +705,7 @@ fn get_the_compiler_command_from_build(build: cc::Build) -> std::process::Comman
     let compiler = build
         .try_get_compiler()
         .expect("Failed Build::try_get_compiler");
-    let command = compiler.to_command();
-    return command;
+    compiler.to_command()
 }
 
 /// Compiles an existing .c file, runs its bin to generate a .rs file from its output.
@@ -745,7 +739,7 @@ fn gen_rs(
         .arg_checked(&bin_full)
         .arg_checked(source_c_file)
         .args_checked(["-l", lib_name]);
-    let linker_searchdir_args: Vec<String> = get_linker_searchdirs(&ncurses_lib);
+    let linker_searchdir_args: Vec<String> = get_linker_searchdirs(ncurses_lib);
     if !linker_searchdir_args.is_empty() {
         command.args_checked(linker_searchdir_args);
     }
@@ -766,7 +760,7 @@ fn gen_rs(
     //Write the output from executing the binary into a new rust source file .rs
     //That .rs file is later used outside of this build.rs, in the normal build
     let gen_rust_file_full_path = Path::new(out_dir.as_ref()).join(gen_rust_file);
-    overwrite_file_contents(&gen_rust_file_full_path, &output.stdout);
+    overwrite_file_contents(gen_rust_file_full_path, &output.stdout);
     //we ignore stderr.
     //we don't delete this file because it's used to compile the rest of the crate.
 }
@@ -1061,6 +1055,7 @@ impl MyCompilerCommand for std::process::Command {
             eprintln!("{}", additional_msg_when_non_zero_exit_code);
             and_panic();
         } else {
+            #[allow(clippy::needless_return)] // it's more readable
             return output;
         }
     }
@@ -1285,16 +1280,6 @@ impl<'a> fmt::Display for MyArgs<'a> {
     }
 }
 
-//// Implement a method to convert Vec<&OsStr> to MyArgs
-//trait ToMyArgs<'a> {
-//    fn to_my_args(self) -> MyArgs<'a>;
-//}
-//
-//impl<'a> ToMyArgs<'a> for Vec<&'a OsStr> {
-//    fn to_my_args(self) -> MyArgs<'a> {
-//        MyArgs(self)
-//    }
-//}
 /// but this is better:
 impl<'a> FromIterator<&'a OsStr> for MyArgs<'a> {
     fn from_iter<I: IntoIterator<Item = &'a OsStr>>(iter: I) -> Self {
@@ -1304,6 +1289,7 @@ impl<'a> FromIterator<&'a OsStr> for MyArgs<'a> {
 
 impl<'a> MyArgs<'a> {
     //    // Implement a method to get the length of the arguments
+    //    // don't need this because impl Deref!
     //    pub fn len(&self) -> usize {
     //        self.0.len()
     //        //self.len()//won't use deref, but will infinitely recurse (untested)
@@ -1348,14 +1334,14 @@ impl<'a> fmt::Display for MyEnvVars<'a> {
                     humanly_visible_os_chars(f, key)?;
                     write!(f, "=")?;
                     humanly_visible_os_chars(f, value)?;
-                    write!(f, "\n")?;
+                    writeln!(f)?;
                 }
                 None => {
                     // This is how an env. var. is said to be removed, apparently.
                     // ie. if parent had it, it's not inherited? somehow. (untested)
                     write!(f, "(del) ")?;
                     humanly_visible_os_chars(f, key)?;
-                    write!(f, "\n")?
+                    writeln!(f)?;
                 }
             }
         }
@@ -1490,7 +1476,7 @@ fn test_panic_for_not_found_command() {
 #[allow(dead_code)]
 fn test_panic_for_command_non_zero_exit() {
     let cmd = if cfg!(windows) { "cmd" } else { "sh" };
-    let args_fail = &["-c", &format!("exit 43")];
+    let args_fail = &["-c", "exit 43"];
     let result = std::panic::catch_unwind(|| {
         let mut command = Command::new(cmd);
         command.args(args_fail);
