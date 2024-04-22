@@ -1,9 +1,9 @@
 #![allow(dead_code)]
 #![allow(unused_imports)]
 
-use panel::ll;
-use ll::WINDOW;
-use constants::TRUE;
+use crate::panel::ll;
+use crate::ll::WINDOW;
+use crate::constants::TRUE;
 
 pub type PANEL = ll::PANEL;
 

@@ -17,8 +17,8 @@ use super::ll::*;
 
 mod wrapped {
     use libc::{ c_char, c_int };
-    use ll::chtype;
-    use ll::WINDOW;
+    use crate::ll::chtype;
+    use crate::ll::WINDOW;
 
     extern "C"
     {

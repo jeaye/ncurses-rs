@@ -20,7 +20,6 @@ use std::ffi::OsString;
 use std::fmt;
 use std::fs::File;
 use std::io::Write as required_for_write_all_function; //in File
-use std::iter::FromIterator;
 use std::os::unix::ffi::OsStrExt;
 use std::os::unix::ffi::OsStringExt;
 use std::path::Path;

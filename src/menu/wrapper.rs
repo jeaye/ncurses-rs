@@ -7,9 +7,9 @@ use std::ptr;
 use std::slice;
 use std::ffi::{CStr, CString};
 use libc::*;
-use menu::ll;
-use ll::{WINDOW, chtype, c_bool};
-use constants::TRUE;
+use crate::menu::ll;
+use crate::ll::{WINDOW, chtype, c_bool};
+use crate::constants::TRUE;
 use std::os::raw::c_char;
 
 pub type MENU = ll::MENU;
