@@ -17,9 +17,10 @@ use pkg_config::Library;
 use std::env;
 use std::ffi::OsStr;
 use std::ffi::OsString;
-use std::fmt::Write as required_for_writeln_macro;
+use std::fmt;
 use std::fs::File;
 use std::io::Write as required_for_write_all_function; //in File
+use std::iter::FromIterator;
 use std::os::unix::ffi::OsStrExt;
 use std::os::unix::ffi::OsStringExt;
 use std::path::Path;
@@ -961,7 +962,7 @@ trait MyCompilerCommand {
         -> ExitStatus;
     fn show_what_will_run(&mut self) -> &mut Self;
     fn get_program_or_panic(&self) -> &str;
-    fn get_what_will_run(&self) -> (String, usize, String, Option<&Path>, String);
+    fn get_what_will_run(&self) -> (String, MyArgs, Option<&Path>, MyEnvVars);
     fn assert_no_nul_in_args(&mut self) -> &mut Self;
     /// Panics if arg has \0 in it.
     fn args_checked<I, S>(&mut self, args: I) -> &mut Command
@@ -1135,65 +1136,23 @@ impl MyCompilerCommand for std::process::Command {
         p_prog
     }
 
-    fn get_what_will_run(&self) -> (String, usize, String, Option<&Path>, String) {
-        let p_prog = self.get_program_or_panic();
-        let args = self.get_args();
-        let how_many_args: usize = args.len();
-        let formatted_args: String = args
-            .map(|arg| {
-                //If the arg had NUL ie. \0  in it then arg got replaced already
-                //with "<string-with-nul>", internally, by std::process::Command::arg()
-                //if it was added via Command::arg() or Command::args().
-                //To prevent that use Command::arg_checked() and ::args_checked()
-                if let Some(fully_utf8_arg) = arg.to_str() {
-                    fully_utf8_arg.to_string()
-                } else {
-                    //None aka not fully utf8 arg
-                    //then we show it as ascii + hex
-                    let mut broken_arg = String::new();
-                    //use std::fmt::Write; // can't globally import this ^, conflicts with std::io::Write
-                    for byte in arg.as_bytes() {
-                        match std::char::from_u32(*byte as u32) {
-                            Some(c) if c.is_ascii() => broken_arg.push(c),
-                            _ => {
-                                write!(&mut broken_arg, "\\x{:02X}", byte).expect("Failed to write")
-                            }
-                        }
-                    }
-                    broken_arg
-                }
-            })
-            .collect::<Vec<String>>()
-            .join("\" \"");
-        //TODO: maybe a better way to get the args as a Vec<String> and impl Display ? but not
-        //for the generic Vec<String> i think. Then, we won't have to return how_many_args!
+    fn get_what_will_run(&self) -> (String, MyArgs, Option<&Path>, MyEnvVars) {
+        let prog = self.get_program_or_panic().to_string();
+
+        //If an arg had NUL ie. \0  in it then arg got replaced already
+        //with "<string-with-nul>", internally, by std::process::Command::arg()
+        //if it was added via Command::arg() or Command::args().
+        //To prevent that use Command::arg_checked() and ::args_checked()
+        let args: MyArgs = self.get_args().collect();
+        //let args: MyArgs = self.get_args().collect::<Vec<&OsStr>>().to_my_args();
 
         let cur_dir = self.get_current_dir();
-        let env_vars: Vec<(&OsStr, Option<&OsStr>)> = self.get_envs().collect();
-        let mut formatted_env_vars = String::new(); //empty string if no env vars set
-        if !formatted_env_vars.is_empty() {
-            for (key, value) in env_vars {
-                match value {
-                    Some(value) => formatted_env_vars.push_str(&format!(
-                        "(set) {}={}\n",
-                        key.to_string_lossy(),
-                        value.to_string_lossy()
-                    )),
-                    None => {
-                        formatted_env_vars.push_str(&format!("(del) {}\n", key.to_string_lossy()))
-                    } // Key was removed
-                }
-            }
-        };
+        let env_vars: MyEnvVars = self.get_envs().collect();
+
         //FIXME: make this a struct so the order doesn't get confused in callers.
+
         //return this tuple
-        (
-            p_prog.to_string(),
-            how_many_args,
-            format!("\"{}\"", formatted_args),
-            cur_dir,
-            formatted_env_vars,
-        )
+        (prog, args, cur_dir, env_vars)
     }
 
     /// just like Command::status() but panics if it can't execute it,
@@ -1233,22 +1192,21 @@ impl MyCompilerCommand for std::process::Command {
     /// (not meant to be used outside)
     //panic(  <- for search
     fn panic<T: std::fmt::Display>(&mut self, err: T, what_type_of_command: &str) -> ! {
-        let (p_prog, how_many_args, formatted_args, cur_dir, formatted_env_vars) =
-            self.get_what_will_run();
+        let (p_prog, args, cur_dir, env_vars) = self.get_what_will_run();
+        let how_many_args = args.len();
         let extra_space = if what_type_of_command.is_empty() {
             ""
         } else {
             " "
         };
-        let (cur_dir_for_print, env_vars_for_print) =
-            get_cd_and_env_for_print(cur_dir, formatted_env_vars);
+        let (cur_dir_for_print, env_vars_for_print) = get_cd_and_env_for_print(cur_dir, env_vars);
         panic!(
             "Failed to run {}{}command '{}' with '{}' args: '{}'{}{}, reason: '{}'",
             what_type_of_command,
             extra_space,
             p_prog,
             how_many_args,
-            formatted_args,
+            args,
             cur_dir_for_print,
             env_vars_for_print,
             err
@@ -1257,13 +1215,12 @@ impl MyCompilerCommand for std::process::Command {
 
     /// shows on stderr, which command will be executed.
     fn show_what_will_run(&mut self) -> &mut Self {
-        let (exe_name, how_many_args, formatted_args, cur_dir, formatted_env_vars) =
-            self.get_what_will_run();
-        let (cur_dir_for_print, env_vars_for_print) =
-            get_cd_and_env_for_print(cur_dir, formatted_env_vars);
+        let (exe_name, args, cur_dir, env_vars) = self.get_what_will_run();
+        let how_many_args = args.len();
+        let (cur_dir_for_print, env_vars_for_print) = get_cd_and_env_for_print(cur_dir, env_vars);
         eprintln!(
             "!! Next, attempting to run command '{}' with '{}' args: '{}'{}{}.",
-            exe_name, how_many_args, formatted_args, cur_dir_for_print, env_vars_for_print
+            exe_name, how_many_args, args, cur_dir_for_print, env_vars_for_print
         );
         self
     }
@@ -1289,10 +1246,126 @@ impl MyCompilerCommand for std::process::Command {
     }
 }
 
-fn get_cd_and_env_for_print(
-    cur_dir: Option<&Path>,
-    formatted_env_vars: String,
-) -> (String, String) {
+//"We can't directly implement Display for Vec<&OsStr> because Vec and OsStr are not types defined in our crate."
+// Define a custom type to represent a vector of OsStr references
+struct MyArgs<'a>(Vec<&'a OsStr>);
+
+fn humanly_visible_os_chars(f: &mut fmt::Formatter<'_>, arg: &OsStr) -> fmt::Result {
+    if let Some(arg_str) = arg.to_str() {
+        // If the argument is valid UTF-8, simply display it
+        write!(f, "\"{}\"", arg_str)?;
+    } else {
+        //None aka not fully utf8 arg
+        //then we show it as ascii + hex
+        write!(f, "\"")?;
+        for byte in arg.as_bytes() {
+            match std::char::from_u32(*byte as u32) {
+                Some(c) if c.is_ascii() => write!(f, "{}", c)?,
+                _ => {
+                    write!(f, "\\x{:02X}", byte)?;
+                }
+            }
+        }
+        write!(f, "\"")?;
+    }
+    Ok(())
+}
+
+// Implement the Display trait for MyArgs
+impl<'a> fmt::Display for MyArgs<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let cached_last_index = self.len() - 1;
+        for (index, arg) in self.iter().enumerate() {
+            humanly_visible_os_chars(f, arg)?;
+            // Add a space between arguments, except for the last one
+            if index < cached_last_index {
+                write!(f, " ")?;
+            }
+        }
+        Ok(())
+    }
+}
+
+//// Implement a method to convert Vec<&OsStr> to MyArgs
+//trait ToMyArgs<'a> {
+//    fn to_my_args(self) -> MyArgs<'a>;
+//}
+//
+//impl<'a> ToMyArgs<'a> for Vec<&'a OsStr> {
+//    fn to_my_args(self) -> MyArgs<'a> {
+//        MyArgs(self)
+//    }
+//}
+/// but this is better:
+impl<'a> FromIterator<&'a OsStr> for MyArgs<'a> {
+    fn from_iter<I: IntoIterator<Item = &'a OsStr>>(iter: I) -> Self {
+        MyArgs(iter.into_iter().collect())
+    }
+}
+
+impl<'a> MyArgs<'a> {
+    //    // Implement a method to get the length of the arguments
+    //    pub fn len(&self) -> usize {
+    //        self.0.len()
+    //        //self.len()//won't use deref, but will infinitely recurse (untested)
+    //        //(&*self).len() // same as self.0.len() (untested)
+    //    }
+    pub fn display(&self) -> String {
+        format!("{}", self)
+    }
+}
+
+//so we don't have to use self.0
+impl<'a> std::ops::Deref for MyArgs<'a> {
+    type Target = Vec<&'a OsStr>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+struct MyEnvVars<'a>(Vec<(&'a OsStr, Option<&'a OsStr>)>);
+
+impl<'a> std::ops::Deref for MyEnvVars<'a> {
+    type Target = Vec<(&'a OsStr, Option<&'a OsStr>)>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl<'a> FromIterator<(&'a OsStr, Option<&'a OsStr>)> for MyEnvVars<'a> {
+    fn from_iter<I: IntoIterator<Item = (&'a OsStr, Option<&'a OsStr>)>>(iter: I) -> Self {
+        MyEnvVars(iter.into_iter().collect())
+    }
+}
+
+impl<'a> fmt::Display for MyEnvVars<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        for (key, value) in self.iter() {
+            match value {
+                Some(value) => {
+                    write!(f, "(set) ")?;
+                    humanly_visible_os_chars(f, key)?;
+                    write!(f, "=")?;
+                    humanly_visible_os_chars(f, value)?;
+                    write!(f, "\n")?;
+                }
+                None => {
+                    // This is how an env. var. is said to be removed, apparently.
+                    // ie. if parent had it, it's not inherited? somehow. (untested)
+                    write!(f, "(del) ")?;
+                    humanly_visible_os_chars(f, key)?;
+                    write!(f, "\n")?
+                }
+            }
+        }
+        Ok(())
+    }
+}
+
+///
+fn get_cd_and_env_for_print(cur_dir: Option<&Path>, env_vars: MyEnvVars) -> (String, String) {
     let cur_dir_for_print: String = if let Some(dir) = cur_dir {
         format!(", in current dir: {:?}", dir)
     } else {
@@ -1301,11 +1374,11 @@ fn get_cd_and_env_for_print(
             env::current_dir()
         )
     };
-    let formatted_env_vars_for_print: String = if formatted_env_vars.is_empty() {
+    let formatted_env_vars_for_print: String = if env_vars.is_empty() {
         ", with no extra env.vars added or deleted(so all are inherited from parent process)"
             .to_string()
     } else {
-        format!(", with env.vars: '{}'", formatted_env_vars)
+        format!(", with env.vars: '{}'", env_vars)
     };
     (cur_dir_for_print, formatted_env_vars_for_print)
 }
@@ -1445,6 +1518,7 @@ fn test_invalid_utf8_in_program() {
         "Executable \"test_invalid_utf8_\\xFFin_program\" isn't valid rust string",
     );
 }
+
 #[allow(dead_code)]
 fn test_match_with_placeholders() {
     let str1 = "abc";
@@ -1565,12 +1639,12 @@ fn test_get_what_will_run() {
         OsString::from("arg4"),
     ]);
     command.arg_checked(OsString::from_vec(b"my\xffarg3".to_vec()));
-    let (prog, how_many_args, formatted_args, _cur_dir, _envs) = command.get_what_will_run();
+    let (prog, args, _cur_dir, _envs) = command.get_what_will_run();
     let expected_hma = 4;
     let expected_fa = "\"ar♥g1\" \"my\\xFFarg3\" \"arg4\" \"my\\xFFarg3\"";
     assert_eq!(prog, expected_prog);
-    assert_eq!(how_many_args, expected_hma);
-    assert_eq!(formatted_args, expected_fa);
+    assert_eq!(args.len(), expected_hma);
+    assert_eq!(args.display(), expected_fa);
 }
 
 #[allow(dead_code)]
