@@ -40,7 +40,7 @@ const ENV_VAR_NAME_FOR_NCURSES_RS_RUSTC_FLAGS: &str = "NCURSES_RS_RUSTC_FLAGS";
 
 /// Assuming we want env.var "NCURSES_RS_CFLAGS" here,
 /// and target==host and is "x86_64-unknown-linux-gnu"
-/// then calls to Build::try_flags_from_environment() below in code,
+/// then calls to `Build::try_flags_from_environment()` below in code,
 /// will try the following env.vars in this order:
 /// 1. "NCURSES_RS_CFLAGS_x86_64-unknown-linux-gnu" (notice dashes)
 /// 2. "NCURSES_RS_CFLAGS_x86_64_unknown_linux_gnu" (notice underscores)
@@ -141,7 +141,7 @@ fn find_library(names: &[&str]) -> Option<Library> {
 /// otherwise the text after would not have been seen in the warning.
 macro_rules! cargo_warn {
     ($($arg:tt)*) => {
-        cargo_warn_unformatted(format!("{}", format_args!($($arg)*)));
+        cargo_warn_unformatted(&format!("{}", format_args!($($arg)*)));
     };
 }
 
@@ -149,7 +149,7 @@ macro_rules! cargo_warn {
 /// Presumably you've already used format!() on it.
 /// Will replace newlines in the warning message with spaces,
 /// otherwise the text after would not have been seen in the warning.
-fn cargo_warn_unformatted(warn_msg: String) {
+fn cargo_warn_unformatted(warn_msg: &str) {
     // Replace '\r' with nothing
     // Replace '\n' with space
     let warn_msg = warn_msg.replace('\r', "").replace('\n', " ");
@@ -213,10 +213,10 @@ fn main() {
         /// Function to check if a string ends with the substring "UTF-8"
         /// case sensitive(true) or insensitive(false) is selected by bool arg.
         fn ends_in_utf8(value: &str, case_sensitive: bool) -> bool {
-            let ci: String = if !case_sensitive {
-                value.to_uppercase()
-            } else {
+            let ci: String = if case_sensitive {
                 value.to_string()
+            } else {
+                value.to_uppercase()
             };
             //Gentoo can take both utf8 and utf-8, case insesitive
             //but the en_US part is case sensitive!
@@ -316,14 +316,14 @@ fn main() {
         //Pick the tinfo lib to link with, as fallback,
         //the first one that links successfully!
         //The order in the list matters!
-        TINFO_LIB_NAMES
+        (*TINFO_LIB_NAMES
             .iter()
             .find(|&each| {
                 let ret: bool = if let Some(needed_ncurses)=try_link(each, &ncurses_lib, &lib_name) {
                     let extra:String=if needed_ncurses {
                         format!(", but needed '{}' to link without undefined symbols", lib_name)
                     } else {
-                        "".to_string()
+                        String::new()
                     };
                     cargo_warn!("Using lib fallback '{}' which links successfully{}. The need for fallback suggests that you might be missing `pkg-config`/`pkgconf`.", each, extra);
                     println!("cargo:rustc-link-lib={}", each);
@@ -331,7 +331,7 @@ fn main() {
                 } else { false };
                 ret
             })
-            .unwrap_or(&"") // found no tinfo that links without errors which may be ok(eg. on Nixos)
+            .unwrap_or(&"")) // found no tinfo that links without errors which may be ok(eg. on Nixos)
             .to_string()
     };
     if IS_WIDE_AND_NOT_ON_MACOS
@@ -404,7 +404,7 @@ fn find_sublib(
             let extra: String = if needed_ncurses {
                 format!(", but needed '{}' to link  without undefined symbols(known to be true on OpenBSD)", ncurses_lib_name_to_use)
             } else {
-                "".to_string()
+                String::new()
             };
             cargo_warn!("Using lib fallback '{}' which links successfully{}. The need for fallback suggests that you might be missing `pkg-config`/`pkgconf` or if they're not missing then you might not have a file named '{}.pc'.", sublib_fallback_name, extra, sublib_fallback_name);
         } else {
@@ -422,7 +422,7 @@ fn find_sublib(
 //cargo won't run doc tests inside build.rs
 /// Creates file with the specified contents.
 /// Any existing file with that name is lost.
-/// Panics if file_name isn't prefixed by the value of OUT_DIR (at runtime) for extra safety.
+/// Panics if `file_name` isn't prefixed by the value of OUT_DIR (at runtime) for extra safety.
 fn overwrite_file_contents<P: AsRef<Path>>(file_name: P, contents: &[u8]) {
     //Note: asserts in build.rs appear to be enabled even for cargo build --release, and can't be disabled(which is good, we want them on, always)
     let file_name = file_name.as_ref();
@@ -514,7 +514,7 @@ fn try_link(
 
     let build = cc::Build::new();
 
-    let mut command = get_the_compiler_command_from_build(build);
+    let mut command = get_the_compiler_command_from_build(&build);
 
     let out_bin_full = Path::new(out_dir.as_ref()).join(out_bin_fname);
     //Create a bin(not a lib) from a .c file
@@ -638,7 +638,7 @@ fn build_wrap(ncurses_lib: &Option<Library>) {
     //the resulting lib will be kept until deleted by 'cargo clean'
 }
 
-fn get_the_compiler_command_from_build(build: cc::Build) -> std::process::Command {
+fn get_the_compiler_command_from_build(build: &cc::Build) -> std::process::Command {
     //'cc::Build' can do only lib outputs but we want a binary
     //so we get the command (and args) thus far set and add our own args.
     //Presumably all args will be kept, as per: https://docs.rs/cc/1.0.92/cc/struct.Build.html#method.get_compiler
@@ -672,7 +672,7 @@ fn gen_rs(
 
     let build = new_build(ncurses_lib);
 
-    let mut command = get_the_compiler_command_from_build(build);
+    let mut command = get_the_compiler_command_from_build(&build);
 
     //create a bin(not a lib) from a .c file
     //adding the relevant args for the libs that we depend upon such as ncurses
@@ -751,7 +751,7 @@ int main(void)
 
     let build = new_build(ncurses_lib);
 
-    let mut command = get_the_compiler_command_from_build(build);
+    let mut command = get_the_compiler_command_from_build(&build);
 
     command
         .arg("-o")
@@ -905,8 +905,8 @@ trait MyCompilerCommand {
         I: IntoIterator<Item = S>,
         S: AsRef<OsStr>;
     /// Panics if arg has \0 aka NUL in it,
-    /// otherwise the original Command::arg would've set it to "<string-with-nul>"
-    /// Doesn't do any other checks, passes it to Command::arg()
+    /// otherwise the original `Command::arg()` would've set it to "<string-with-nul>"
+    /// Doesn't do any other checks, passes it to `Command::arg()`
     fn arg_checked<S: AsRef<OsStr>>(&mut self, arg: S) -> &mut Command;
     fn panic<T: std::fmt::Display>(&mut self, err: T, what_type_of_command: &str) -> !;
     fn make_a_partial_copy(&self) -> Self;
@@ -922,13 +922,13 @@ fn has_null_byte<S: AsRef<OsStr>>(arg: S) -> bool {
     false
 }
 
-/// Args with \0 in them, passed to std::process::Command::arg() or ::args()
+/// Args with \0 in them, passed to `std::process::Command::arg()` or `std::process::Command::args()`
 /// get replaced(by those calls)entirely with this: "<string-with-nul>"
 const REPLACEMENT_FOR_ARG_THAT_HAS_NUL: &str = "<string-with-nul>";
 // Implement the extension trait for Command, so you can use methods on a Command instance even
 // though it's a type that's not defined here but in std::process
 impl MyCompilerCommand for std::process::Command {
-    /// Executes Command::output() and gives you Output struct or panics
+    /// Executes `Command::output()` and gives you Output struct or panics
     /// but the exit code may not have been 0
     fn output_or_panic(&mut self, what_kind_of_process_is_it: &str) -> std::process::Output {
         self.output().unwrap_or_else(|err| {
@@ -936,7 +936,7 @@ impl MyCompilerCommand for std::process::Command {
         })
     }
 
-    /// Executes Command::output() and gives you Output struct or panics
+    /// Executes `Command::output()` and gives you Output struct or panics
     /// also panics if exit code was not 0 and shows you stdout/stderr if so.
     /// The extra args are to be displayed in cases of errors.
     fn output_success_or_panic(
@@ -988,21 +988,20 @@ impl MyCompilerCommand for std::process::Command {
             show_stdout_stderr();
             and_panic();
         });
-        if 0 != exit_code {
-            eprintln!(
-                "!!! Execution of {} '{}' failed with exit code '{}'",
-                what_kind_of_process_is_it, prog, exit_code
-            );
-            show_stdout_stderr();
-            eprintln!("{}", additional_msg_when_non_zero_exit_code);
-            and_panic();
-        } else {
+        if 0 == exit_code {
             #[allow(clippy::needless_return)] // it's more readable
             return output;
-        }
+        } // else {
+        eprintln!(
+            "!!! Execution of {} '{}' failed with exit code '{}'",
+            what_kind_of_process_is_it, prog, exit_code
+        );
+        show_stdout_stderr();
+        eprintln!("{}", additional_msg_when_non_zero_exit_code);
+        and_panic();
     }
 
-    /// Executes Command::status().success() and panics if it any fail
+    /// Executes `Command::status().success()` and panics if it any fail
     /// This means exit code 0 is ensured.
     /// Note: You can't use an arg value "<string-with-nul>", or this will panic.
     fn success_or_panic(&mut self, what_kind_of_command_is_it: &str) -> ExitStatus {
@@ -1029,6 +1028,7 @@ impl MyCompilerCommand for std::process::Command {
 
     /// panics if arg has \0 aka nul in it, else Command will panic later, on execution.
     fn arg_checked<S: AsRef<OsStr>>(&mut self, arg: S) -> &mut Command {
+        #[allow(clippy::manual_assert)]
         if has_null_byte(&arg) {
             //If the arg has NUL ie. \0  in it then arg got replaced already
             //with "<string-with-nul>", internally, by std::process::Command::arg() .
@@ -1043,7 +1043,7 @@ impl MyCompilerCommand for std::process::Command {
         self.arg(arg)
     }
 
-    /// Beware if user set the arg on purpose to the value of REPLACEMENT_FOR_ARG_THAT_HAS_NUL
+    /// Beware if user set the arg on purpose to the value of `REPLACEMENT_FOR_ARG_THAT_HAS_NUL`
     /// which is "<string-with-nul>" then this will panic, it's a false positive.
     fn assert_no_nul_in_args(&mut self) -> &mut Self {
         let args = self.get_args();
@@ -1051,6 +1051,7 @@ impl MyCompilerCommand for std::process::Command {
             if let Some(fully_utf8_arg) = arg.to_str() {
                 //If the arg had NUL ie. \0  in it then arg got replaced already
                 //with "<string-with-nul>", internally, by std::process::Command::arg() .
+                #[allow(clippy::manual_assert)]
                 if fully_utf8_arg == REPLACEMENT_FOR_ARG_THAT_HAS_NUL {
                     panic!(
                         "Found arg number '{}' that has \\0 aka NUL in it! \
@@ -1091,9 +1092,9 @@ impl MyCompilerCommand for std::process::Command {
         (prog, args, cur_dir, env_vars)
     }
 
-    /// just like Command::status() but panics if it can't execute it,
-    /// ie. if status() would've returned an Err
-    /// returns ExitStatus whether it be 0 or !=0
+    /// just like `Command::status()` but panics if it can't execute it,
+    /// ie. if `status()` would've returned an Err
+    /// returns `ExitStatus` whether it be 0 or !=0
     /// Doesn't show you what will be executed and doesn't check args.
     /// (not meant to be used outside)
     fn just_status_or_panic(&mut self, what_kind_of_command_is_it: &str) -> ExitStatus {
@@ -1104,7 +1105,7 @@ impl MyCompilerCommand for std::process::Command {
     }
 
     /// Shows command that will execute and checks args, only after this
-    /// it's gonna be trying to do .status()
+    /// it's gonna be trying to do `.status()`
     /// Panics if status would've returned an Err
     fn status_or_panic(&mut self, what_kind_of_command_is_it: &str) -> ExitStatus {
         self.show_what_will_run()
@@ -1113,8 +1114,8 @@ impl MyCompilerCommand for std::process::Command {
     }
 
     /// Used only for build.rs tests:
-    /// this should be exactly like status_or_panic() except it won't check that args
-    /// aren't nul-containing and thus won't panic before the original status() gets run, thus
+    /// this should be exactly like `status_or_panic()` except it won't check that args
+    /// aren't nul-containing and thus won't panic before the original `status()` gets run, thus
     /// allowing it to panic on nul.
     /// (not meant to be used outside)
     fn status_or_panic_but_no_check_args(
@@ -1135,7 +1136,7 @@ impl MyCompilerCommand for std::process::Command {
         } else {
             " "
         };
-        let (cur_dir_for_print, env_vars_for_print) = get_cd_and_env_for_print(cur_dir, env_vars);
+        let (cur_dir_for_print, env_vars_for_print) = get_cd_and_env_for_print(cur_dir, &env_vars);
         panic!(
             "Failed to run {}{}command '{}' with '{}' args: '{}'{}{}, reason: '{}'",
             what_type_of_command,
@@ -1153,7 +1154,7 @@ impl MyCompilerCommand for std::process::Command {
     fn show_what_will_run(&mut self) -> &mut Self {
         let (exe_name, args, cur_dir, env_vars) = self.get_what_will_run();
         let how_many_args = args.len();
-        let (cur_dir_for_print, env_vars_for_print) = get_cd_and_env_for_print(cur_dir, env_vars);
+        let (cur_dir_for_print, env_vars_for_print) = get_cd_and_env_for_print(cur_dir, &env_vars);
         eprintln!(
             "!! Next, attempting to run command '{}' with '{}' args: '{}'{}{}.",
             exe_name, how_many_args, args, cur_dir_for_print, env_vars_for_print
@@ -1195,7 +1196,7 @@ fn humanly_visible_os_chars(f: &mut fmt::Formatter<'_>, arg: &OsStr) -> fmt::Res
         //then we show it as ascii + hex
         write!(f, "\"")?;
         for byte in arg.as_bytes() {
-            match std::char::from_u32(*byte as u32) {
+            match std::char::from_u32(u32::from(*byte)) {
                 Some(c) if c.is_ascii() => write!(f, "{}", c)?,
                 _ => {
                     write!(f, "\\x{:02X}", byte)?;
@@ -1292,7 +1293,7 @@ impl<'a> fmt::Display for MyEnvVars<'a> {
 }
 
 ///
-fn get_cd_and_env_for_print(cur_dir: Option<&Path>, env_vars: MyEnvVars) -> (String, String) {
+fn get_cd_and_env_for_print(cur_dir: Option<&Path>, env_vars: &MyEnvVars) -> (String, String) {
     let cur_dir_for_print: String = if let Some(dir) = cur_dir {
         format!(", in current dir: {:?}", dir)
     } else {
@@ -1494,6 +1495,7 @@ fn expect_panic(result: Result<(), Box<dyn std::any::Any + Send>>, expected_pani
             // Uncomment this to can copy/paste it for asserts:
             //println!("!!!!!!!!!! Panic message: {:?}", err);
 
+            #[allow(clippy::manual_assert)]
             if !match_with_placeholders(err, expected_panic_message) {
                 panic!(
                 "!!! Got different panic message than expected !!!\n\nExpected: '{}'\n\n     Got: '{}'\n",
@@ -1584,7 +1586,7 @@ fn test_assert_no_nul_in_args() {
     });
     expect_panic(
         result,
-        r##"Found arg number '1' that has \0 aka NUL in it! It got replaced with '<string-with-nul>'."##,
+        r"Found arg number '1' that has \0 aka NUL in it! It got replaced with '<string-with-nul>'.",
     );
 
     let result = std::panic::catch_unwind(|| {
