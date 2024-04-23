@@ -448,40 +448,20 @@ fn overwrite_file_contents<P: AsRef<Path>>(file_name: P, contents: &[u8]) {
     drop(file); //explicit file close, not needed since it's in a function now!
 }
 
-//OUT_DIR is set by cargo during `cargo build` while build.rs' bin gets executed, but not during
-//the compilation(ie. env!("OUT_DIR") isn't set!)
-const ENV_NAME_OF_OUT_DIR: &str = "OUT_DIR";
-#[inline]
-fn internal_get_out_dir() -> impl AsRef<Path> {
-    env::var(ENV_NAME_OF_OUT_DIR).unwrap_or_else(|err| {
+/// returns value of OUT_DIR env. var. as Path
+fn get_out_dir() -> impl AsRef<Path> {
+    use std::path::PathBuf;
+    //OUT_DIR is set by cargo during `cargo build` while build.rs' bin gets executed, but not during
+    //the compilation(ie. env!("OUT_DIR") isn't set!)
+    const ENV_NAME_OF_OUT_DIR: &str = "OUT_DIR";
+    let env_value:String=env::var(ENV_NAME_OF_OUT_DIR).unwrap_or_else(|err| {
         panic!(
             "Cannot get env.var. '{}', reason: '{}'. Use `cargo build` instead of running this build script binary directly!",
             ENV_NAME_OF_OUT_DIR, err
             )
-    })
-}
-
-/// attempts to lower MSRV by not using OnceLock
-#[cfg(all(
-    feature = "not_OnceLock",
-    not(feature = "dummy_feature_to_detect_that_--all-features_arg_was_used")
-))]
-fn get_out_dir() -> impl AsRef<Path> {
-    std::path::PathBuf::from(internal_get_out_dir().as_ref())
-}
-
-/// thread safe memoizing func(via OnceLock) for returning OUT_DIR env. var. value
-#[cfg(any(
-    not(feature = "not_OnceLock"),
-    feature = "dummy_feature_to_detect_that_--all-features_arg_was_used"
-))]
-fn get_out_dir() -> impl AsRef<Path> {
-    use std::path::PathBuf;
-    use std::sync::OnceLock;
-    static LOCK: OnceLock<PathBuf> = OnceLock::new();
-
-    let pb_ref: &PathBuf = LOCK.get_or_init(|| PathBuf::from(internal_get_out_dir().as_ref()));
-    pb_ref
+    });
+    assert!(!env_value.is_empty(), "OUT_DIR env. var was set to empty.");
+    PathBuf::from(env_value)
     //^ &PathBuf implements AsRef<Path>
 }
 
@@ -606,49 +586,11 @@ fn try_link(
     }
 }
 
-#[inline]
-fn internal_watch_var(env_var: &'static str) {
-    println!("cargo:rerun-if-env-changed={}", env_var);
-}
-/// attempts to lower MSRV by not using OnceLock
-#[cfg(all(
-    feature = "not_OnceLock",
-    not(feature = "dummy_feature_to_detect_that_--all-features_arg_was_used")
-))]
-fn watch_env_var(env_var: &'static str) {
-    internal_watch_var(env_var);
-}
-
-//TODO: maybe change this to apply to anything that's emitted for cargo to consume, except warnings,
-//and make it HashMap with a counter.
-/// Emits "cargo:rerun-if-env-changed=ENV_VAR" on stdout
-/// only once for each ENV_VAR regardless of how many times it gets called.
-/// uses OnceLock internally.
-#[cfg(any(
-    not(feature = "not_OnceLock"),
-    feature = "dummy_feature_to_detect_that_--all-features_arg_was_used"
-))]
+/// Emits "cargo:rerun-if-env-changed=ENV_VAR" on stdout on every call, cargo doesn't mind.
+// cargo doesn't mind repetitions, see this: cargo clean;cargo build -vv |& grep rerun-if-env-changed
 fn watch_env_var(env_var: &'static str) {
     assert!(!env_var.is_empty(), "Passed empty env.var. to watch for.");
-    use std::collections::HashSet;
-    use std::sync::OnceLock;
-    use std::sync::{Arc, RwLock};
-    // static gets inited only once before main() and is scoped only to this function
-    static SHARED_DATA: OnceLock<Arc<RwLock<HashSet<&'static str>>>> = OnceLock::new();
-    //the inner value (hashset) is inited only once on first call of this function
-    let hs = SHARED_DATA.get_or_init(|| Arc::new(RwLock::new(HashSet::new())));
-    // Acquire a write lock to atomically check and insert if necessary
-    if let Ok(mut guard) = hs.write() {
-        // Critical section where the lock is held
-        if !guard.contains(env_var) {
-            internal_watch_var(env_var);
-            guard.insert(env_var);
-        }
-    } //lock released here
-
-    //TODO: can use HashMap(since HashSet I hear is just a HashMap underneath) and keep a counter as val
-    //this way we'd know how many times an env.var. tried to be emitted, but for what reason we'd
-    //wanna know though...
+    println!("cargo:rerun-if-env-changed={}", env_var);
 }
 
 /// set some sensible defaults
