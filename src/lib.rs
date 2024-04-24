@@ -163,6 +163,7 @@ pub fn border(ls: chtype, rs: chtype, ts: chtype, bs: chtype, tl: chtype, tr: ch
 pub fn r#box(w: WINDOW, v: chtype, h: chtype) -> i32
 { box_(w,v,h) }
 
+#[inline(always)]
 pub fn box_(w: WINDOW, v: chtype, h: chtype) -> i32
 { wborder(w, v, v, h, h, 0, 0, 0, 0) }
 
