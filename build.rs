@@ -10,6 +10,9 @@
 )]
 #![allow(clippy::uninlined_format_args)] // or is it more readable inlined?
 
+#[cfg(target_os = "windows")]
+compile_error!("You can't compile this ncurses crate on native Windows, but you could compile it on Windows Subsystem for Linux aka WSL because that's seen as unix. If you want native Windows then consider using pancurses instead, because it uses pdcurses instead.");
+
 extern crate cc;
 extern crate pkg_config;
 
@@ -20,7 +23,9 @@ use std::ffi::OsString;
 use std::fmt;
 use std::fs::File;
 use std::io::Write as required_for_write_all_function; //in File
+#[cfg(not(target_os = "windows"))]
 use std::os::unix::ffi::OsStrExt;
+#[cfg(not(target_os = "windows"))]
 use std::os::unix::ffi::OsStringExt;
 use std::path::Path;
 use std::process::Command;
@@ -914,6 +919,7 @@ trait MyCompilerCommand {
 
 fn has_null_byte<S: AsRef<OsStr>>(arg: S) -> bool {
     let os_str = arg.as_ref();
+    #[cfg(not(target_os = "windows"))]
     for &byte in os_str.as_bytes() {
         if byte == 0 {
             return true;
@@ -1195,6 +1201,7 @@ fn humanly_visible_os_chars(f: &mut fmt::Formatter<'_>, arg: &OsStr) -> fmt::Res
         //None aka not fully utf8 arg
         //then we show it as ascii + hex
         write!(f, "\"")?;
+        #[cfg(not(target_os = "windows"))]
         for byte in arg.as_bytes() {
             match std::char::from_u32(u32::from(*byte)) {
                 Some(c) if c.is_ascii() => write!(f, "{}", c)?,
@@ -1313,6 +1320,7 @@ fn get_cd_and_env_for_print(cur_dir: Option<&Path>, env_vars: &MyEnvVars) -> (St
 
 /// This is used to test build.rs, run with: cargo build --features=test_build_rs_of_ncurses_rs
 /// This won't happen if you use --all-features
+#[cfg(not(target_os = "windows"))]
 #[cfg(all(
     feature = "test_build_rs_of_ncurses_rs",
     not(feature = "dummy_feature_to_detect_that_--all-features_arg_was_used")
@@ -1430,6 +1438,7 @@ fn test_panic_for_command_non_zero_exit() {
 }
 
 #[allow(dead_code)]
+#[cfg(not(target_os = "windows"))]
 fn test_invalid_utf8_in_program() {
     let result = std::panic::catch_unwind(|| {
         let mut command = Command::new(OsString::from_vec(
@@ -1512,6 +1521,7 @@ fn expect_panic(result: Result<(), Box<dyn std::any::Any + Send>>, expected_pani
 }
 
 #[allow(dead_code)]
+#[cfg(not(target_os = "windows"))]
 fn test_nul_in_arg_unchecked() {
     let result = std::panic::catch_unwind(|| {
         let mut command = Command::new("test_nul_in_arg_unchecked.exe");
@@ -1528,6 +1538,7 @@ fn test_nul_in_arg_unchecked() {
 }
 
 #[allow(dead_code)]
+#[cfg(not(target_os = "windows"))]
 fn test_nul_in_arg() {
     //via .arg()
     let result = std::panic::catch_unwind(|| {
@@ -1558,6 +1569,7 @@ fn test_nul_in_arg() {
 }
 
 #[allow(dead_code)]
+#[cfg(not(target_os = "windows"))]
 fn test_get_what_will_run() {
     let expected_prog = "test_get_what_will_run.exe";
     let mut command = Command::new(expected_prog);
