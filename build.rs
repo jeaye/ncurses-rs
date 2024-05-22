@@ -1,13 +1,3 @@
-// To test some of build.rs' code correctness run:
-// cargo build --features=test_build_rs_of_ncurses_rs
-// when doing that, the following cfg_attr ensures there are no warnings about unused stuff.
-#![cfg_attr(
-    all(
-        feature = "test_build_rs_of_ncurses_rs",
-        not(feature = "dummy_feature_to_detect_that_--all-features_arg_was_used")
-    ),
-    allow(dead_code)
-)]
 #![allow(clippy::uninlined_format_args)] // or is it more readable inlined?
 
 #[cfg(target_os = "windows")]
@@ -19,14 +9,11 @@ extern crate pkg_config;
 use pkg_config::Library;
 use std::env;
 use std::ffi::OsStr;
-use std::ffi::OsString;
 use std::fmt;
 use std::fs::File;
 use std::io::Write as required_for_write_all_function; //in File
 #[cfg(not(target_os = "windows"))]
 use std::os::unix::ffi::OsStrExt;
-#[cfg(not(target_os = "windows"))]
-use std::os::unix::ffi::OsStringExt;
 use std::path::Path;
 use std::process::Command;
 use std::process::ExitStatus;
@@ -162,11 +149,6 @@ fn cargo_warn_unformatted(warn_msg: &str) {
 }
 // -----------------------------------------------------------------
 // This is the normal build.rs main(),
-// it's only disabled when you used: `cargo build --feature=test_build_rs_of_ncurses_rs`
-#[cfg(any(
-    not(feature = "test_build_rs_of_ncurses_rs"),
-    feature = "dummy_feature_to_detect_that_--all-features_arg_was_used"
-))]
 fn main() {
     watch_env_var("PKG_CONFIG_PATH");
 
@@ -898,8 +880,6 @@ trait MyCompilerCommand {
     //fn success_or_else<F: FnOnce(ExitStatus) -> ExitStatus>(&mut self, op: F) -> ExitStatus;
     fn just_status_or_panic(&mut self, what_kind_of_command_is_it: &str) -> ExitStatus;
     fn status_or_panic(&mut self, what_kind_of_command_is_it: &str) -> ExitStatus;
-    fn status_or_panic_but_no_check_args(&mut self, what_kind_of_command_is_it: &str)
-        -> ExitStatus;
     fn show_what_will_run(&mut self) -> &mut Self;
     fn get_program_or_panic(&self) -> &str;
     fn get_what_will_run(&self) -> (String, MyArgs, Option<&Path>, MyEnvVars);
@@ -1119,19 +1099,6 @@ impl MyCompilerCommand for std::process::Command {
             .just_status_or_panic(what_kind_of_command_is_it)
     }
 
-    /// Used only for build.rs tests:
-    /// this should be exactly like `status_or_panic()` except it won't check that args
-    /// aren't nul-containing and thus won't panic before the original `status()` gets run, thus
-    /// allowing it to panic on nul.
-    /// (not meant to be used outside)
-    fn status_or_panic_but_no_check_args(
-        &mut self,
-        what_kind_of_command_is_it: &str,
-    ) -> ExitStatus {
-        self.show_what_will_run()
-            .just_status_or_panic(what_kind_of_command_is_it)
-    }
-
     /// (not meant to be used outside)
     //panic(  <- for search
     fn panic<T: std::fmt::Display>(&mut self, err: T, what_type_of_command: &str) -> ! {
@@ -1237,19 +1204,6 @@ impl<'a> FromIterator<&'a OsStr> for MyArgs<'a> {
     }
 }
 
-impl<'a> MyArgs<'a> {
-    //    // Implement a method to get the length of the arguments
-    //    // don't need this because impl Deref!
-    //    pub fn len(&self) -> usize {
-    //        self.0.len()
-    //        //self.len()//won't use deref, but will infinitely recurse (untested)
-    //        //(&*self).len() // same as self.0.len() (untested)
-    //    }
-    pub fn display(&self) -> String {
-        format!("{}", self)
-    }
-}
-
 //so we don't have to use self.0
 impl<'a> std::ops::Deref for MyArgs<'a> {
     type Target = Vec<&'a OsStr>;
@@ -1318,294 +1272,3 @@ fn get_cd_and_env_for_print(cur_dir: Option<&Path>, env_vars: &MyEnvVars) -> (St
     (cur_dir_for_print, formatted_env_vars_for_print)
 }
 
-/// This is used to test build.rs, run with: cargo build --features=test_build_rs_of_ncurses_rs
-/// This won't happen if you use --all-features
-#[cfg(not(target_os = "windows"))]
-#[cfg(all(
-    feature = "test_build_rs_of_ncurses_rs",
-    not(feature = "dummy_feature_to_detect_that_--all-features_arg_was_used")
-))]
-fn main() {
-    test_assert_works();
-    test_match_with_placeholders();
-    test_invalid_utf8_in_program();
-    test_nul_in_arg_unchecked();
-    test_nul_in_arg();
-    test_no_panic_in_command();
-    test_panic_for_not_found_command();
-    test_panic_for_command_non_zero_exit();
-    test_get_what_will_run();
-    test_assert_no_nul_in_args();
-
-    eprintln!("\n-------------------------------------
-              \n!!! All build.rs tests have passed successfully! Ignore the above seemingly erroneous output, it was part of the successful testing !!!\nYou're seeing this because you tried to build with --features=test_build_rs_of_ncurses_rs");
-
-    // This stops the build from continuing which will fail in other places due to build.rs not
-    // doing its job, since we've only just tested build.rs not used it to generate stuff.
-    std::process::exit(5);
-}
-//The test functions are left outside of 'test_build_rs_of_ncurses_rs' feature gate
-//so that they're tested to still compile ok.
-
-#[allow(dead_code)]
-fn test_assert_works() {
-    let result = std::panic::catch_unwind(|| {
-        #[allow(clippy::assertions_on_constants)]
-        {
-            assert!(false, "!! just tested if asserts are enabled !!");
-        }
-    });
-    #[allow(clippy::manual_assert)]
-    if result.is_ok() {
-        panic!("Assertions are disabled in build.rs, should not happen!");
-    }
-}
-
-#[allow(dead_code)]
-fn test_no_panic_in_command() {
-    let expected_ec = 42;
-    let cmd = if cfg!(windows) { "cmd" } else { "sh" };
-    let args_ok = &["-c", "exit 0"];
-    let args_fail = &["-c", &format!("exit {}", expected_ec)];
-    let result = std::panic::catch_unwind(|| {
-        let mut command = Command::new(cmd);
-        command.args(args_ok);
-        //execute: sh -c 'exit 0'`
-        command.status_or_panic("test1");
-    });
-    let fail_msg = format!(
-        "!!! This should not have panicked! Unless you don't have '{}' command, in PATH={:?} !!!",
-        cmd,
-        std::env::var("PATH")
-    );
-    assert!(result.is_ok(), "{}", fail_msg);
-
-    // executed bin exits with exit code 0, or it would panic ie. fail the test
-    let result = std::panic::catch_unwind(|| {
-        let mut command = Command::new(cmd);
-        command.args(args_ok);
-        //execute: sh -c 'exit 0'`
-        command.success_or_panic("test2");
-    });
-    assert!(result.is_ok(), "{}", fail_msg);
-
-    // executed bin exits with specific exit code 2
-    let result = std::panic::catch_unwind(|| {
-        let mut command = Command::new(cmd);
-        command.args(args_fail);
-        //execute: sh -c 'exit 42'`
-        let exit_status = command.status_or_panic("test3");
-        assert_eq!(
-            exit_status.code().expect("was command killed by a signal?"),
-            expected_ec,
-            "Command should've exited with exit code '{}'.",
-            expected_ec
-        );
-    });
-    assert!(result.is_ok(), "{}", fail_msg);
-}
-
-#[allow(dead_code)]
-fn test_panic_for_not_found_command() {
-    let result = std::panic::catch_unwind(|| {
-        let mut command = Command::new("some non-exitent command");
-        command.args([OsString::from("ar♥g1")]);
-        command.status_or_panic("inexistent");
-    });
-    let expected_panic_msg=
-     "Failed to run inexistent command 'some non-exitent command' with '1' args: '\"ar♥g1\"', in unspecified current dir(but the actual cwd is currently Ok({})), with no extra env.vars added or deleted(so all are inherited from parent process), reason: 'No such file or directory (os error 2)'";
-    expect_panic(result, expected_panic_msg);
-
-    let result = std::panic::catch_unwind(|| {
-        let mut command = Command::new("some non-exitent command");
-        command.args([OsString::from("ar♥g1")]);
-        command.success_or_panic("inexistent");
-    });
-    expect_panic(result, expected_panic_msg);
-}
-
-#[allow(dead_code)]
-fn test_panic_for_command_non_zero_exit() {
-    let cmd = if cfg!(windows) { "cmd" } else { "sh" };
-    let args_fail = &["-c", "exit 43"];
-    let result = std::panic::catch_unwind(|| {
-        let mut command = Command::new(cmd);
-        command.args(args_fail);
-        command.success_or_panic("shell-type");
-    });
-    let expected_panic_msg = "!!! Compiler failed with exit code 43. Is ncurses installed? pkg-config or pkgconf too? it's 'ncurses-devel' on Fedora; and 'libncurses-dev' on Ubuntu; run `nix-shell` first, on NixOS. Or maybe it failed for different reasons which are seen in the errored output above.";
-    expect_panic(result, expected_panic_msg);
-}
-
-#[allow(dead_code)]
-#[cfg(not(target_os = "windows"))]
-fn test_invalid_utf8_in_program() {
-    let result = std::panic::catch_unwind(|| {
-        let mut command = Command::new(OsString::from_vec(
-            b"test_invalid_utf8_\xFFin_program".to_vec(),
-        ));
-        command.args([
-            OsString::from("ar♥g1"),
-            OsString::from_vec(b"my\xffarg3".to_vec()),
-        ]);
-        command.status_or_panic("test-type");
-    });
-    expect_panic(
-        result,
-        "Executable \"test_invalid_utf8_\\xFFin_program\" isn't valid rust string",
-    );
-}
-
-#[allow(dead_code)]
-fn test_match_with_placeholders() {
-    let str1 = "abc";
-    let str2 = "abc";
-    let str3 = "a{}bc";
-    let str4 = "a{}c";
-    assert!(match_with_placeholders(str1, str2));
-    assert!(match_with_placeholders(str1, str3));
-    assert!(match_with_placeholders(str1, str4));
-    let str5 = "";
-    let str6 = "{}";
-    let str7 = "{}{}{}";
-    let str8 = "{}a{}{}{}b{}{}c{}{}";
-    assert!(match_with_placeholders(str5, str5));
-    assert!(match_with_placeholders(str5, str6));
-    assert!(match_with_placeholders(str5, str7));
-    assert!(match_with_placeholders(str1, str8));
-
-    let p_msg = "some random thing";
-    let r: Result<(), Box<dyn std::any::Any + Send>> = Err(Box::new(p_msg.to_string()));
-    expect_panic(r, "some {} thing");
-}
-
-fn match_with_placeholders(pristine_str: &str, placeholdery_str: &str) -> bool {
-    // Split placeholdery_str into substrings based on {}
-    let placeholders: Vec<&str> = placeholdery_str.split("{}").collect();
-
-    // Check if pristine_str contains all the substrings in order
-    let mut index = 0;
-    for &placeholder in &placeholders {
-        match pristine_str[index..].find(placeholder) {
-            Some(pos) => index += pos + placeholder.len(),
-            None => {
-                return false;
-            }
-        }
-    }
-    true
-}
-
-/// Panics if the 'result' has a different panic message than the expected one.
-/// The {} in the expected message string can match anything, including empty string.
-fn expect_panic(result: Result<(), Box<dyn std::any::Any + Send>>, expected_panic_message: &str) {
-    if result.is_err() {
-        if let Some(err) = result.unwrap_err().downcast_ref::<String>() {
-            // Uncomment this to can copy/paste it for asserts:
-            //println!("!!!!!!!!!! Panic message: {:?}", err);
-
-            #[allow(clippy::manual_assert)]
-            if !match_with_placeholders(err, expected_panic_message) {
-                panic!(
-                "!!! Got different panic message than expected !!!\n\nExpected: '{}'\n\n     Got: '{}'\n",
-                expected_panic_message, err
-                );
-            }
-        }
-    } else {
-        panic!(
-            "No panic was thrown! But was expecting this panic: '{}'",
-            expected_panic_message
-        );
-    };
-}
-
-#[allow(dead_code)]
-#[cfg(not(target_os = "windows"))]
-fn test_nul_in_arg_unchecked() {
-    let result = std::panic::catch_unwind(|| {
-        let mut command = Command::new("test_nul_in_arg_unchecked.exe");
-        command.args([
-            OsString::from("ar♥g1"),
-            OsString::from("a\0rg2"),
-            OsString::from_vec(b"my\xffarg3".to_vec()),
-        ]);
-        command.status_or_panic_but_no_check_args("funky");
-    });
-    expect_panic(result,
-         "Failed to run funky command 'test_nul_in_arg_unchecked.exe' with '3' args: '\"ar♥g1\" \"<string-with-nul>\" \"my\\xFFarg3\"', in unspecified current dir(but the actual cwd is currently Ok({}), with no extra env.vars added or deleted(so all are inherited from parent process), reason: 'nul byte found in provided data'"
-        );
-}
-
-#[allow(dead_code)]
-#[cfg(not(target_os = "windows"))]
-fn test_nul_in_arg() {
-    //via .arg()
-    let result = std::panic::catch_unwind(|| {
-        let mut command = Command::new("test_nul_in_arg.exe");
-        command.arg_checked(OsString::from("ar♥g1"));
-        command.arg_checked(
-            // would panic here
-            OsString::from("a\0rg2"),
-        );
-        command.arg_checked(OsString::from_vec(b"my\xffarg3".to_vec()));
-        command.status_or_panic("test-type");
-    });
-    let expected_panic_msg=
-         "Found arg '\"a\\0rg2\"' that has at least one \\0 aka nul in it! This would've been silently replaced with '<string-with-nul>' and error later if at all.";
-    expect_panic(result, expected_panic_msg);
-    //via .args()
-    let result = std::panic::catch_unwind(|| {
-        let mut command = Command::new("test_nul_in_args.exe");
-        command.args_checked([
-            // would panic here
-            OsString::from("ar♥g1"),
-            OsString::from("a\0rg2"),
-            OsString::from_vec(b"my\xffarg3".to_vec()),
-        ]);
-        command.status_or_panic("test-type");
-    });
-    expect_panic(result, expected_panic_msg);
-}
-
-#[allow(dead_code)]
-#[cfg(not(target_os = "windows"))]
-fn test_get_what_will_run() {
-    let expected_prog = "test_get_what_will_run.exe";
-    let mut command = Command::new(expected_prog);
-    command.arg_checked(OsString::from("ar♥g1"));
-    command.args_checked([
-        // would panic here
-        OsString::from_vec(b"my\xffarg3".to_vec()),
-        OsString::from("arg4"),
-    ]);
-    command.arg_checked(OsString::from_vec(b"my\xffarg3".to_vec()));
-    let (prog, args, _cur_dir, _envs) = command.get_what_will_run();
-    let expected_hma = 4;
-    let expected_fa = "\"ar♥g1\" \"my\\xFFarg3\" \"arg4\" \"my\\xFFarg3\"";
-    assert_eq!(prog, expected_prog);
-    assert_eq!(args.len(), expected_hma);
-    assert_eq!(args.display(), expected_fa);
-}
-
-#[allow(dead_code)]
-fn test_assert_no_nul_in_args() {
-    let expected_prog = "test_get_what_will_run.exe";
-    let result = std::panic::catch_unwind(|| {
-        let mut command = Command::new(expected_prog);
-        command.arg("a\0here");
-        command.assert_no_nul_in_args();
-    });
-    expect_panic(
-        result,
-        r"Found arg number '1' that has \0 aka NUL in it! It got replaced with '<string-with-nul>'.",
-    );
-
-    let result = std::panic::catch_unwind(|| {
-        let mut command = Command::new(expected_prog);
-        command.arg("no nul in this arg here");
-        command.assert_no_nul_in_args();
-    });
-    assert!(result.is_ok(), "!!! This should not have panicked !!!");
-}
-//TODO: test more functionality.
