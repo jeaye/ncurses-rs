@@ -1162,8 +1162,22 @@ struct MyArgs<'a>(Vec<&'a OsStr>);
 
 fn humanly_visible_os_chars(f: &mut fmt::Formatter<'_>, arg: &OsStr) -> fmt::Result {
     if let Some(arg_str) = arg.to_str() {
-        // If the argument is valid UTF-8, simply display it
-        write!(f, "\"{}\"", arg_str)?;
+        // If the argument is valid UTF-8,
+        if arg_str.contains('\0') {
+            write!(f, "\"")?;
+            // has \0 in it, show them as \x00 but keep the rest as they are such as ♥
+            for c in arg_str.chars() {
+                if c == '\0' {
+                    write!(f,"\\x00")?
+                } else {
+                    write!(f,"{}",c)?
+                }
+            }
+            write!(f, "\"")?;
+        } else {
+            // has no \0 in it
+            write!(f, "\"{}\"", arg_str)?;
+        }
     } else {
         //None aka not fully utf8 arg
         //then we show it as ascii + hex
@@ -1171,7 +1185,9 @@ fn humanly_visible_os_chars(f: &mut fmt::Formatter<'_>, arg: &OsStr) -> fmt::Res
         #[cfg(not(target_os = "windows"))]
         for byte in arg.as_bytes() {
             match std::char::from_u32(u32::from(*byte)) {
-                Some(c) if c.is_ascii() => write!(f, "{}", c)?,
+                //chars in range 0x20..0x7E (presumably printable) are shown as they are
+                Some(c) if (*byte >= 0x20) && (*byte <= 0x7E) => write!(f, "{}", c)?,
+                //anything else including \0 and ♥ become hex, eg. ♥ is \xE2\x99\xA5
                 _ => {
                     write!(f, "\\x{:02X}", byte)?;
                 }
