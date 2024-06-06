@@ -1769,7 +1769,8 @@ pub fn setsyx(y: &mut i32, x: &mut i32)
   }
 }
 
-pub fn KEY_F(n: u8) -> i32
+#[inline]
+pub const fn KEY_F(n: u8) -> i32
 {
   assert!(n < 16);
   KEY_F0 + n as i32
