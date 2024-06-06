@@ -10,6 +10,7 @@
 
 extern crate ncurses;
 
+#[cfg(feature = "wide")]
 use std::char;
 use ncurses::*;
 
@@ -17,7 +18,7 @@ use ncurses::*;
 fn main()
 {
   let locale_conf = LcCategory::all;
-  setlocale(locale_conf, "en_US.UTF-8");
+  setlocale(locale_conf, "en_US.UTF-8").unwrap();//safe due to this &str having no \0 in it
 
   /* Setup ncurses. */
   initscr();
@@ -56,7 +57,7 @@ fn main()
 
     Some(WchResult::Char(c)) => {
       /* Enable attributes and output message. */
-      addstr("\nKey pressed: ");
+      addstr("\nKey pressed: ").unwrap();//safe, no \0 in this &str
       attron(A_BOLD | A_BLINK);
       addstr(format!("{}\n", char::from_u32(c as u32).expect("Invalid char")).as_ref()).unwrap();
       attroff(A_BOLD | A_BLINK);

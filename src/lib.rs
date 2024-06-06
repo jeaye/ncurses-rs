@@ -17,7 +17,7 @@ extern crate libc;
 use std::mem;
 use std::{ char, ptr };
 use std::ffi::{CString, CStr};
-use self::ll::{FILE_p};
+use self::ll::FILE_p;
 pub use self::constants::*;
 pub use self::panel::wrapper::*;
 pub use self::menu::wrapper::*;
@@ -158,7 +158,13 @@ pub fn border(ls: chtype, rs: chtype, ts: chtype, bs: chtype, tl: chtype, tr: ch
 { unsafe { ll::border(ls, rs, ts, bs, tl, tr, bl, br) } }
 
 
-#[link_name="box"] pub fn box_(w: WINDOW, v: chtype, h: chtype) -> i32
+// this is 'box' in rust but must use r#box because 'box' is reserved keyword
+#[inline(always)]
+pub fn r#box(w: WINDOW, v: chtype, h: chtype) -> i32
+{ box_(w,v,h) }
+
+#[inline(always)]
+pub fn box_(w: WINDOW, v: chtype, h: chtype) -> i32
 { wborder(w, v, v, h, h, 0, 0, 0, 0) }
 
 
@@ -1096,7 +1102,6 @@ pub fn prefresh(pad: WINDOW, pmin_row: i32, pmin_col: i32, smin_row: i32, smin_c
 { unsafe { ll::prefresh(pad, pmin_row, pmin_col, smin_row, smin_col, smax_row, smax_col) } }
 
 
-#[deprecated(since = "5.98.0", note = "printw format support is disabled. Use addstr instead")]
 pub fn printw(s: &str) -> Result<i32, std::ffi::NulError>
 {
     // We don't actually need this function to support format strings,
@@ -1769,7 +1774,8 @@ pub fn setsyx(y: &mut i32, x: &mut i32)
   }
 }
 
-pub fn KEY_F(n: u8) -> i32
+#[inline]
+pub const fn KEY_F(n: u8) -> i32
 {
   assert!(n < 16);
   KEY_F0 + n as i32

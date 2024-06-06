@@ -3,3 +3,4 @@ bin
 Cargo.lock
 .*
 *.swp
+rustc-ice-*.txt

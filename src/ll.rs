@@ -62,7 +62,10 @@ extern {
     pub fn bkgd(_:chtype) -> c_int;
     pub fn bkgdset(_:chtype);
     pub fn border(_:chtype,_:chtype,_:chtype,_:chtype,_:chtype,_:chtype,_:chtype,_:chtype) -> c_int;
+    #[link_name="box"] // points to 'box' of ncurses lib, but is 'box_' here in rust.
     pub fn box_(_:WINDOW, _:chtype, _:chtype) -> c_int;
+    //This is 'box' both in rust and in ncurses lib; but 'box' is reserved keyword, so use r#box
+    pub fn r#box(_:WINDOW, _:chtype, _:chtype) -> c_int;
     pub fn can_change_color() -> c_bool;
     pub fn cbreak() -> c_int;
     pub fn chgat(_:c_int, _:attr_t, _:c_short, _:void_p) -> c_int;
@@ -261,8 +264,8 @@ extern {
     //  fn vidputs(_:chtype, extern  fn f(c_int) -> c_int) -> c_int;
     //pub fn vidputs(_:chtype, f:*mut c_char) -> c_int;
     pub fn vline(_:chtype, _:c_int) -> c_int;
-    pub fn vwprintw(_:WINDOW, _:char_p, _:va_list) -> c_int;
-    pub fn vw_printw(_:WINDOW, _:char_p,_:va_list) -> c_int;
+    pub fn vwprintw(_:WINDOW, fmt:char_p, _:va_list) -> c_int;
+    pub fn vw_printw(_:WINDOW, fmt:char_p,_:va_list) -> c_int;
     //  fn vwscanw(_:WINDOW, _:char_p, _:va_list) -> c_int;
     //  fn vw_scanw(_:WINDOW, _:char_p, _:va_list) -> c_int;
     pub fn waddch(_:WINDOW, _:chtype) -> c_int;
@@ -423,7 +426,7 @@ extern {
     
 }
 
-/// Extended color support. Requires ncurses6.
+// XXX: Extended color support. Requires ncurses6.
 #[cfg(feature = "extended_colors")]
 extern {
     pub fn init_extended_color(_: c_int, _: c_int, _: c_int, _: c_int) -> c_int;

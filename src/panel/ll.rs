@@ -2,7 +2,7 @@
 #![allow(unused_imports)]
 
 use libc::{ c_int, c_void };
-use ll::WINDOW;
+use crate::ll::WINDOW;
 
 pub type PANEL = *mut i8;
 

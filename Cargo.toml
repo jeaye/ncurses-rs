@@ -1,6 +1,6 @@
 [package]
 name = "ncurses"
-version = "6.0.0"
+version = "6.0.1"
 authors = [ "contact@jeaye.com" ]
 description = "A very thin wrapper around the ncurses TUI library"
 documentation = "https://github.com/jeaye/ncurses-rs"
@@ -9,10 +9,27 @@ repository = "https://github.com/jeaye/ncurses-rs"
 readme = "README.md"
 keywords = ["ncurses","TUI"]
 license = "MIT"
+#If the edition field is not present in Cargo.toml, then the 2015 edition is assumed for backwards compatibility.
+#Set to avoid a warning with newer rust:
+#The Rust 2021 Edition was introduced in Rust 1.56.0.
+edition = "2021"
 build = "build.rs"
+#https://doc.rust-lang.org/cargo/reference/manifest.html#the-rust-version-field
+rust-version = "1.57.0"
+#Using this key rust-version= here aka MSRV, makes 1.56.0 be the minimum supported rust version(MSRV)
+#The first version of Cargo that supports this field was released with Rust 1.56.0. In older releases, the field will be ignored, and Cargo will display a warning.
+#Due to addr_of!() MSRV 1.51.0 is required minimum.
+#cc 1.0.92 requires 1.53.0 MSRV(but its `cargo test` passes only with 1.63.0),
+# however `cargo build` will pull latest cc due to Cargo.lock missing(on first repo clone)
+# and cc version specified isn't fixed like cc="=1.0.92", so:
+# due to latest cc pulled being 1.0.95(21Apr2024) it requires 1.63.0 MSRV (ie: `cargo msrv list`)
+#Due to build.rs' use of std::process::Command::get_*() MSRV is 1.57.0
+#To minimize MSRV further you can set `cc = "=1.0.92"` (note the extra "=") below then run `cargo update`
+# that makes MSRV be 1.53.0 minimum, but other things will raise it to 1.57.0
+#MSRV is 1.56.0 due to the above edition="2021"
 
 [build-dependencies]
-cc = "1.0.18"
+cc = "1.0.92"
 pkg-config = "0.3"
 
 [dependencies]

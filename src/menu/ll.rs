@@ -2,7 +2,7 @@
 #![allow(unused_imports)]
 
 use libc::{c_int, c_char, c_void};
-use ll::{WINDOW, chtype, c_bool};
+use crate::ll::{WINDOW, chtype, c_bool};
 
 pub type MENU = *mut i8;
 pub type ITEM = *mut i8;
