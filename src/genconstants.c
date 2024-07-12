@@ -107,20 +107,20 @@ int main() {
 	PCONST(i32, KEY_ENTER);
 	PCONST(i32, KEY_PRINT);
 	PCONST(i32, KEY_LL);
-#ifdef A1
-	PCONST(i32, A1);
+#ifdef KEY_A1
+	PCONST(i32, KEY_A1);
 #endif
-#ifdef A3
-	PCONST(i32, A3);
+#ifdef KEY_A3
+	PCONST(i32, KEY_A3);
 #endif
-#ifdef B2
-	PCONST(i32, B2);
+#ifdef KEY_B2
+	PCONST(i32, KEY_B2);
 #endif
-#ifdef C1
-	PCONST(i32, C1);
+#ifdef KEY_C1
+	PCONST(i32, KEY_C1);
 #endif
-#ifdef C3
-	PCONST(i32, C3);
+#ifdef KEY_C3
+	PCONST(i32, KEY_C3);
 #endif
 	PCONST(i32, KEY_BTAB);
 	PCONST(i32, KEY_BEG);
@@ -278,6 +278,9 @@ int main() {
 	PCONSTU(crate::ll::chtype, A_NORMAL);
 	PCONSTU(crate::ll::chtype, A_STANDOUT);
 	PCONSTU(crate::ll::chtype, A_UNDERLINE);
+#ifdef A_ITALIC
+	PCONSTU(crate::ll::chtype, A_ITALIC);
+#endif
 	PCONSTU(crate::ll::chtype, A_REVERSE);
 	PCONSTU(crate::ll::chtype, A_BLINK);
 	PCONSTU(crate::ll::chtype, A_DIM);
