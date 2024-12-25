@@ -1,12 +1,14 @@
 ncurses-rs [![Build Status](https://travis-ci.org/jeaye/ncurses-rs.png)](https://travis-ci.org/jeaye/ncurses-rs)
 ==========
 
-This is a *very thin* wrapper around the ncurses TUI lib.
+> [!IMPORTANT]
+> ncurses-rs has been archived and will not be further developed. Release 6.0.1 is the last release.
+> 
+> Overall, the thinness of this wrapper puts it into an uncomfortable middle ground between C and Rust which is still unsafe and not very Rustic. It'd be better to use either C interop directly or something altogether safer. I made ncurses-rs in 2015, when the Rust landscape was *very* different.
+> 
+> If you'd like to make a TUI in safe Rust, consider [ratatui](https://github.com/ratatui/ratatui), [cursive](https://github.com/gyscos/cursive), or similar.
 
-**NOTE:** The ncurses lib is terribly unsafe and ncurses-rs is only the lightest
-wrapper it can be. If you want a safe and idiomatic TUI library for Rust, look
-elsewhere. If you want a 1:1 port of C to Rust or you want to crank a TUI out
-C-style in Rust, this will probably do the trick.
+This is a *very thin* wrapper around the ncurses TUI lib.
 
 ## Building
 
